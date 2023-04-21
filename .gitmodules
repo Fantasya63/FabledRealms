@@ -1,0 +1,6 @@
+[submodule "FabledRealms/vendor/GLFW"]
+	path = FabledRealms/vendor/GLFW
+	url = https://github.com/Fantasya63/glfw.git
+[submodule "FabledRealms/vendor/glm"]
+	path = FabledRealms/vendor/glm
+	url = https://github.com/g-truc/glm.git
