@@ -28,6 +28,11 @@ Window::Window(const char* title, int width, int height)
 	status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 	FR_ASSERT(status, "Failed To Initialize glad")
 
+	LOG_CORE_INFO("Initialized OpenGL Context");
+	LOG_CORE_INFO("  Vendor: " << (const char*)glGetString(GL_VENDOR));
+	LOG_CORE_INFO("  Renderer: " << (const char*)glGetString(GL_RENDERER));
+	LOG_CORE_INFO("  OpenGl version: " << (const char*)glGetString(GL_VERSION));
+
 	SetVSync(true);
 }
 

@@ -12,6 +12,7 @@ int main()
 
     // render loop
     // -----------
+
     while (!window.WindowShouldClose())
     {
         // input
