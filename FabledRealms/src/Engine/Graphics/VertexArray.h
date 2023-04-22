@@ -10,8 +10,8 @@ public:
 
 	void Bind();
 
-	inline void SetVertexBuffer(VertexBuffer& vbo) { m_VertexBuffer = &vbo; };
-	inline void SetIndexBuffer(IndexBuffer& ibo) { m_IndexBuffer = &ibo; };
+	//inline void SetVertexBuffer(VertexBuffer& vbo) { m_VertexBuffer = &vbo; };
+	//inline void SetIndexBuffer(IndexBuffer& ibo) { m_IndexBuffer = &ibo; };
 
 
 private:
@@ -19,9 +19,5 @@ private:
 
 private:
 	uint32_t m_RendererID;
-
-	VertexBuffer* m_VertexBuffer;
-	IndexBuffer* m_IndexBuffer;
-
 };
 

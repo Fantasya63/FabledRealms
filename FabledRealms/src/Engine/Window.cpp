@@ -65,3 +65,8 @@ void Window::WindowSwapBuffers()
 {
 	glfwSwapBuffers((GLFWwindow*) m_Window);
 }
+
+double Window::GetCurrentTime()
+{
+	return glfwGetTime();
+}

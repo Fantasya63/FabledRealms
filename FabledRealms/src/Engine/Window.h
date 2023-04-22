@@ -19,6 +19,8 @@ public:
 	void WindowPollEvents();
 	void WindowSwapBuffers();
 
+	double GetCurrentTime();
+
 private:
 	void* m_Window;
 
