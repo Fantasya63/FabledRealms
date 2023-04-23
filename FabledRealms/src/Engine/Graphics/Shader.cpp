@@ -1,6 +1,7 @@
 #include "frpch.h"
 #include <fstream>
 #include <sstream>
+#include <filesystem>
 
 #include "Shader.h"
 
@@ -10,6 +11,9 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
 {
 	//Ref from: https://learnopengl.com/Getting-started/Shaders
 	// and  https://www.khronos.org/opengl/wiki/Shader_Compilation
+
+	std::filesystem::path cwd = std::filesystem::current_path();
+	DLOG_CORE_INFO(cwd.string());
 
 	std::string vertexCode;
 	std::string fragmentCode;
@@ -105,8 +109,7 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
 		glDeleteShader(fShaderID);
 
 		LOG_CORE_ERROR(infoLog);
-		FR_CORE_ASSERT(false, infoLog);
-
+		
 		delete[] infoLog;
 	}
 

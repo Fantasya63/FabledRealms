@@ -27,7 +27,8 @@ project "FabledRealms"
 	cppdialect "C++17"
 	staticruntime "on"
 
-	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
+	binOutputDir = "bin/" .. outputdir .. "/%{prj.name}";
+	targetdir (binOutputDir)
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 
 	pchheader "frpch.h"
@@ -60,6 +61,9 @@ project "FabledRealms"
 		"opengl32.lib",
 	}
 
+	local assetsSourcePath = path.translate(path.join(os.getcwd(), "FabledRealms/Assets/"))
+	local assetsDestinationPath = path.translate(path.join(os.getcwd(), binOutputDir .. "/Assets"))
+
 	filter "system:windows"
 		systemversion "latest"
 
@@ -68,6 +72,12 @@ project "FabledRealms"
 			"FR_PLATFORM_WINDOWS",
 			"GLFW_INCLUDE_NONE",
 		}
+		
+		
+		postbuildcommands {
+			"{COPY} \"" .. assetsSourcePath .. "\" \"" .. assetsDestinationPath .. "\""
+		}
+ 
 
 	filter "configurations:Debug"
 		defines "FR_DEBUG"

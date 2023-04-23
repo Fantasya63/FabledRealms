@@ -12,7 +12,7 @@ FabledRealmsApp::FabledRealmsApp()
 {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 
-    m_Shader = new Shader("C:/dev/FabledRealms/FabledRealms/src/FabledRealms/Shaders/testShader.vert", "C:/dev/FabledRealms/FabledRealms/src/FabledRealms/Shaders/testShader.frag");
+    m_Shader = new Shader("Assets/Shaders/testShader.vert", "Assets/Shaders/testShader.frag");
 
 
     float* vertices = new float[12]{
