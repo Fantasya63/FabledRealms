@@ -1,9 +1,11 @@
 #pragma once
 
 #include "Engine/Application.h"
+
 #include "Engine/Graphics/Buffers.h"
 #include "Engine/Graphics/VertexArray.h"
 #include "Engine/Graphics/Shader.h"
+#include "Engine/Graphics/Texture.h"
 
 #include "Engine/Time.h"
 
@@ -21,4 +23,5 @@ private:
 	IndexBuffer* m_HelloTriangleIBO;
 
 	Shader* m_Shader;
+	Texture* m_Texture;
 };

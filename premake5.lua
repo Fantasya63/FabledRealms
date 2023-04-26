@@ -16,6 +16,7 @@ IncludeDir = {}
 IncludeDir["GLFW"] = "FabledRealms/vendor/GLFW/include"
 IncludeDir["Glad"] = "FabledRealms/vendor/Glad/include"
 IncludeDir["glm"] = "FabledRealms/vendor/glm"
+IncludeDir["stb"] = "FabledRealms/vendor/stb"
 
 include "FabledRealms/vendor/GLFW"
 include "FabledRealms/vendor/glad"
@@ -52,6 +53,7 @@ project "FabledRealms"
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Glad}",
 		"%{IncludeDir.glm}",
+		"%{IncludeDir.stb}"
 	}
 
 	links

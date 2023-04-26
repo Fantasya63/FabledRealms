@@ -20,7 +20,7 @@ Window::Window(const char* title, int width, int height)
 	FR_CORE_ASSERT(status, "Failed to initialize GLFW");
 
 	m_Window = glfwCreateWindow(m_Width, m_Height, m_Title, NULL, NULL);
-
+	
 	glfwMakeContextCurrent((GLFWwindow*)m_Window);
 	glfwSetFramebufferSizeCallback((GLFWwindow*)m_Window, OnWindowResize);
 
@@ -51,22 +51,19 @@ void Window::SetVSync(bool enabled)
 	m_VSync = enabled;
 }
 
-bool Window::WindowShouldClose()
-{
-	return glfwWindowShouldClose((GLFWwindow*) m_Window);
-}
-
-void Window::WindowPollEvents()
+void Window::OnUpdate()
 {
 	glfwPollEvents();
+	glfwSwapBuffers(static_cast<GLFWwindow*>(m_Window));
 }
 
-void Window::WindowSwapBuffers()
-{
-	glfwSwapBuffers((GLFWwindow*) m_Window);
-}
 
 double Window::GetCurrentTime()
 {
 	return glfwGetTime();
+}
+
+bool Window::WindowShouldClose()
+{
+	return glfwWindowShouldClose(static_cast<GLFWwindow*>(m_Window));
 }

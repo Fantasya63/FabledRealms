@@ -14,14 +14,15 @@ public:
 	inline bool IsVSync() const { return m_VSync; }
 	void SetVSync(bool enable);
 
-
-	bool WindowShouldClose();
-	void WindowPollEvents();
-	void WindowSwapBuffers();
-
+	void OnUpdate();
+	
 	double GetCurrentTime();
 
+	//Temporary
+	bool WindowShouldClose();
+
 private:
+
 	void* m_Window;
 
 	const char* m_Title;
