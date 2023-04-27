@@ -10,6 +10,8 @@ public:
 
 	inline int GetWidth() const { return m_Width; }
 	inline int GetHeight() const { return m_Height; }
+	inline float GetAspectRatio() const { return static_cast<float>(m_Width) / static_cast<float>(m_Height); }
+
 
 	inline bool IsVSync() const { return m_VSync; }
 	void SetVSync(bool enable);

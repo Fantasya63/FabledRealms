@@ -1,4 +1,5 @@
 #pragma once
+#include <glm/ext/matrix_float4x4.hpp>
 class Shader
 {
 public:
@@ -8,6 +9,7 @@ public:
 	void Use() const;
 
 	void SetFloat(const char* name, float value);
+	void SetMat4(const char* name, const glm::mat4& value);
 
 	//Temporary
 	inline uint32_t GetRendererID() { return m_RendererID; }

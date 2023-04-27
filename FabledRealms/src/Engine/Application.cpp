@@ -37,3 +37,8 @@ void Application::Run()
 			m_Running = false;
 	}
 }
+
+void Application::RequestClose()
+{
+	m_Running = false;
+}

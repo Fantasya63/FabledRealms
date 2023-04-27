@@ -4,6 +4,7 @@
 #include "Shader.h"
 
 #include <glad/glad.h>
+#include <glm/gtc/type_ptr.hpp>
 
 Shader::Shader(const char* vertexPath, const char* fragmentPath)
 {
@@ -157,6 +158,11 @@ void Shader::Use() const
 void Shader::SetFloat(const char* name, float value)
 {
 	glUniform1f(glGetUniformLocation(m_RendererID, name), value);
+}
+
+void Shader::SetMat4(const char* name, const glm::mat4& value)
+{
+	glUniformMatrix4fv(glGetUniformLocation(m_RendererID, name), 1, GL_FALSE, glm::value_ptr(value));
 }
 
 

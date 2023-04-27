@@ -9,6 +9,8 @@ public:
 	virtual ~Application();
 
 	void Run();
+	void RequestClose();
+
 	Window* GetWindow() { return m_Window; }
 
 	static Application& Get() { return *s_Instance; }

@@ -6,6 +6,7 @@
 #include "Engine/Graphics/VertexArray.h"
 #include "Engine/Graphics/Shader.h"
 #include "Engine/Graphics/Texture.h"
+#include "Engine/Graphics/Camera.h"
 
 #include "Engine/Time.h"
 
@@ -24,4 +25,6 @@ private:
 
 	Shader* m_Shader;
 	Texture* m_Texture;
+	
+	Camera m_Camera = Camera(glm::vec3(0.0f, 0.0f, 0.0f));
 };
