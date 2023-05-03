@@ -19,12 +19,12 @@ public:
 	void OnUpdate(const Time& time) override;
 
 private:
-	VertexArray* m_HelloTriangleVAO;
-	VertexBuffer* m_HelloTriangleVBO;
-	IndexBuffer* m_HelloTriangleIBO;
+	//VertexArray* m_HelloTriangleVAO;
+	//VertexBuffer* m_HelloTriangleVBO;
+	//IndexBuffer* m_HelloTriangleIBO;
 
-	Shader* m_Shader;
-	Texture* m_Texture;
+	//Shader* m_Shader;
+	//Texture* m_Texture;
 	
-	Camera m_Camera = Camera(glm::vec3(0.0f, 0.0f, 0.0f));
+	//Camera m_Camera = Camera(glm::vec3(0.0f, 0.0f, 0.0f));
 };

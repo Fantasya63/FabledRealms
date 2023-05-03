@@ -61,7 +61,7 @@ void Camera::Update(const Time& time)
 	glm::vec3 velocity = glm::vec3(0.0f, 0.0f, 0.0f);
 
 	//Forward Backward
-	if (Input::IsKeyPressed(KEYCODE_W))
+	if (Input::IsKeyPressed(KEYCODE_W) || Input::IsKeyPressed(KEYCODE_UP))
 		velocity += m_Front; // Forward is negative, following opengl's coordinate
 	else if (Input::IsKeyPressed(KEYCODE_S))
 		velocity -= m_Front; //Backward is positive, following opengl's coordinate 

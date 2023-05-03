@@ -9,6 +9,7 @@ Application::Application()
 	s_Instance = this;
 
 	m_Window = new Window("Fabled Realms", 1200, 720);
+	
 }
 
 Application::~Application()
