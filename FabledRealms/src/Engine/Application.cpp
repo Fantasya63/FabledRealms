@@ -8,7 +8,7 @@ Application::Application()
 	FR_CORE_ASSERT(!s_Instance, "Application Already Exists!");
 	s_Instance = this;
 
-	m_Window = new Window("Fabled Realms", 1200, 720);
+	m_Window = new Window("Fabled Realms", 1280, 720);
 	
 }
 

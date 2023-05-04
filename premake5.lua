@@ -17,6 +17,7 @@ IncludeDir["GLFW"] = "FabledRealms/vendor/GLFW/include"
 IncludeDir["Glad"] = "FabledRealms/vendor/Glad/include"
 IncludeDir["glm"] = "FabledRealms/vendor/glm"
 IncludeDir["stb"] = "FabledRealms/vendor/stb"
+IncludeDir["irrKlang"] = "FabledRealms/vendor/irrKlang/include"
 
 include "FabledRealms/vendor/GLFW"
 include "FabledRealms/vendor/glad"
@@ -53,7 +54,8 @@ project "FabledRealms"
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Glad}",
 		"%{IncludeDir.glm}",
-		"%{IncludeDir.stb}"
+		"%{IncludeDir.stb}",
+		"%{IncludeDir.irrKlang}"
 	}
 
 	links
@@ -61,10 +63,14 @@ project "FabledRealms"
 		"GLFW",
 		"Glad",
 		"opengl32.lib",
+		"FabledRealms/vendor/irrKlang/lib/irrKlang.lib",
 	}
 
 	local assetsSourcePath = path.translate(path.join(os.getcwd(), "FabledRealms/Assets/"))
 	local assetsDestinationPath = path.translate(path.join(os.getcwd(), binOutputDir .. "/Assets"))
+
+	local irrKlangDLLPath = path.translate(path.join(os.getcwd(), "FabledRealms/vendor/irrKlang/lib/dlls/"))
+	local irrKlangDLLDestPath = path.translate(path.join(os.getcwd(), binOutputDir))
 
 	filter "system:windows"
 		systemversion "latest"
@@ -75,9 +81,9 @@ project "FabledRealms"
 			"GLFW_INCLUDE_NONE",
 		}
 		
-		
 		postbuildcommands {
-			"{COPY} \"" .. assetsSourcePath .. "\" \"" .. assetsDestinationPath .. "\""
+			"{COPY} \"" .. assetsSourcePath .. "\" \"" .. assetsDestinationPath .. "\"",
+			"{COPY} \"" .. irrKlangDLLPath .. "\" \"" .. irrKlangDLLDestPath .. "\"",
 		}
  
 

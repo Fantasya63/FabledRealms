@@ -7,9 +7,7 @@ class SceneManager
 public:
 	enum Scenes
 	{
-		DEFAULT = 0, //Scene We'll be loading is the first index
-
-		MENU = 0,
+		MENU,
 		WORLD,
 	};
 

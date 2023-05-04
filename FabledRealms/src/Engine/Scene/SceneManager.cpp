@@ -13,8 +13,6 @@ SceneManager::SceneManager()
 	FR_CORE_ASSERT(!SceneManager::s_Instance, "Scene Manager Already Exists!");
 	SceneManager::s_Instance = this;
 	SceneManager::currentScene = nullptr;
-
-	//SceneManager::SwitchScene(DEFAULT);
 }
 
 void SceneManager::UpdateScene(const Time& const time)
