@@ -69,8 +69,12 @@ void MainMenuScene::Update(const Time& const time)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	
-
-	if (Input::IsKeyPressed(KEYCODE_SPACE))
+	if (Input::IsKeyPressed(KEYCODE_ESCAPE))
+	{
+		Application::Get().RequestClose();
+		return;
+	}
+	else if (Input::IsKeyPressed(KEYCODE_SPACE))
 	{
 		SceneManager::Get().SwitchScene(SceneManager::WORLD);
 		return;
