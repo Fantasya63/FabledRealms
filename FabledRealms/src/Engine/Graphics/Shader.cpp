@@ -155,9 +155,19 @@ void Shader::Use() const
 	glUseProgram(m_RendererID);
 }
 
+void Shader::setInt(const const char* name, int value)
+{
+	glUniform1i(glGetUniformLocation(m_RendererID, name), value);
+}
+
 void Shader::SetFloat(const char* name, float value)
 {
 	glUniform1f(glGetUniformLocation(m_RendererID, name), value);
+}
+
+void Shader::SetVec2(const char* name, glm::vec2 value)
+{
+	glUniform2f(glGetUniformLocation(m_RendererID, name), value.x, value.y);
 }
 
 void Shader::SetMat4(const char* name, const glm::mat4& value)

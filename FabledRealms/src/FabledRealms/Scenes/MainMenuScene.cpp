@@ -1,4 +1,7 @@
 #include "frpch.h"
+
+#include "Engine/Application.h"
+
 #include "Engine/Input/Input.h"
 
 #include "Engine/Scene/SceneManager.h"
@@ -30,24 +33,59 @@ MainMenuScene::MainMenuScene()
 	m_MenuScreenIBO = IndexBuffer::Create(indices, 6);
 
 
-	AudioManager::Get().PlaySound("Assets/Audio/MainMenu01.wav", true);
+	//Set Vertex Layouts
+	// 
+	//POSITION
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	//UV
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+
+
+	m_MenuShader = new Shader("Assets/Shaders/MainMenuShader.vert", "Assets/Shaders/MainMenuShader.frag");
+	m_MenuShader->setInt("MenuTex", 0);
+
+	m_MenuTexture = new Texture("Assets/Textures/FabledRealmsSplash.png");
+
+	AudioManager::Get().PlaySound("Assets/Audio/MainMenu01.mp3", true);
 	LOG_INFO("CREATED WORLD SCENE");
 }
 
 MainMenuScene::~MainMenuScene()
 {
-	LOG_CORE_INFO("Destructior Main Menu");
 	AudioManager::Get().StopAllSounds();
+
+	delete m_MenuScreenVAO;
+	delete m_MenuScreenVBO;
+	delete m_MenuScreenIBO;
+	delete m_MenuShader;
+	delete m_MenuTexture;
 }
 
 void MainMenuScene::Update(const Time& const time)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	
 
 	if (Input::IsKeyPressed(KEYCODE_SPACE))
 	{
 		SceneManager::Get().SwitchScene(SceneManager::WORLD);
+		return;
 	}
-	DLOG_CORE_INFO("MAIN MENU UPDATE");
+
+	// -- RENDERING ------------------------------------
+	m_MenuTexture->Bind();
+	m_MenuShader->Use();
+
+	Window* window = Application::Get().GetWindow();
+	glm::vec2 screenRes = glm::vec2(window->GetWidth(), window->GetHeight());
+
+	m_MenuShader->SetVec2("u_ScreenRes", screenRes);
+	m_MenuShader->SetFloat("u_Time", time.currentTime);
+
+	m_MenuScreenVAO->Bind();
+	glDrawElements(GL_TRIANGLES, m_MenuScreenIBO->GetCount(), GL_UNSIGNED_INT, 0);
 }

@@ -13,7 +13,7 @@ WorldScene::WorldScene()
     glEnable(GL_DEPTH_TEST);
 
     m_Shader = new Shader("Assets/Shaders/testShader.vert", "Assets/Shaders/testShader.frag");
-    m_Texture = new Texture("Assets/Textures/grass_block_side.png", Texture::NEAREST);
+    m_Texture = new Texture("Assets/Textures/grass_block_side.png");
 
     float* vertices = new float[20] {
         // POS                  UV
@@ -72,7 +72,7 @@ void WorldScene::Update(const Time& const time)
 
     m_Shader->SetMat4("a_ViewMatrix", m_Camera.GetViewMatrix());
     m_Shader->SetMat4("a_ProjMatrix", m_Camera.GetProjMatrix(Application::Get().GetWindow()->GetAspectRatio())); // TODO: Only set the projection matrix when it changes
-    glUniform1i(glGetUniformLocation(m_Shader->GetRendererID(), "blockTex"), 0);
+    m_Shader->setInt("blockTex", 0);
     m_Shader->SetFloat("u_Time", time.currentTime);
 
     m_HelloTriangleVAO->Bind();

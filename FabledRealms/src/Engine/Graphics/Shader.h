@@ -8,7 +8,9 @@ public:
 
 	void Use() const;
 
+	void setInt(const char* name, int value);
 	void SetFloat(const char* name, float value);
+	void SetVec2(const char* name, glm::vec2 value);
 	void SetMat4(const char* name, const glm::mat4& value);
 
 	//Temporary

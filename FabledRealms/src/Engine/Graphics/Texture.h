@@ -8,7 +8,7 @@ public:
 		 LINEAR,
 	};
 
-	Texture(const char* texturePath, TEX_FILTERING filter);
+	Texture(const char* texturePath);
 	~Texture();
 
 	void Bind() const;
