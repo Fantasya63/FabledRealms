@@ -18,10 +18,15 @@ public:
 	virtual void Update(const Time& const time) override;
 
 private:
+	VertexArray* m_CubemapVAO;
+	VertexBuffer* m_CubemapVBO;
+	IndexBuffer* m_CubemapIBO;
+	Shader* m_CubemapShader;
+	Texture* m_CubemapTexture;
+
 	VertexArray* m_HelloTriangleVAO;
 	VertexBuffer* m_HelloTriangleVBO;
 	IndexBuffer* m_HelloTriangleIBO;
-
 	Shader* m_Shader;
 	Texture* m_Texture;
 

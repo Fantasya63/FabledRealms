@@ -10,6 +10,9 @@ public:
 
 	inline int GetWidth() const { return m_Width; }
 	inline int GetHeight() const { return m_Height; }
+	inline void SetWidthAndHeight(int width, int height) { m_Width = width; m_Height = height; }
+
+
 	inline float GetAspectRatio() const { return static_cast<float>(m_Width) / static_cast<float>(m_Height); }
 
 

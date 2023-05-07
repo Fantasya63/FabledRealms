@@ -15,39 +15,32 @@ MainMenuScene::MainMenuScene()
 	m_MenuScreenVAO = VertexArray::Create();
 	m_MenuScreenVAO->Bind();
 
-	float* vertices = new float[20] {
-		// POS                  UV
-		 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,     // top right
-		 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,     // bottom right
-		-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,     // bottom left
-		-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,     // top left 
+	float vertices[] {
+		// POS              Normal            UV
+		 1.0f,  1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f,     // top right
+		 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,     // bottom right
+		-1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,     // bottom left
+		-1.0f,  1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,     // top left 
 	};
 
-	uint32_t* indices = new uint32_t[6]{  // note that we start from 0!
+	uint32_t indices[6]{  // note that we start from 0!
 		0, 1, 3,  // first Triangle
 		1, 2, 3   // second Triangle
 	};
 
 
-	m_MenuScreenVBO = VertexBuffer::Create(vertices, sizeof(float) * 20);
+	m_MenuScreenVBO = VertexBuffer::Create(vertices, sizeof(float) * 32); //Takes in the vertices' size in bytes
 	m_MenuScreenIBO = IndexBuffer::Create(indices, 6);
-
-
-	//Set Vertex Layouts
-	// 
-	//POSITION
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
-	//UV
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
 
 
 	m_MenuShader = new Shader("Assets/Shaders/MainMenuShader.vert", "Assets/Shaders/MainMenuShader.frag");
 	m_MenuShader->setInt("MenuTex", 0);
 
-	m_MenuTexture = new Texture("Assets/Textures/FabledRealmsSplash.png");
+	const char texturePath[6][100] = {
+		"Assets/Textures/FabledRealmsSplash.png",
+	};
+
+	m_MenuTexture = new Texture(texturePath, Texture::TEXTURE_TYPE::TEXTURE2D, Texture::TEXTURE_FILTER::LINEAR);
 
 	AudioManager::Get().PlaySound("Assets/Audio/MainMenu01.mp3", true);
 	LOG_INFO("CREATED WORLD SCENE");

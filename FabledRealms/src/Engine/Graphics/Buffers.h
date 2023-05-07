@@ -7,13 +7,14 @@ public:
 
 	static VertexBuffer* Create(float* vertices, uint32_t size);
 	void Bind();
+	
 
 private:
 	VertexBuffer(float* vertices, uint32_t size);
+	void SetVertexLayout();
 
 private:
 	uint32_t m_RendererID;
-	float* m_Vertices;
 };
 
 // ------------------------------------------------
@@ -35,6 +36,4 @@ private:
 private:
 	uint32_t m_RendererID;
 	uint32_t m_Count;
-
-	uint32_t* m_Indices;
 };

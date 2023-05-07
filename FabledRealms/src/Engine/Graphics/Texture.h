@@ -2,20 +2,34 @@
 class Texture
 {
 public:
-	enum TEX_FILTERING
+	enum class TEXTURE_TYPE
+	{
+		TEXTURE2D,
+		CUBEMAP,
+	};
+
+	enum class TEXTURE_FILTER
 	{
 		 NEAREST = 0,
 		 LINEAR,
 	};
 
-	Texture(const char* texturePath);
+	
+	// Takes in an array of string as paths
+	// For a normal Texture2D, it will only take the first element as the path
+	// For a cubemap Texture, it will take the 6 elements as the path;
+	Texture(const char texturePaths[6][100], TEXTURE_TYPE type, TEXTURE_FILTER filter);
 	~Texture();
 
 	void Bind() const;
 
 private:
-	int m_Width, m_Height, m_NumChannels;
+	void SetTextureWrapAndFilter2D(TEXTURE_FILTER filter);
+	void SetTextureWrapAndFilterCubemap(TEXTURE_FILTER filter);
 
+private:
+	
 	uint32_t m_RendererID;
+	TEXTURE_TYPE m_TextureType;
 };
 

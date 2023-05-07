@@ -4,9 +4,11 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include "Application.h"
 
 void OnWindowResize(GLFWwindow* window, int newWidth, int newHeight)
 {
+	Application::Get().GetWindow()->SetWidthAndHeight(newWidth, newHeight);
 	glViewport(0, 0, newWidth, newHeight);
 }
 

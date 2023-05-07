@@ -8,7 +8,7 @@
 
 Shader::Shader(const char* vertexPath, const char* fragmentPath)
 {
-	//Ref from: https://learnopengl.com/Getting-started/Shaders
+	// Ref from: https://learnopengl.com/Getting-started/Shaders
 	// and  https://www.khronos.org/opengl/wiki/Shader_Compilation
 
 	
