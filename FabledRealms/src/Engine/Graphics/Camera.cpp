@@ -16,8 +16,6 @@ Camera::Camera(glm::vec3 pos, glm::vec3 rot, float fov, float walkSpeed, float s
 	CalculateCameraVectors();
 	CalculateViewMatrix();
 
-	//Disable Mouse
-	Input::SetMouseMode(Input::MouseMode::DISABLED);
 	m_Fov = fov;
 }
 

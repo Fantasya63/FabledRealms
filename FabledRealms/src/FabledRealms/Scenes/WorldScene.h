@@ -8,6 +8,7 @@
 #include "Engine/Graphics/Texture.h"
 #include "Engine/Graphics/Camera.h"
 
+#include "FabledRealms/Chunk/World.h"
 
 class WorldScene : public Scene
 {
@@ -18,15 +19,17 @@ public:
 	virtual void Update(const Time& const time) override;
 
 private:
+	// ----------- Cubemap -----------
+
 	VertexArray* m_CubemapVAO;
 	VertexBuffer* m_CubemapVBO;
 	IndexBuffer* m_CubemapIBO;
 	Shader* m_CubemapShader;
 	Texture* m_CubemapTexture;
 
-	VertexArray* m_HelloTriangleVAO;
-	VertexBuffer* m_HelloTriangleVBO;
-	IndexBuffer* m_HelloTriangleIBO;
+	// ------------ World ---------------
+	World m_World;
+
 	Shader* m_Shader;
 	Texture* m_Texture;
 

@@ -8,10 +8,13 @@ out vec3 v_Pos;
 
 uniform mat4 a_ProjMatrix;
 uniform mat4 a_ViewMatrix;
+uniform mat4 a_ModelMatrix;
+
 
 void main()
 {
-	v_Pos = a_Pos;
+	vec4 pos =  a_ProjMatrix * a_ViewMatrix * a_ModelMatrix * vec4(a_Pos, 1.0);
+	v_Pos = (a_ModelMatrix * vec4(a_Pos, 1.0)).xyz;
 	v_UV = a_UV;
-	gl_Position = a_ProjMatrix * a_ViewMatrix * vec4(a_Pos, 1.0);
+	gl_Position = pos;
 }

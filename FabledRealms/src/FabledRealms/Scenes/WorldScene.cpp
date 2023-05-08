@@ -12,6 +12,8 @@ WorldScene::WorldScene()
     glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
     glEnable(GL_DEPTH_TEST);
 
+   
+
     // ------------------------------------------------------- Cubemap --------------------------------------------------------
     
     const char cubmapTexturePath[6][100] = {
@@ -88,32 +90,17 @@ WorldScene::WorldScene()
     m_Shader = new Shader("Assets/Shaders/testShader.vert", "Assets/Shaders/testShader.frag");
 
     const char texturePath[6][100] = {
-        "Assets/Textures/grass_block_side.png",
+        "Assets/Textures/blocks.jpg",
     };
 
     m_Texture = new Texture(texturePath, Texture::TEXTURE_TYPE::TEXTURE2D, Texture::TEXTURE_FILTER::NEAREST);
 
-    float vertices[] {
-        //POS              NORMAL          UV
-        0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f,     // top right
-        0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,     // bottom right
-       -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,     // bottom left
-       -0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,     // top left 
-    };
-
-    uint32_t indices[] {  // note that we start from 0!
-        0, 1, 3,  // first Triangle
-        1, 2, 3   // second Triangle
-    };
-
-    m_HelloTriangleVAO = VertexArray::Create();
-    m_HelloTriangleVAO->Bind();
-
-    m_HelloTriangleVBO = VertexBuffer::Create(vertices, sizeof(float) * 32);
-    m_HelloTriangleIBO = IndexBuffer::Create(indices, 6);
 
     // TODO: Update the Proj Martix when we resize or change window size
     m_Shader->SetMat4("a_ProjMatrix", m_Camera.GetProjMatrix(Application::Get().GetWindow()->GetAspectRatio()));
+
+    //Disable Mouse
+    Input::SetMouseMode(Input::MouseMode::DISABLED);
 }
 
 
@@ -121,10 +108,20 @@ WorldScene::WorldScene()
 void WorldScene::Update(const Time& const time)
 {
     LOG_INFO("WORLD UPDATE");
+
     if (Input::IsKeyPressed(KEYCODE_DELETE))
     {
         SceneManager::Get().SwitchScene(SceneManager::MENU);
         return;
+    }
+
+    if (Input::IsKeyPressed(KEYCODE_LEFT_ALT))
+    {
+        Input::SetMouseMode(Input::MouseMode::NORMAL);
+    }
+    else
+    {
+        Input::SetMouseMode(Input::MouseMode::DISABLED);
     }
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -140,7 +137,6 @@ void WorldScene::Update(const Time& const time)
     m_Shader->Use();
 
     glm::mat4 view = m_Camera.GetViewMatrix();
-    glm::vec3 test = view * glm::vec4(0.0, 0.0, 0.0, 1.0);
     //DLOG_CORE_INFO("VIEW TEST: " << test.x << ", " << test.y << ", " << test.z);
 
     m_Shader->SetMat4("a_ViewMatrix", m_Camera.GetViewMatrix());
@@ -148,9 +144,8 @@ void WorldScene::Update(const Time& const time)
     m_Shader->setInt("blockTex", 0);
     m_Shader->SetFloat("u_Time", time.currentTime);
 
-    m_HelloTriangleVAO->Bind();
-    glDrawElements(GL_TRIANGLES, m_HelloTriangleIBO->GetCount(), GL_UNSIGNED_INT, 0);
 
+    m_World.Render(m_Shader);
 
     // ----- Render Skybox -------
 
@@ -180,9 +175,6 @@ WorldScene::~WorldScene()
     delete m_CubemapShader;
     delete m_CubemapTexture;
 
-    delete m_HelloTriangleVAO;
-    delete m_HelloTriangleVBO;
-    delete m_HelloTriangleIBO;
     delete m_Shader;
     delete m_Texture;
 

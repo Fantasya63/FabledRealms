@@ -12,6 +12,15 @@
 
 MainMenuScene::MainMenuScene()
 {
+	//Set OpenGl's Winding order
+	glFrontFace(GL_CW);
+
+	//Enable Culling
+    glEnable(GL_CULL_FACE);
+
+    //Cull backfaces to save GPU resources
+    glCullFace(GL_BACK);
+
 	m_MenuScreenVAO = VertexArray::Create();
 	m_MenuScreenVAO->Bind();
 
@@ -43,12 +52,16 @@ MainMenuScene::MainMenuScene()
 	m_MenuTexture = new Texture(texturePath, Texture::TEXTURE_TYPE::TEXTURE2D, Texture::TEXTURE_FILTER::LINEAR);
 
 	AudioManager::Get().PlaySound("Assets/Audio/MainMenu01.mp3", true);
+
+	//Enable Mouse
+	Input::SetMouseMode(Input::MouseMode::NORMAL);
+
 	LOG_INFO("CREATED WORLD SCENE");
 }
 
 MainMenuScene::~MainMenuScene()
 {
-	AudioManager::Get().StopAllSounds();
+	//AudioManager::Get().StopAllSounds();
 
 	delete m_MenuScreenVAO;
 	delete m_MenuScreenVBO;
