@@ -34,7 +34,7 @@ Texture::Texture(const char texturePaths[6][100], TEXTURE_TYPE type, TEXTURE_FIL
 
 		// Upload Image Data to the GPU.
 		// Takes in: Which target, mipmap level, format to store texture on gpu, width, height, legacy opengl (should always be 0), format of source, data type of src, image data, 
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 
 
 		//Tell the GPU to Generate Mipmaps

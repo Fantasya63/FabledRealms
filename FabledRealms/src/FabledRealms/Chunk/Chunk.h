@@ -5,7 +5,7 @@
 
 #include <glm/glm.hpp>
 
-#define CHUNK_LENGTH 8
+#define CHUNK_LENGTH 16
 #define CHUNK_HEIGHT 256
 
 class Chunk
@@ -28,7 +28,9 @@ public:
 	void PopulateVoxelData();
 	void GenerateMesh();
 	void RenderChunk(Shader* shader);
+
 	char CheckVoxel(glm::ivec3 localPos); //Position relative to the chunk
+	void SetVoxel(glm::ivec3 localPos, char voxelID);
 
 private:
 	//Container for BlockIDS at position (x, y, z)

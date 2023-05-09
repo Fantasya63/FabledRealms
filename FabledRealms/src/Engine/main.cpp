@@ -13,6 +13,7 @@ int main()
 {
     AudioManager* audioManager = new AudioManager();
     SceneManager* sceneManager = new SceneManager();
+   
 
     Application* app = CreateApplication();
     app->Run();

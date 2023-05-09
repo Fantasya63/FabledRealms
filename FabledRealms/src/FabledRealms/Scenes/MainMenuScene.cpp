@@ -13,7 +13,7 @@
 MainMenuScene::MainMenuScene()
 {
 	//Set OpenGl's Winding order
-	glFrontFace(GL_CW);
+	glFrontFace(GL_CCW);
 
 	//Enable Culling
     glEnable(GL_CULL_FACE);
@@ -26,15 +26,15 @@ MainMenuScene::MainMenuScene()
 
 	float vertices[] {
 		// POS              Normal            UV
-		 1.0f,  1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f,     // top right
-		 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,     // bottom right
+		-1.0f,  1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,     // top left
 		-1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,     // bottom left
-		-1.0f,  1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,     // top left 
+		 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,     // bottom right
+		 1.0f,  1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f,     // top right
 	};
 
 	uint32_t indices[6]{  // note that we start from 0!
-		0, 1, 3,  // first Triangle
-		1, 2, 3   // second Triangle
+		0, 1, 2,  // first Triangle
+		0, 2, 3   // second Triangle
 	};
 
 
@@ -54,7 +54,7 @@ MainMenuScene::MainMenuScene()
 	AudioManager::Get().PlaySound("Assets/Audio/MainMenu01.mp3", true);
 
 	//Enable Mouse
-	Input::SetMouseMode(Input::MouseMode::NORMAL);
+	InputManager::SetMouseMode(InputManager::MouseMode::NORMAL);
 
 	LOG_INFO("CREATED WORLD SCENE");
 }
@@ -75,12 +75,12 @@ void MainMenuScene::Update(const Time& const time)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	
-	if (Input::IsKeyPressed(KEYCODE_ESCAPE))
+	if (InputManager::IsKeyDown(KEYCODE_ESCAPE))
 	{
 		Application::Get().RequestClose();
 		return;
 	}
-	else if (Input::IsKeyPressed(KEYCODE_SPACE))
+	else if (InputManager::IsKeyDown(KEYCODE_SPACE))
 	{
 		SceneManager::Get().SwitchScene(SceneManager::WORLD);
 		return;

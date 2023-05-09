@@ -2,9 +2,13 @@
 #include <glm/glm.hpp>
 #include "KeyCodes.h"
 
-class Input
+class InputManager
 {
 public:
+	InputManager();
+	~InputManager();
+
+
 	enum class MouseMode
 	{
 		NORMAL,
@@ -13,8 +17,16 @@ public:
 		DISABLED, 
 	};
 
+	static InputManager& Get() { return *s_Instance; }
 	static void SetMouseMode(MouseMode mode);
 
-	static bool IsKeyPressed(int keycode);
+	static bool IsKeyDown(int keycode);
+	static bool IsMouseButtonDown(int keycode);
+
+	void SetMouseButtonCallback(void(*callback)(int, int, int));
+
 	static glm::vec2 GetMousePosition();
+
+private:
+	static InputManager* s_Instance;
 };

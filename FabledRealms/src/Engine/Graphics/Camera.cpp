@@ -36,7 +36,7 @@ static glm::vec2 lastMousePos;
 void Camera::Update(const Time& time)
 {
 	//Look
-	glm::vec2 mousePos = Input::GetMousePosition();
+	glm::vec2 mousePos = InputManager::GetMousePosition();
 	glm::vec2 mouseMovement = mousePos - lastMousePos;
 	lastMousePos = mousePos;
 
@@ -59,30 +59,30 @@ void Camera::Update(const Time& time)
 	glm::vec3 velocity = glm::vec3(0.0f, 0.0f, 0.0f);
 
 	//Forward Backward
-	if (Input::IsKeyPressed(KEYCODE_W) || Input::IsKeyPressed(KEYCODE_UP))
+	if (InputManager::IsKeyDown(KEYCODE_W))
 		velocity += m_Front; // Forward is negative, following opengl's coordinate
-	else if (Input::IsKeyPressed(KEYCODE_S))
+	else if (InputManager::IsKeyDown(KEYCODE_S))
 		velocity -= m_Front; //Backward is positive, following opengl's coordinate 
 
 
 	//Left Right
-	if (Input::IsKeyPressed(KEYCODE_D))
+	if (InputManager::IsKeyDown(KEYCODE_D))
 		velocity += m_Right;
-	else if (Input::IsKeyPressed(KEYCODE_A))
+	else if (InputManager::IsKeyDown(KEYCODE_A))
 		velocity -= m_Right;
 
 
 	//Up Down
-	if (Input::IsKeyPressed(KEYCODE_E))
+	if (InputManager::IsKeyDown(KEYCODE_E))
 		velocity += glm::vec3(0.0f, 1.0f, 0.0f); // Move Up
-	else if (Input::IsKeyPressed(KEYCODE_Q))
+	else if (InputManager::IsKeyDown(KEYCODE_Q))
 		velocity -= glm::vec3(0.0f, 1.0f, 0.0f); // Move Down
 
 
 	//Check if we're sprinting
 	float movementSpeed = m_WalkSpeed;
 
-	if (Input::IsKeyPressed(KEYCODE_LEFT_SHIFT))
+	if (InputManager::IsKeyDown(KEYCODE_LEFT_SHIFT))
 		movementSpeed = m_SprintSpeed;
 
 	//Move if velocity's magnitude is greater than 0
@@ -98,6 +98,16 @@ void Camera::Update(const Time& time)
 		CalculateViewMatrix();
 		
 	}
+}
+
+glm::vec3 Camera::GetPosition() const
+{
+	return m_Position;
+}
+
+glm::vec3 Camera::GetDirection() const
+{
+	return m_Front;
 }
 
 

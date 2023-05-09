@@ -81,10 +81,10 @@ const glm::ivec3 CUBE_FACE_VERTICES_POS[6][4]
 
 	//BACK
 	{
-		glm::vec3(1.0, 1.0, 1.0), // Top Left
-		glm::vec3(1.0, 0.0, 1.0), // Bot Left
-		glm::vec3(0.0, 0.0, 1.0), // Bot Right
-		glm::vec3(0.0, 1.0, 1.0), // Top Right
+		glm::vec3(0.0, 1.0, 1.0), // Top Left
+		glm::vec3(0.0, 0.0, 1.0), // Bot Left
+		glm::vec3(1.0, 0.0, 1.0), // Bot Right
+		glm::vec3(1.0, 1.0, 1.0), // Top Right
 	},
 
 	//LEFT
@@ -97,10 +97,10 @@ const glm::ivec3 CUBE_FACE_VERTICES_POS[6][4]
 
 	//RIGHT
 	{
-		glm::vec3(0.0, 1.0, 0.0), //Top Left
-		glm::vec3(0.0, 0.0, 0.0), //Bot Left
-		glm::vec3(0.0, 0.0, 1.0), //Bot Right
-		glm::vec3(0.0, 1.0, 1.0), //Top Right
+		glm::vec3(1.0, 1.0, 1.0), //Top Left
+		glm::vec3(1.0, 0.0, 1.0), //Bot Left
+		glm::vec3(1.0, 0.0, 0.0), //Bot Right
+		glm::vec3(1.0, 1.0, 0.0), //Top Right
 	},
 
 
@@ -124,7 +124,6 @@ const glm::ivec3 CUBE_FACE_VERTICES_POS[6][4]
 
 Chunk::Chunk()
 {
-	
 }
 
 Chunk::~Chunk()
@@ -145,6 +144,11 @@ void Chunk::Init(glm::ivec2 chunkPosition)
 	//else
 
 	PopulateVoxelData();
+}
+
+void Chunk::SetVoxel(glm::ivec3 localPos, char voxelID)
+{
+	m_VoxelData[localPos.x][localPos.y][localPos.z] = voxelID;
 	GenerateMesh();
 }
 
@@ -202,8 +206,18 @@ void Chunk::PopulateVoxelData()
 
 void Chunk::GenerateMesh()
 {
-	// TODO: Clear VAOS if there is already a mesh
-	FR_ASSERT(!m_ChunkVAO, "There is already a mesh! Consider Removing the current mesh first");
+	//Check if there is already a mesh generated for this chunk
+	if (m_ChunkVAO != nullptr)
+	{
+		//Delete the mesh
+		delete m_ChunkVAO;
+		delete m_ChunkVBO;
+		delete m_ChunkIBO;
+
+		m_ChunkVAO = nullptr;
+		m_ChunkVBO = nullptr;
+		m_ChunkIBO = nullptr;
+	}
 
 
 	std::vector<float> vertices;
@@ -212,7 +226,6 @@ void Chunk::GenerateMesh()
 	vertices.reserve(8192);
 
 	std::vector<uint32_t> indices;
-
 	// Reserve 8192 floats ideal for a flat world 
 	// (16 * 16 * 6) Chunk area * Num of Indices per face
 	indices.reserve(1536);

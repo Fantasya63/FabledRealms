@@ -6,13 +6,51 @@
 #include "Engine/Input/Input.h"
 #include "Engine/Application.h"
 
+const Camera* callbackCamera = nullptr;
+
+void MouseCallback(int button, int action, int mods)
+{
+    FR_ASSERT(callbackCamera, "Callback camera is not set!");
+
+    //Remove Blocks
+    if (button == MOUSE_BUTTON_LEFT && action == KEY_PRESS)
+    {
+        Ray ray(callbackCamera->GetPosition(), callbackCamera->GetDirection());
+
+        RayHit hit = World::Get().RayCast(ray);
+        if (hit.IsVoxelHit)
+        {
+            //Remove the voxel ie change it to an Air block
+            World::Get().ChangeVoxel(hit.VoxelPos, Chunk::BLOCK_ID::Air);
+        }
+    }
+
+    //Add block
+    else if (button == MOUSE_BUTTON_RIGHT && action == KEY_PRESS)
+    {
+        Ray ray(callbackCamera->GetPosition(), callbackCamera->GetDirection());
+
+        RayHit hit = World::Get().RayCast(ray);
+        if (hit.IsVoxelHit)
+        {
+            //Add voxel at the hit position
+            glm::ivec3 placePosition = hit.VoxelPos + hit.Normal;
+
+            World::Get().ChangeVoxel(placePosition, Chunk::BLOCK_ID::Stone);
+        }
+    }
+}
+
 WorldScene::WorldScene()
 {
+
     LOG_INFO("CREATED WORLD SCENE");
     glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
     glEnable(GL_DEPTH_TEST);
 
-   
+    //Set the mouse callback function to the input system
+    callbackCamera = &m_Camera;
+    InputManager::Get().SetMouseButtonCallback(MouseCallback);
 
     // ------------------------------------------------------- Cubemap --------------------------------------------------------
     
@@ -46,28 +84,28 @@ WorldScene::WorldScene()
     uint32_t skyboxIndices[] =
     {
         //Back Face
-        0, 3, 2,
-        0, 2, 1,
+        0, 2, 3,
+        0, 1, 2,
 
         //Front Face
-        4, 5, 6,
-        4, 6, 7,
+        4, 7, 6,
+        4, 6, 5,
 
         //Left
-        1, 2, 6,
-        1, 6, 5,
+        4, 3, 7,
+        4, 0, 3,
 
         //Right
-        4, 7, 3,
-        4, 3, 0,
+        1, 6, 2,
+        1, 5, 6,
 
         //Top
-        4, 0, 1,
-        4, 1, 5,
+        4, 1, 0,
+        4, 5, 1,
 
         //Bottom
-        7, 6, 2,
-        7, 2, 3
+        7, 3, 2,
+        7, 2, 6
     };
 
     m_CubemapVAO = VertexArray::Create();
@@ -100,28 +138,27 @@ WorldScene::WorldScene()
     m_Shader->SetMat4("a_ProjMatrix", m_Camera.GetProjMatrix(Application::Get().GetWindow()->GetAspectRatio()));
 
     //Disable Mouse
-    Input::SetMouseMode(Input::MouseMode::DISABLED);
+    InputManager::SetMouseMode(InputManager::MouseMode::DISABLED);
 }
 
 
 
 void WorldScene::Update(const Time& const time)
 {
-    LOG_INFO("WORLD UPDATE");
 
-    if (Input::IsKeyPressed(KEYCODE_DELETE))
+    if (InputManager::IsKeyDown(KEYCODE_DELETE))
     {
         SceneManager::Get().SwitchScene(SceneManager::MENU);
         return;
     }
 
-    if (Input::IsKeyPressed(KEYCODE_LEFT_ALT))
+    if (InputManager::IsKeyDown(KEYCODE_LEFT_ALT))
     {
-        Input::SetMouseMode(Input::MouseMode::NORMAL);
+        InputManager::SetMouseMode(InputManager::MouseMode::NORMAL);
     }
     else
     {
-        Input::SetMouseMode(Input::MouseMode::DISABLED);
+        InputManager::SetMouseMode(InputManager::MouseMode::DISABLED);
     }
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -163,7 +200,7 @@ void WorldScene::Update(const Time& const time)
 
     // -----------------------------------------------------------------------------------
 
-    if (Input::IsKeyPressed(KEYCODE_ESCAPE))
+    if (InputManager::IsKeyDown(KEYCODE_ESCAPE))
         Application::Get().RequestClose();
 }
 

@@ -2,6 +2,24 @@
 
 //From glfw/glfw.h
 
+//Keycode States
+#define KEY_RELEASE                0
+/*! @brief The key or mouse button was pressed.
+ *
+ *  The key or mouse button was pressed.
+ *
+ *  @ingroup input
+ */
+#define KEY_PRESS                  1
+ /*! @brief The key was held down until it repeated.
+  *
+  *  The key was held down until it repeated.
+  *
+  *  @ingroup input
+  */
+#define KEY_REPEAT                 2
+
+
 /* Printable keys */
 #define KEYCODE_SPACE              32
 #define KEYCODE_APOSTROPHE         39  /* ' */
@@ -125,3 +143,20 @@
 #define KEYCODE_RIGHT_ALT          346
 #define KEYCODE_RIGHT_SUPER        347
 #define KEYCODE_MENU               348
+
+// --------------------------------------------
+
+//For mouse Inputs
+
+#define MOUSE_BUTTON_1         0
+#define MOUSE_BUTTON_2         1
+#define MOUSE_BUTTON_3         2
+#define MOUSE_BUTTON_4         3
+#define MOUSE_BUTTON_5         4
+#define MOUSE_BUTTON_6         5
+#define MOUSE_BUTTON_7         6
+#define MOUSE_BUTTON_8         7
+#define MOUSE_BUTTON_LAST      MOUSE_BUTTON_8
+#define MOUSE_BUTTON_LEFT      MOUSE_BUTTON_1
+#define MOUSE_BUTTON_RIGHT     MOUSE_BUTTON_2
+#define MOUSE_BUTTON_MIDDLE    MOUSE_BUTTON_3

@@ -7,12 +7,15 @@
 class Camera
 {
 public:
-	Camera(glm::vec3 pos, glm::vec3 rot = glm::vec3(0.0f), float fov = 45.0f, float walkSpeed = 2.5f, float sprintSpeed = 4.0f, glm::vec2 mouseSensitivity = glm::vec2(0.1f));
+	Camera(glm::vec3 pos, glm::vec3 rot = glm::vec3(0.0f), float fov = 45.0f, float walkSpeed = 2.5f, float sprintSpeed = 10.0f, glm::vec2 mouseSensitivity = glm::vec2(0.1f));
 
 	const glm::mat4& GetViewMatrix();
 	const glm::mat4& GetProjMatrix(float aspectRatio);
 
 	void Update(const Time& time);
+
+	glm::vec3 GetPosition() const;
+	glm::vec3 GetDirection() const;
 
 private:
 	void CalculateTransform();

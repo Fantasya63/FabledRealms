@@ -3,7 +3,27 @@
 #include "Engine/Application.h"
 #include <GLFW/glfw3.h>
 
-void Input::SetMouseMode(MouseMode mode)
+void(*MouseCallback)(int, int, int) = nullptr;
+
+void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+{
+	if (MouseCallback != nullptr)
+		MouseCallback(button, action, mods);
+}
+
+InputManager* InputManager::s_Instance = nullptr;
+
+InputManager::InputManager()
+{
+	FR_CORE_ASSERT(!s_Instance, "InputManager Already Exists!");
+	s_Instance = this;
+
+	//Setup Mouse button callback funtion
+	void* window = Application::Get().GetWindow()->GetWindowHandle();
+	glfwSetMouseButtonCallback(static_cast<GLFWwindow*>(window), MouseButtonCallback);
+}
+
+void InputManager::SetMouseMode(MouseMode mode)
 {
 	GLFWwindow* window = static_cast<GLFWwindow*>(Application::Get().GetWindow()->GetWindowHandle());
 
@@ -33,7 +53,8 @@ void Input::SetMouseMode(MouseMode mode)
 	 glfwSetInputMode(window, GLFW_CURSOR, mouseMode);
 }
 
-bool Input::IsKeyPressed(int keycode)
+
+bool InputManager::IsKeyDown(int keycode)
 {
 	void* window = Application::Get().GetWindow()->GetWindowHandle();
 	int state = glfwGetKey(static_cast<GLFWwindow*>(window), keycode);
@@ -41,7 +62,20 @@ bool Input::IsKeyPressed(int keycode)
 	return state == GLFW_PRESS || state == GLFW_REPEAT;
 }
 
-glm::vec2 Input::GetMousePosition()
+bool InputManager::IsMouseButtonDown(int keycode)
+{
+	void* window = Application::Get().GetWindow()->GetWindowHandle();
+	int state = glfwGetMouseButton(static_cast<GLFWwindow*>(window), keycode);
+
+	return state == GLFW_PRESS || state == GLFW_REPEAT;
+}
+
+void InputManager::SetMouseButtonCallback(void(*callback)(int, int, int))
+{
+	MouseCallback = callback;
+}
+
+glm::vec2 InputManager::GetMousePosition()
 {
 	double x, y;
 
@@ -50,4 +84,3 @@ glm::vec2 Input::GetMousePosition()
 
 	return glm::vec2(x, y);
 }
-

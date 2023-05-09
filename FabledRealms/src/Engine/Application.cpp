@@ -1,5 +1,7 @@
 #include "frpch.h"
 #include "Application.h"
+#include "Input/Input.h"
+
 
 Application* Application::s_Instance = nullptr;
 
@@ -9,7 +11,7 @@ Application::Application()
 	s_Instance = this;
 
 	m_Window = new Window("Fabled Realms", 1280, 720);
-	
+	InputManager* inputManager = new InputManager();
 }
 
 Application::~Application()
