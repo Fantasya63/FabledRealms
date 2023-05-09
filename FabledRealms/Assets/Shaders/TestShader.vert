@@ -17,7 +17,7 @@ void main()
 {
 	v_Normal = a_Normal;
 	vec4 pos =  a_ProjMatrix * a_ViewMatrix * a_ModelMatrix * vec4(a_Pos, 1.0);
-	v_Pos = (a_ModelMatrix * vec4(a_Pos, 1.0)).xyz;
+	v_Pos = (a_ViewMatrix * a_ModelMatrix * vec4(a_Pos, 1.0)).xyz;
 	v_UV = a_UV;
 	gl_Position = pos;
 }

@@ -188,30 +188,36 @@ RayHit World::RayCast(const Ray& ray)
 		//calculate Hit normal
 		glm::vec3 voxelCenter = (glm::vec3)(voxelPos)+glm::vec3(0.5);
 		glm::vec3 dir = pos - voxelCenter;
+		dir = glm::normalize(dir);
 
-		//Find the axis with largest magnitude
-		//Check if X-Axis has the greatest magnitude
-		if (dir.x > dir.y && dir.x > dir.z)
+		//Find the axis that's closest to the ray dir
+		
+		float dotX = glm::abs(glm::dot(dir, glm::vec3(1.0, 0.0, 0.0)));
+		float dotY = glm::abs(glm::dot(dir, glm::vec3(0.0, 1.0, 0.0)));
+		float dotZ = glm::abs(glm::dot(dir, glm::vec3(0.0, 0.0, 1.0)));
+
+		//Check on X-Axis
+		if (dotX > dotY && dotX > dotZ)
 		{
 			//Check if its in the positive x or negative x
-			float x = dir.x > voxelCenter.x ? -1.0 : 1.0;
+			float x = pos.x > voxelCenter.x ? 1.0 : -1.0;
 			hit.Normal = glm::vec3(x, 0.0, 0.0);
 		}
-
-		//Check if Y-Axis has the greatest magnitude
-		else if (dir.y > dir.z)
+		//Check on Y-Axis
+		else if (dotY > dotZ)
 		{
 			//Check if its in the positive y or negative y
-			float y = dir.y > voxelCenter.y ? -1.0 : 1.0;
+			float y = pos.y > voxelCenter.y ? 1.0 : -1.0;
 			hit.Normal = glm::vec3(0.0, y, 0.0);
 		}
-		// The Z Axis has the greates magnitude
+		//Check on Z-Axis
 		else
 		{
-			//Check if its in the positive x or negative x
-			float z = dir.z > voxelCenter.z ? -1.0 : 1.0;
+			//Check if its in the positive y or negative y
+			float z = pos.z > voxelCenter.z ? 1.0 : -1.0;
 			hit.Normal = glm::vec3(0.0, 0.0, z);
 		}
+
 
 		return hit;
 	}

@@ -44,7 +44,7 @@ void Camera::Update(const Time& time)
 
 	float xRot = m_Rotation.x;
 	xRot -= mouseMovement.y;
-	xRot = glm::clamp(xRot, -89.0f, 89.0f);
+	xRot = glm::clamp(xRot, -90.0f, 89.0f);
 	float yRot = m_Rotation.y;
 	yRot -= mouseMovement.x;
 

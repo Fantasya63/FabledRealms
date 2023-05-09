@@ -15,5 +15,8 @@ void main()
 	color += texture(MenuTex, v_UV).rgb;
 
 	FragColor = vec4(color, 1.0);
-	//FragColor = vec4(v_UV, 0.0, 0.0);
+	
+	//Gamma Correction
+	float gamma = 2.2;
+    FragColor.rgb = pow(FragColor.rgb, vec3(1.0/gamma));
 }
