@@ -1,4 +1,7 @@
 #include "frpch.h"
+#include <string>
+#include <fstream>
+
 #include "Chunk.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -124,10 +127,24 @@ const glm::ivec3 CUBE_FACE_VERTICES_POS[6][4]
 
 Chunk::Chunk()
 {
+	//Check if a saved chunk file exist
 }
 
 Chunk::~Chunk()
 {
+	//Save Data to disk
+	std::string filePath = "game/data/world/" + std::to_string(m_ChunkPos.x) + "-" + std::to_string(m_ChunkPos.y) + ".bin";
+	
+	//Create and write file for this chunk
+	std::ofstream file(filePath, std::ios::binary);
+	//Write Data
+	file.write(reinterpret_cast<const char*>(m_VoxelData), sizeof(m_VoxelData));
+	
+	//close the file
+	file.close();
+
+	DLOG_CORE_INFO("Saving Chunks");
+
 	delete m_ChunkVAO;
 	delete m_ChunkVBO;
 	delete m_ChunkIBO;
@@ -139,11 +156,23 @@ void Chunk::Init(glm::ivec2 chunkPosition)
 	m_ChunkPos = chunkPosition;
 
 	//Check for Chunk file
-	//If there is a save file, 
-	//load data,
-	//else
+	std::string filePath = "game/data/world/" + std::to_string(m_ChunkPos.x) + "-" + std::to_string(m_ChunkPos.y) + ".bin";
 
-	PopulateVoxelData();
+	std::ifstream saveFile;
+	saveFile.open(filePath, std::ios::binary);
+
+	//If we succesfully opened the file
+	if (saveFile.is_open())
+	{
+		//Read saved Data
+		saveFile.read(reinterpret_cast<char*>(m_VoxelData), sizeof(m_VoxelData));
+	}
+	else
+	{
+		//We Generate data
+		PopulateVoxelData();
+	}
+	
 }
 
 void Chunk::SetVoxel(glm::ivec3 localPos, char voxelID)
@@ -156,7 +185,6 @@ char Chunk::CheckVoxel(glm::ivec3 localPos)
 {
 	return m_VoxelData[localPos.x][localPos.y][localPos.z];
 }
-
 
 void Chunk::PopulateVoxelData()
 {

@@ -15,6 +15,13 @@ SceneManager::SceneManager()
 	SceneManager::currentScene = nullptr;
 }
 
+SceneManager::~SceneManager()
+{
+	//Delete current scene if it exist
+	if (currentScene != nullptr)
+		delete currentScene;
+}
+
 void SceneManager::UpdateScene(const Time& const time)
 {
 	FR_CORE_ASSERT(SceneManager::currentScene != nullptr, "Scene Manager's Current Scene is null!");

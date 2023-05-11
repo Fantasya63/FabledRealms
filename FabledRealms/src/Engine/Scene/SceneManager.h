@@ -13,6 +13,7 @@ public:
 
 	static SceneManager& Get() { return *s_Instance; };
 	SceneManager();
+	~SceneManager();
 
 	void UpdateScene(const Time& const time);
 	void SwitchScene(Scenes scene);
