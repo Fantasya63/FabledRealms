@@ -10,9 +10,15 @@ uniform sampler2D MenuTex;
 
 void main()
 {
-	vec3 color = vec3(0.0, 0.75, 1.0) * (sin(u_Time + v_UV.x + v_UV.y) * 0.5 + 0.5) * 0.5;
-	color = max(color, vec3(0.3, 0.1, 0.1));
-	color += texture(MenuTex, v_UV).rgb;
+	vec3 diff = texture(MenuTex, v_UV).rgb;
+	vec3 blue = vec3(0.0, 0.75, 1.0) * diff;
+	vec3 red = vec3(1.0, 0.0, 0.0) * diff;
+
+	float blueFactor = sin(u_Time + v_UV.x + v_UV.y);
+	//Scale it to 0-1 range
+	blueFactor = blueFactor * 0.5 + 0.5;
+
+	vec3 color = mix(red, blue, blueFactor);
 
 	FragColor = vec4(color, 1.0);
 	

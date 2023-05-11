@@ -6,5 +6,5 @@ class Scene
 public:
 	virtual ~Scene() {}
 
-	virtual void Update(const Time& const time) = 0;
+	virtual void Update(const Time& time) = 0;
 };

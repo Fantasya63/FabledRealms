@@ -22,7 +22,7 @@ SceneManager::~SceneManager()
 		delete currentScene;
 }
 
-void SceneManager::UpdateScene(const Time& const time)
+void SceneManager::UpdateScene(const Time& time)
 {
 	FR_CORE_ASSERT(SceneManager::currentScene != nullptr, "Scene Manager's Current Scene is null!");
 	currentScene->Update(time);

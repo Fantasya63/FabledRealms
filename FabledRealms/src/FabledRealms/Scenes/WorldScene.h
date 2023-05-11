@@ -16,7 +16,7 @@ public:
 	WorldScene();
 	~WorldScene();
 
-	virtual void Update(const Time& const time) override;
+	virtual void Update(const Time& time) override;
 
 
 private:
@@ -31,8 +31,8 @@ private:
 	// ------------ World ---------------
 	World m_World;
 
-	Shader* m_Shader;
-	Texture* m_Texture;
+	Shader* m_TerrainShader;
+	Texture* m_TerrainTexture;
 
 	Camera m_Camera = Camera(glm::vec3(0.0f, 55.0f, 0.0f));
 };

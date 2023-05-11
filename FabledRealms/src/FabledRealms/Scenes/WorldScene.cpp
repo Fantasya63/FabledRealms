@@ -6,7 +6,10 @@
 #include "Engine/Input/Input.h"
 #include "Engine/Application.h"
 
-const Camera* callbackCamera = nullptr;
+//Global variables for this cpp file only
+static const Camera* callbackCamera = nullptr;
+
+static char currentBlock = Chunk::BLOCK_ID::Stone;
 
 void MouseCallback(int button, int action, int mods)
 {
@@ -36,10 +39,46 @@ void MouseCallback(int button, int action, int mods)
             //Add voxel at the hit position
             glm::ivec3 placePosition = hit.VoxelPos + hit.Normal;
 
-            World::Get().ChangeVoxel(placePosition, Chunk::BLOCK_ID::Stone);
+            World::Get().ChangeVoxel(placePosition, currentBlock);
         }
     }
 }
+
+void KeyboardCallback(int button, int scancode, int action, int mods )
+{
+    //Swap the block to place if we pressed the corresponding buttons
+    if (action == KEY_PRESS)
+    {
+        switch (button)
+        {
+            //Grass
+            case KEYCODE_1:
+                currentBlock = Chunk::BLOCK_ID::Grass;
+                LOG_INFO("Block in hand: Grass");
+                break;
+
+            //Dirt
+            case KEYCODE_2:
+                currentBlock = Chunk::BLOCK_ID::Dirt;
+                LOG_INFO("Block in hand: Dirt");
+                break;
+
+            //Stone
+            case KEYCODE_3:
+                currentBlock = Chunk::BLOCK_ID::Stone;
+                LOG_INFO("Block in hand: Stone");
+                break;
+
+            //Bedrock
+            case KEYCODE_4:
+                currentBlock = Chunk::BLOCK_ID::Bedrock;
+                LOG_INFO("Block in hand: Bedrock");
+                break;
+        }
+    }
+}
+
+//---------------------------------------------------------------------------
 
 WorldScene::WorldScene()
 {
@@ -48,9 +87,10 @@ WorldScene::WorldScene()
     glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
     glEnable(GL_DEPTH_TEST);
 
-    //Set the mouse callback function to the input system
+    //Set the mouse and keyboard callback function to the input system
     callbackCamera = &m_Camera;
     InputManager::Get().SetMouseButtonCallback(MouseCallback);
+    InputManager::Get().SetKeyboardButtonCallback(KeyboardCallback);
 
     // ------------------------------------------------------- Cubemap --------------------------------------------------------
     
@@ -125,17 +165,17 @@ WorldScene::WorldScene()
 
 	
 
-    m_Shader = new Shader("Assets/Shaders/testShader.vert", "Assets/Shaders/testShader.frag");
+    m_TerrainShader = new Shader("Assets/Shaders/TerrainShader.vert", "Assets/Shaders/TerrainShader.frag");
 
     const char texturePath[6][100] = {
         "Assets/Textures/blocks.jpg",
     };
 
-    m_Texture = new Texture(texturePath, Texture::TEXTURE_TYPE::TEXTURE2D, Texture::TEXTURE_FILTER::NEAREST);
+    m_TerrainTexture = new Texture(texturePath, Texture::TEXTURE_TYPE::TEXTURE2D, Texture::TEXTURE_FILTER::NEAREST);
 
 
     // TODO: Update the Proj Martix when we resize or change window size
-    m_Shader->SetMat4("a_ProjMatrix", m_Camera.GetProjMatrix(Application::Get().GetWindow()->GetAspectRatio()));
+    m_TerrainShader->SetMat4("a_ProjMatrix", m_Camera.GetProjMatrix(Application::Get().GetWindow()->GetAspectRatio()));
 
     //Disable Mouse
     InputManager::SetMouseMode(InputManager::MouseMode::DISABLED);
@@ -170,19 +210,19 @@ void WorldScene::Update(const Time& const time)
     // ----------------------------- Rendering ------------------------------------------------
 
 
-    m_Texture->Bind();
-    m_Shader->Use();
+    m_TerrainTexture->Bind();
+    m_TerrainShader->Use();
 
     glm::mat4 view = m_Camera.GetViewMatrix();
     //DLOG_CORE_INFO("VIEW TEST: " << test.x << ", " << test.y << ", " << test.z);
 
-    m_Shader->SetMat4("a_ViewMatrix", m_Camera.GetViewMatrix());
-    m_Shader->SetMat4("a_ProjMatrix", m_Camera.GetProjMatrix(Application::Get().GetWindow()->GetAspectRatio()));
-    m_Shader->setInt("blockTex", 0);
-    m_Shader->SetFloat("u_Time", time.currentTime);
+    m_TerrainShader->SetMat4("a_ViewMatrix", m_Camera.GetViewMatrix());
+    m_TerrainShader->SetMat4("a_ProjMatrix", m_Camera.GetProjMatrix(Application::Get().GetWindow()->GetAspectRatio()));
+    m_TerrainShader->setInt("blockTex", 0);
+    m_TerrainShader->SetFloat("u_Time", time.currentTime);
 
 
-    m_World.Render(m_Shader);
+    m_World.Render(m_TerrainShader);
 
     // ----- Render Skybox -------
 
@@ -191,7 +231,7 @@ void WorldScene::Update(const Time& const time)
     m_CubemapTexture->Bind();
     m_CubemapShader->Use();
     m_CubemapShader->SetMat4("a_ViewMatrix", glm::mat4(glm::mat3(m_Camera.GetViewMatrix()))); // Strip away the translations in the matrix
-    m_Shader->SetMat4("a_ProjMatrix", m_Camera.GetProjMatrix(Application::Get().GetWindow()->GetAspectRatio()));
+    m_TerrainShader->SetMat4("a_ProjMatrix", m_Camera.GetProjMatrix(Application::Get().GetWindow()->GetAspectRatio()));
 
     m_CubemapVAO->Bind();
     glDrawElements(GL_TRIANGLES, m_CubemapIBO->GetCount(), GL_UNSIGNED_INT, 0);
@@ -212,8 +252,8 @@ WorldScene::~WorldScene()
     delete m_CubemapShader;
     delete m_CubemapTexture;
 
-    delete m_Shader;
-    delete m_Texture;
+    delete m_TerrainShader;
+    delete m_TerrainTexture;
 
 	LOG_INFO("DELETED WORLD SCENE");
 }

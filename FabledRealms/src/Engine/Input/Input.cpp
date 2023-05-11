@@ -3,13 +3,29 @@
 #include "Engine/Application.h"
 #include <GLFW/glfw3.h>
 
+
+// ----------------------- Input Callbacks --------------------------------------
+
 void(*MouseCallback)(int, int, int) = nullptr;
+void(*KeyboardCallback)(int, int, int, int) = nullptr;
 
 void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 {
+	//Check if mouse callback is set
 	if (MouseCallback != nullptr)
+		//Call keyboard callback
 		MouseCallback(button, action, mods);
 }
+
+void KeyboardButtonCallback(GLFWwindow* window, int button, int scancode, int action, int mods)
+{
+	//Check if keyboard callback is set
+	if (KeyboardCallback != nullptr)
+		//Call keyboard callback
+		KeyboardCallback(button, scancode, action, mods);
+}
+
+//---------------------------------------------------------------------------------
 
 InputManager* InputManager::s_Instance = nullptr;
 
@@ -18,9 +34,11 @@ InputManager::InputManager()
 	FR_CORE_ASSERT(!s_Instance, "InputManager Already Exists!");
 	s_Instance = this;
 
-	//Setup Mouse button callback funtion
+	//Setup Mouse and Keyboard button and callback funtions
 	void* window = Application::Get().GetWindow()->GetWindowHandle();
+
 	glfwSetMouseButtonCallback(static_cast<GLFWwindow*>(window), MouseButtonCallback);
+	glfwSetKeyCallback(static_cast<GLFWwindow*>(window), KeyboardButtonCallback);
 }
 
 void InputManager::SetMouseMode(MouseMode mode)
@@ -50,7 +68,7 @@ void InputManager::SetMouseMode(MouseMode mode)
 		FR_CORE_ASSERT(false, "Unknown MouseMode!");
 	}
 
-	 glfwSetInputMode(window, GLFW_CURSOR, mouseMode);
+	glfwSetInputMode(window, GLFW_CURSOR, mouseMode);
 }
 
 
@@ -73,6 +91,11 @@ bool InputManager::IsMouseButtonDown(int keycode)
 void InputManager::SetMouseButtonCallback(void(*callback)(int, int, int))
 {
 	MouseCallback = callback;
+}
+
+void InputManager::SetKeyboardButtonCallback(void(*callback)(int, int, int, int))
+{
+	KeyboardCallback = callback;
 }
 
 glm::vec2 InputManager::GetMousePosition()

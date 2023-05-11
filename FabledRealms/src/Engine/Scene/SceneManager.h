@@ -15,7 +15,7 @@ public:
 	SceneManager();
 	~SceneManager();
 
-	void UpdateScene(const Time& const time);
+	void UpdateScene(const Time& time);
 	void SwitchScene(Scenes scene);
 
 private:

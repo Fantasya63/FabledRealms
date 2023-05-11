@@ -41,7 +41,6 @@ public:
 
 	char GetVoxel(glm::ivec3 worldPos);
 	void ChangeVoxel(glm::ivec3 worldPos, char voxelID);
-
 	RayHit RayCast(const Ray& ray);
 
 	static World& Get() { return *s_Instance; }
@@ -52,7 +51,6 @@ private:
 private:
 	//Create a 16 by 16 chunk array to store our chunks
 	Chunk m_Chunks[WORLD_LENGTH][WORLD_LENGTH];
-
 	static World* s_Instance;
 };
 

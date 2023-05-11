@@ -24,9 +24,11 @@ public:
 	static bool IsMouseButtonDown(int keycode);
 
 	void SetMouseButtonCallback(void(*callback)(int, int, int));
+	void SetKeyboardButtonCallback(void(*callback)(int, int, int, int));
 
 	static glm::vec2 GetMousePosition();
 
 private:
 	static InputManager* s_Instance;
+
 };

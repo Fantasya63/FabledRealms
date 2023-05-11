@@ -129,7 +129,6 @@ const glm::ivec3 CUBE_FACE_VERTICES_POS[6][4]
 
 Chunk::Chunk()
 {
-	//Check if a saved chunk file exist
 }
 
 Chunk::~Chunk()

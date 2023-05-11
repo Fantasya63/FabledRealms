@@ -13,7 +13,7 @@ class MainMenuScene : public Scene
 public:
 	MainMenuScene();
 	~MainMenuScene();
-	virtual void Update(const Time& const time) override;
+	virtual void Update(const Time& time) override;
 
 private:
 	VertexArray* m_MenuScreenVAO;

@@ -82,7 +82,7 @@ Texture::Texture(const char texturePaths[6][100], TEXTURE_TYPE type, TEXTURE_FIL
 			// are next to each other by 1. So we can loop through the respective textureTargets by adding an i amount to
 			// GL_TEXTURE_CUBE_MAP_POSITIVE_X
 
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_SRGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 		
 			SetTextureWrapAndFilterCubemap(filter);
 
