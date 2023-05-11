@@ -18,6 +18,7 @@ IncludeDir["Glad"] = "FabledRealms/vendor/Glad/include"
 IncludeDir["glm"] = "FabledRealms/vendor/glm"
 IncludeDir["stb"] = "FabledRealms/vendor/stb"
 IncludeDir["irrKlang"] = "FabledRealms/vendor/irrKlang/include"
+IncludeDir["FastNoiseLite"] = "FabledRealms/vendor/FastNoiseLite"
 
 include "FabledRealms/vendor/GLFW"
 include "FabledRealms/vendor/glad"
@@ -42,6 +43,8 @@ project "FabledRealms"
 		"%{prj.name}/src/**.cpp",
 		"%{prj.name}/vendor/glm/**.hpp",
 		"%{prj.name}/vendor/glm/**.inl",
+		"%{prj.name}/vendor/FastNoiseLite/**.h",
+
 	}
 
 	defines
@@ -54,6 +57,7 @@ project "FabledRealms"
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Glad}",
 		"%{IncludeDir.glm}",
+		"%{IncludeDir.FastNoiseLite}",
 		"%{IncludeDir.stb}",
 		"%{IncludeDir.irrKlang}"
 	}

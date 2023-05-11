@@ -3,7 +3,7 @@
 #include "Chunk.h"
 
 //The world currently only has 16 by 16 chunks 
-#define WORLD_LENGTH 16
+
 
 struct Ray
 {
@@ -31,6 +31,9 @@ struct RayHit
 class World
 {
 public:
+	//Global Variable for World length
+	static const int WORLD_LENGTH = 16;
+
 	World();
 	~World();
 

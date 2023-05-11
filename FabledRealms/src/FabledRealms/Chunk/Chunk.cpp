@@ -1,11 +1,13 @@
 #include "frpch.h"
 #include <string>
+#include <iostream>
 #include <fstream>
 
 #include "Chunk.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glad/glad.h>
+#include <FastNoiseLite.h>
 
 #include <vector>
 #include "World.h"
@@ -188,13 +190,33 @@ char Chunk::CheckVoxel(glm::ivec3 localPos)
 
 void Chunk::PopulateVoxelData()
 {
+	//Terrain Generation
+
+	// Create and configure FastNoise object
+	FastNoiseLite noise;
+	noise.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
+	noise.SetFractalType(FastNoiseLite::FractalType_FBm);
+	noise.SetFractalOctaves(2);
+
+	//Heighmap Data
+	float Heightmap[16][16];
+
 	for (int x = 0; x < CHUNK_LENGTH; x++)
 	{
-		for (int y = 0; y < CHUNK_HEIGHT; y++)
+		for (int z = 0; z < CHUNK_LENGTH; z++)
 		{
-			for (int z = 0; z < CHUNK_LENGTH; z++) 
+			//Get Heightmap data from procedural noise
+			//Get worldspace coordinates for this position
+			glm::ivec2 world = (m_ChunkPos * glm::ivec2(World::WORLD_LENGTH)) + glm::ivec2(x, z);
+
+			//Get Heightmap data
+			Heightmap[x][z] = noise.GetNoise(static_cast<float>(world.x), static_cast<float>(world.y));
+
+			for (int y = 0; y < CHUNK_HEIGHT; y++)
 			{
-				//Terrain Generation
+				
+
+				int groundLevel = 50 + Heightmap[x][z] * 10.0;
 
 				//Set the bottom of the world to be Bedrock
 				if (y == 0)
@@ -203,23 +225,23 @@ void Chunk::PopulateVoxelData()
 					continue;
 				}
 
-				//Anything below y level 47 is stone
-				if (y < 47)
+				//Anything below ground level - 3 is stone
+				if (y < groundLevel - 3)
 				{
 					m_VoxelData[x][y][z] = BLOCK_ID::Stone;
 					continue;
 				}
 
 
-				//Y level 47-49 are dirt
-				if (y < 50)
+				//Y level below groundlevel are dirt
+				if (y < groundLevel)
 				{
 					m_VoxelData[x][y][z] = BLOCK_ID::Dirt;
 					continue;
 				}
 
-				//At Y level 50 are Grass
-				if (y == 50)
+				//At ground Level are grass
+				if (y == groundLevel)
 				{
 					m_VoxelData[x][y][z] = BLOCK_ID::Grass;
 					continue;
