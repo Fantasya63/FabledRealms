@@ -1,6 +1,7 @@
 #include "frpch.h"
 #include <string>
 #include <iostream>
+#include <filesystem>
 #include <fstream>
 
 #include "Chunk.h"
@@ -134,10 +135,15 @@ Chunk::Chunk()
 Chunk::~Chunk()
 {
 	//Save Data to disk
-	std::string filePath = "game/data/world/" + std::to_string(m_ChunkPos.x) + "-" + std::to_string(m_ChunkPos.y) + ".bin";
+	std::string saveDir = "game/data/world/";
+	std::string filename = std::to_string(m_ChunkPos.x) + "-" + std::to_string(m_ChunkPos.y) + ".bin";
 	
+	//Create a directory if it doesnt exist already
+	std::filesystem::create_directory(saveDir);
+
 	//Create and write file for this chunk
-	std::ofstream file(filePath, std::ios::binary);
+	std::ofstream file(saveDir + filename, std::ios::binary);
+
 	//Write Data
 	file.write(reinterpret_cast<const char*>(m_VoxelData), sizeof(m_VoxelData));
 	
