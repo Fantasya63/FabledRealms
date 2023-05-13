@@ -8,7 +8,7 @@
 #include "Engine/Graphics/Texture.h"
 #include "Engine/Graphics/Camera.h"
 
-#include "FabledRealms/Chunk/World.h"
+#include  "FabledRealms/World/World.h"
 
 class WorldScene : public Scene
 {
@@ -20,6 +20,14 @@ public:
 
 
 private:
+	// ----------- Crosshair ----------
+	VertexArray* m_CrosshairVAO;
+	VertexBuffer* m_CrosshairVBO;
+	IndexBuffer* m_CrosshairIBO;
+
+	Shader* m_CrosshairShader;
+	Texture* m_CrosshairTexture;
+
 	// ----------- Cubemap -----------
 
 	VertexArray* m_CubemapVAO;

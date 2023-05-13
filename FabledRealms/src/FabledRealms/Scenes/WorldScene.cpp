@@ -5,11 +5,13 @@
 #include "WorldScene.h"
 #include "Engine/Input/Input.h"
 #include "Engine/Application.h"
+#include "Engine/Sound/AudioManager.h"
+
 
 //Global variables for this cpp file only
 static const Camera* callbackCamera = nullptr;
 
-static char currentBlock = Chunk::BLOCK_ID::Stone;
+static char currentBlock = VoxelData::BLOCK_ID::Stone;
 
 void MouseCallback(int button, int action, int mods)
 {
@@ -24,7 +26,7 @@ void MouseCallback(int button, int action, int mods)
         if (hit.IsVoxelHit)
         {
             //Remove the voxel ie change it to an Air block
-            World::Get().ChangeVoxel(hit.VoxelPos, Chunk::BLOCK_ID::Air);
+            World::Get().ChangeVoxel(hit.VoxelPos, VoxelData::BLOCK_ID::Air);
         }
     }
 
@@ -51,28 +53,74 @@ void KeyboardCallback(int button, int scancode, int action, int mods )
     {
         switch (button)
         {
-            //Grass
-            case KEYCODE_1:
-                currentBlock = Chunk::BLOCK_ID::Grass;
-                LOG_INFO("Block in hand: Grass");
+            //Next
+            case KEYCODE_X:
+                currentBlock += 1;
+                if (currentBlock > VoxelData::TOTAL_NUM_OF_BLOCKS - 1)
+                    currentBlock = 0;
+                LOG_INFO("Current Block: " << (int)currentBlock);
                 break;
 
-            //Dirt
-            case KEYCODE_2:
-                currentBlock = Chunk::BLOCK_ID::Dirt;
-                LOG_INFO("Block in hand: Dirt");
-                break;
-
-            //Stone
-            case KEYCODE_3:
-                currentBlock = Chunk::BLOCK_ID::Stone;
-                LOG_INFO("Block in hand: Stone");
+            //Back
+            case KEYCODE_Z:
+                currentBlock -= 1;
+                if (currentBlock < 0)
+                    currentBlock = VoxelData::TOTAL_NUM_OF_BLOCKS - 1;
+                LOG_INFO("Current Block: " << (int)currentBlock);
                 break;
 
             //Bedrock
-            case KEYCODE_4:
-                currentBlock = Chunk::BLOCK_ID::Bedrock;
+            case KEYCODE_1:
+                currentBlock = VoxelData::BLOCK_ID::Bedrock;
                 LOG_INFO("Block in hand: Bedrock");
+                break;
+
+            //Stone
+            case KEYCODE_2:
+                currentBlock = VoxelData::BLOCK_ID::Stone;
+                LOG_INFO("Block in hand: Stone");
+                break;
+
+            //Dirt
+            case KEYCODE_3:
+                currentBlock = VoxelData::BLOCK_ID::Dirt;
+                LOG_INFO("Block in hand: Dirt");
+                break;
+
+            //Grass
+            case KEYCODE_4:
+                currentBlock = VoxelData::BLOCK_ID::Grass;
+                LOG_INFO("Block in hand: Grass");
+                break;
+
+            //Sand
+            case KEYCODE_5:
+                currentBlock = VoxelData::BLOCK_ID::Sand;
+                LOG_INFO("Block in hand: Sand");
+                break;
+
+            //Wood Planks
+            case KEYCODE_6:
+                currentBlock = VoxelData::BLOCK_ID::WoodPlank;
+                LOG_INFO("Block in hand: Wood Plank");
+                break;
+
+            //Wood Log
+            case KEYCODE_7:
+                currentBlock = VoxelData::BLOCK_ID::WoodLog;
+                LOG_INFO("Block in hand: Wood Log");
+                break;
+
+            //Brick
+            case KEYCODE_8:
+                currentBlock = VoxelData::BLOCK_ID::Brick;
+                LOG_INFO("Block in hand: Brick");
+                break;
+
+            //Leaves
+            case KEYCODE_9:
+                currentBlock = VoxelData::BLOCK_ID::Leaves;
+                LOG_INFO("Block in hand: Leaves");
                 break;
         }
     }
@@ -83,7 +131,7 @@ void KeyboardCallback(int button, int scancode, int action, int mods )
 WorldScene::WorldScene()
 {
 
-    LOG_INFO("CREATED WORLD SCENE");
+    DLOG_INFO("CREATED WORLD SCENE");
     glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
     glEnable(GL_DEPTH_TEST);
 
@@ -91,6 +139,40 @@ WorldScene::WorldScene()
     callbackCamera = &m_Camera;
     InputManager::Get().SetMouseButtonCallback(MouseCallback);
     InputManager::Get().SetKeyboardButtonCallback(KeyboardCallback);
+
+    // ------------------------------------------------------- Crosshair ------------------------------------------------------
+    m_CrosshairVAO = VertexArray::Create();
+    m_CrosshairVAO->Bind();
+
+    float vertices[]{
+        // POS              Normal            UV
+        -1.0f,  1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,     // top left
+        -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,     // bottom left
+         1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,     // bottom right
+         1.0f,  1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f,     // top right
+    };
+
+    uint32_t indices[6]{  // note that we start from 0!
+        0, 1, 2,  // first Triangle
+        0, 2, 3   // second Triangle
+    };
+
+
+    m_CrosshairVBO = VertexBuffer::Create(vertices, sizeof(float) * 32); //Takes in the vertices' size in bytes
+    m_CrosshairIBO = IndexBuffer::Create(indices, 6);
+
+
+    m_CrosshairShader = new Shader("Assets/Shaders/CrosshairShader.vert", "Assets/Shaders/CrosshairShader.frag");
+    m_CrosshairShader->setInt("CrosshairTex", 0);
+
+    const char crosshairTexturePath[6][100] = {
+        "Assets/Textures/crosshair.png",
+    };
+
+    m_CrosshairTexture = new Texture(crosshairTexturePath, Texture::TEXTURE_TYPE::TEXTURE2D, Texture::TEXTURE_FILTER::LINEAR);
+
+
+
 
     // ------------------------------------------------------- Cubemap --------------------------------------------------------
     
@@ -168,7 +250,7 @@ WorldScene::WorldScene()
     m_TerrainShader = new Shader("Assets/Shaders/TerrainShader.vert", "Assets/Shaders/TerrainShader.frag");
 
     const char texturePath[6][100] = {
-        "Assets/Textures/blocks.jpg",
+        "Assets/Textures/terrain.png",
     };
 
     m_TerrainTexture = new Texture(texturePath, Texture::TEXTURE_TYPE::TEXTURE2D, Texture::TEXTURE_FILTER::NEAREST);
@@ -208,6 +290,21 @@ void WorldScene::Update(const Time& const time)
 
 
     // ----------------------------- Rendering ------------------------------------------------
+
+    // ------------ Crosshair ------------
+    m_CrosshairTexture->Bind();
+    m_CrosshairShader->Use();
+
+    Window* window = Application::Get().GetWindow();
+    glm::vec2 screenRes = glm::vec2(window->GetWidth(), window->GetHeight());
+
+    m_CrosshairShader->SetVec2("u_ScreenRes", screenRes);
+    
+    m_CrosshairVAO->Bind();
+    glDrawElements(GL_TRIANGLES, m_CrosshairIBO->GetCount(), GL_UNSIGNED_INT, 0);
+
+
+    // ----------- World -------------------
 
 
     m_TerrainTexture->Bind();

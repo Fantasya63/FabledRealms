@@ -10,7 +10,13 @@ uniform sampler2D MenuTex;
 
 void main()
 {
-	vec3 diff = texture(MenuTex, v_UV).rgb;
+	float aspect = u_ScreenRes.x / u_ScreenRes.y;
+	vec2 uv = v_UV;
+	uv -= vec2(0.5);
+	uv.x *= aspect;
+	uv += vec2(0.5);
+
+	vec3 diff = texture(MenuTex, uv).rgb;
 	vec3 blue = vec3(0.0, 0.75, 1.0) * diff;
 	vec3 red = vec3(1.0, 0.0, 0.0) * diff;
 

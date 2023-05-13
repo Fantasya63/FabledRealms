@@ -38,7 +38,7 @@ private:
 	float m_Fov;
 	float m_AspectRatio;
 	float m_NearClip = 0.01f;
-	float m_FarClip = 100.0f;
+	float m_FarClip = 160.0f;
 
 	float m_WalkSpeed;
 	float m_SprintSpeed;

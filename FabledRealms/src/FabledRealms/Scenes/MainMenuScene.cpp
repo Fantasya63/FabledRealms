@@ -46,12 +46,12 @@ MainMenuScene::MainMenuScene()
 	m_MenuShader->setInt("MenuTex", 0);
 
 	const char texturePath[6][100] = {
-		"Assets/Textures/FabledRealmsSplash.png",
+		"Assets/Textures/FabledRealmsSplash.jpg",
 	};
 
 	m_MenuTexture = new Texture(texturePath, Texture::TEXTURE_TYPE::TEXTURE2D, Texture::TEXTURE_FILTER::LINEAR);
 
-	AudioManager::Get().PlaySound("Assets/Audio/MainMenu01.mp3", true);
+	AudioManager::Get().PlaySound("Assets/Audio/Menu/Calm-and-Peaceful.mp3", true);
 
 	//Enable Mouse
 	InputManager::SetMouseMode(InputManager::MouseMode::NORMAL);

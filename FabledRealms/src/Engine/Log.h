@@ -6,7 +6,7 @@
 #define LOG_CORE_INFO(...)	std::cout << "CORE INFO:    " << __VA_ARGS__ << std::endl
 
 
-#define LOG_FATAL(...)	std::cout << "CORE FATAL:   " << __VA_ARGS__ << std::endl
-#define LOG_ERROR(...)	std::cout << "CORE ERROR:   " << __VA_ARGS__ << std::endl
-#define LOG_WARN(...)	std::cout << "CORE WARNING: " << __VA_ARGS__ << std::endl
-#define LOG_INFO(...)	std::cout << "CORE INFO:    " << __VA_ARGS__ << std::endl
+#define LOG_FATAL(...)	std::cout << "APP FATAL:   " << __VA_ARGS__ << std::endl
+#define LOG_ERROR(...)	std::cout << "APP ERROR:   " << __VA_ARGS__ << std::endl
+#define LOG_WARN(...)	std::cout << "APP WARNING: " << __VA_ARGS__ << std::endl
+#define LOG_INFO(...)	std::cout << "APP INFO:    " << __VA_ARGS__ << std::endl

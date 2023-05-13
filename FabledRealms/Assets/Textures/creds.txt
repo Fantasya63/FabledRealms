@@ -1,0 +1,4 @@
+Texture
+https://content.minetest.net/packages/ROllerozxa/vilja_pix_2/
+https://spdx.org/licenses/CC-BY-SA-4.0.html
+

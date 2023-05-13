@@ -31,10 +31,23 @@ Texture::Texture(const char texturePaths[6][100], TEXTURE_TYPE type, TEXTURE_FIL
 			FR_CORE_ASSERT(false, ""); //Insert A breakpoint
 		}
 
+		//We currently only support RGB and RGBA textures
+		int srcFormat, gpuFormat;
+		if (numChannels == 4)
+		{
+			srcFormat = GL_RGBA;
+			gpuFormat = GL_SRGB8_ALPHA8;
+		}
+		else
+		{
+			srcFormat = GL_RGB;
+			gpuFormat = GL_SRGB;
+		}
+		
 
 		// Upload Image Data to the GPU.
 		// Takes in: Which target, mipmap level, format to store texture on gpu, width, height, legacy opengl (should always be 0), format of source, data type of src, image data, 
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		glTexImage2D(GL_TEXTURE_2D, 0, gpuFormat, width, height, 0, srcFormat, GL_UNSIGNED_BYTE, data);
 
 
 		//Tell the GPU to Generate Mipmaps
@@ -71,6 +84,19 @@ Texture::Texture(const char texturePaths[6][100], TEXTURE_TYPE type, TEXTURE_FIL
 				FR_CORE_ASSERT(false, ""); //Insert A breakpoint
 			}
 
+			//We currently only support RGB and RGBA textures
+			int srcFormat, gpuFormat;
+			if (numChannels == 4)
+			{
+				srcFormat = GL_RGBA;
+				gpuFormat = GL_SRGB8_ALPHA8;
+			}
+			else
+			{
+				srcFormat = GL_RGB;
+				gpuFormat = GL_SRGB;
+			}
+
 			//In OpenGl, the enums: 
 			// GL_TEXTURE_CUBE_MAP_POSITIVE_X (Right)
 			// GL_TEXTURE_CUBE_MAP_NEGATIVE_X (Left)
@@ -81,8 +107,7 @@ Texture::Texture(const char texturePaths[6][100], TEXTURE_TYPE type, TEXTURE_FIL
 			// 
 			// are next to each other by 1. So we can loop through the respective textureTargets by adding an i amount to
 			// GL_TEXTURE_CUBE_MAP_POSITIVE_X
-
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_SRGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, gpuFormat, width, height, 0, srcFormat, GL_UNSIGNED_BYTE, data);
 		
 			SetTextureWrapAndFilterCubemap(filter);
 
@@ -116,8 +141,8 @@ void Texture::Bind() const
 void Texture::SetTextureWrapAndFilter2D(TEXTURE_FILTER filter)
 {
 	//Set Wrap Options to REPEAT sothat the texture repeats when the UV is outside 0 to 1 range
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 	//Set Filter Options
 	switch (filter)
