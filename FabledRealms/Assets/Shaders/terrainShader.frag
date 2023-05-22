@@ -13,8 +13,8 @@ uniform float u_Time;
 void main()
 {
 	vec4 albedo = texture(blockTex, v_UV);
-	//if (albedo.a < 0.5)
-		//discard;
+	if (albedo.a < 0.5)
+		discard;
 
 	float light = max(0.0, dot(v_Normal, normalize(vec3(1.0, 1.0, 2.0))));
 	vec3 diff = light * albedo.rgb;

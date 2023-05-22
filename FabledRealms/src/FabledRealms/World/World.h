@@ -2,8 +2,6 @@
 #include <glm/glm.hpp>
 #include "Chunk.h"
 
-//The world currently only has 16 by 16 chunks 
-
 
 struct Ray
 {
@@ -26,6 +24,8 @@ struct RayHit
 	glm::ivec3 Normal;
 };
 
+
+// The world currently only has 16 by 16 chunks
 // -----------------------------------------------------------------------
 
 class World

@@ -10,10 +10,6 @@ public:
 
 	void Bind();
 
-	//inline void SetVertexBuffer(VertexBuffer& vbo) { m_VertexBuffer = &vbo; };
-	//inline void SetIndexBuffer(IndexBuffer& ibo) { m_IndexBuffer = &ibo; };
-
-
 private:
 	VertexArray(); // Not required, but done to keep the api consistent
 

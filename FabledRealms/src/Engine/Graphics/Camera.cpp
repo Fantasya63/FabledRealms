@@ -12,8 +12,13 @@ Camera::Camera(glm::vec3 pos, glm::vec3 rot, float fov, float walkSpeed, float s
 	m_SprintSpeed = sprintSpeed;
 	m_MouseSensitivity = mouseSensitivity;
 
+	//Calculate the transformation matrix
 	CalculateTransform();
+
+	//calculate the front, right, and up vectors of the resulting transform
 	CalculateCameraVectors();
+
+	//Calculate the view matrix with the Camera's transformation matrix
 	CalculateViewMatrix();
 
 	m_Fov = fov;

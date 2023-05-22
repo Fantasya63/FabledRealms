@@ -144,6 +144,8 @@ WorldScene::WorldScene()
     m_CrosshairVAO = VertexArray::Create();
     m_CrosshairVAO->Bind();
 
+    
+    //create the vertex data for a full screen quad
     float vertices[]{
         // POS              Normal            UV
         -1.0f,  1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,     // top left
@@ -152,23 +154,26 @@ WorldScene::WorldScene()
          1.0f,  1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f,     // top right
     };
 
+    //Create it's index data
     uint32_t indices[6]{  // note that we start from 0!
         0, 1, 2,  // first Triangle
         0, 2, 3   // second Triangle
     };
 
 
+    //Create the vertex and Index Buffers
     m_CrosshairVBO = VertexBuffer::Create(vertices, sizeof(float) * 32); //Takes in the vertices' size in bytes
     m_CrosshairIBO = IndexBuffer::Create(indices, 6);
 
-
+    //Create and Configure the shader
     m_CrosshairShader = new Shader("Assets/Shaders/CrosshairShader.vert", "Assets/Shaders/CrosshairShader.frag");
     m_CrosshairShader->setInt("CrosshairTex", 0);
 
+
+    //Create the crosshair texture
     const char crosshairTexturePath[6][100] = {
         "Assets/Textures/crosshair.png",
     };
-
     m_CrosshairTexture = new Texture(crosshairTexturePath, Texture::TEXTURE_TYPE::TEXTURE2D, Texture::TEXTURE_FILTER::LINEAR);
 
 
@@ -176,6 +181,7 @@ WorldScene::WorldScene()
 
     // ------------------------------------------------------- Cubemap --------------------------------------------------------
     
+    //Create the cubemap texture
     const char cubmapTexturePath[6][100] = {
         "Assets/Textures/Cubemap/right.png",
         "Assets/Textures/Cubemap/left.png",
@@ -186,7 +192,8 @@ WorldScene::WorldScene()
     };
     m_CubemapTexture = new Texture(cubmapTexturePath, Texture::TEXTURE_TYPE::CUBEMAP, Texture::TEXTURE_FILTER::LINEAR);
 
-    //Interleaved Vertex Data for Skybox
+
+    //Vertex Data for Skybox
     float skyboxVertices[] = {
        
         //Positions          Normal            UV
@@ -230,34 +237,36 @@ WorldScene::WorldScene()
         7, 2, 6
     };
 
+    //Create the vertex array and Bind it
     m_CubemapVAO = VertexArray::Create();
     m_CubemapVAO->Bind();
 
+    //Create vertex buffer
     m_CubemapVBO = VertexBuffer::Create(skyboxVertices, sizeof(float) * 64); //Takes in the size of vertices in bytes
-  
+
+    //Create index buffer
     int indexCount = sizeof(skyboxIndices) / sizeof(skyboxIndices[0]);
     m_CubemapIBO = IndexBuffer::Create(skyboxIndices, indexCount);
 
 
+    //Create the shader for the sky
     m_CubemapShader = new Shader("Assets/Shaders/Cubemap.vert", "Assets/Shaders/Cubemap.frag");
 
 
 
     // ---------------------------------------------- World -----------------------------------------------------
 
-	
-
+    //Create and configure the shader for the terrain
     m_TerrainShader = new Shader("Assets/Shaders/TerrainShader.vert", "Assets/Shaders/TerrainShader.frag");
+    m_TerrainShader->SetMat4("a_ProjMatrix", m_Camera.GetProjMatrix(Application::Get().GetWindow()->GetAspectRatio()));
 
+
+    //Create the texture atlas
     const char texturePath[6][100] = {
         "Assets/Textures/terrain.png",
     };
-
     m_TerrainTexture = new Texture(texturePath, Texture::TEXTURE_TYPE::TEXTURE2D, Texture::TEXTURE_FILTER::NEAREST);
 
-
-    // TODO: Update the Proj Martix when we resize or change window size
-    m_TerrainShader->SetMat4("a_ProjMatrix", m_Camera.GetProjMatrix(Application::Get().GetWindow()->GetAspectRatio()));
 
     //Disable Mouse
     InputManager::SetMouseMode(InputManager::MouseMode::DISABLED);
@@ -292,48 +301,63 @@ void WorldScene::Update(const Time& const time)
     // ----------------------------- Rendering ------------------------------------------------
 
     // ------------ Crosshair ------------
+    // Bind the texture
     m_CrosshairTexture->Bind();
-    m_CrosshairShader->Use();
 
+    // Configure the shader
+    m_CrosshairShader->Use();
     Window* window = Application::Get().GetWindow();
     glm::vec2 screenRes = glm::vec2(window->GetWidth(), window->GetHeight());
-
     m_CrosshairShader->SetVec2("u_ScreenRes", screenRes);
     
+    //Bind the geometry we're rendering
     m_CrosshairVAO->Bind();
+
+    //Render the crosshair
     glDrawElements(GL_TRIANGLES, m_CrosshairIBO->GetCount(), GL_UNSIGNED_INT, 0);
+
+
 
 
     // ----------- World -------------------
 
-
+     // Bind the texture
     m_TerrainTexture->Bind();
+
+    // Configure the shader
     m_TerrainShader->Use();
-
     glm::mat4 view = m_Camera.GetViewMatrix();
-    //DLOG_CORE_INFO("VIEW TEST: " << test.x << ", " << test.y << ", " << test.z);
-
     m_TerrainShader->SetMat4("a_ViewMatrix", m_Camera.GetViewMatrix());
     m_TerrainShader->SetMat4("a_ProjMatrix", m_Camera.GetProjMatrix(Application::Get().GetWindow()->GetAspectRatio()));
     m_TerrainShader->setInt("blockTex", 0);
     m_TerrainShader->SetFloat("u_Time", time.currentTime);
 
-
+    //Render the world
     m_World.Render(m_TerrainShader);
 
-    // ----- Render Skybox -------
 
-    glDepthFunc(GL_EQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
+
+    // ----- Render Skybox -------
+    // change depth function so depth test passes when values are equal to depth buffer's content
+    glDepthFunc(GL_EQUAL);  
     
+    //Bind the texture
     m_CubemapTexture->Bind();
+
+    //Configure the shader
     m_CubemapShader->Use();
     m_CubemapShader->SetMat4("a_ViewMatrix", glm::mat4(glm::mat3(m_Camera.GetViewMatrix()))); // Strip away the translations in the matrix
     m_TerrainShader->SetMat4("a_ProjMatrix", m_Camera.GetProjMatrix(Application::Get().GetWindow()->GetAspectRatio()));
 
+    //Bind the geometry we're rendering
     m_CubemapVAO->Bind();
+
+    //Render the Geometry
     glDrawElements(GL_TRIANGLES, m_CubemapIBO->GetCount(), GL_UNSIGNED_INT, 0);
 
-    glDepthFunc(GL_LESS); // Change Depth func back to default
+
+    // Change Depth func back to default
+    glDepthFunc(GL_LESS); 
 
     // -----------------------------------------------------------------------------------
 

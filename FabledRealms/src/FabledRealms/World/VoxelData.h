@@ -1,15 +1,29 @@
 #pragma once
 #include <glm/glm.hpp>
 
-//Voxel datas and Helper functions
+// Properties for each voxel/block type
+struct VoxelProps
+{
+	bool IsTransparent;
+	int	UVIndex[6]; // UV Index per face
 
+	// For future endevours
+	// char hardness; // determines how fast we can break the block
+	// char stackAmount; // Total number of  items we can carry in a stack
+};
+
+
+//Voxel datas and Helper functions
 class VoxelData
 {
 public:
 	// ------------------------------------------ Voxel ------------------------------------------
+
+	// Block Ids of each block type
+	// Corresponds to the index of the Voxel Properties array
 	enum BLOCK_ID
 	{
-		Air = 0,
+		Air,		// 0
 		Bedrock,	// 1
 		Stone,		// 2
 		Dirt,		// 3
@@ -25,8 +39,10 @@ public:
 		WhiteWool,	// 13
 		YellowWool,	// 14
 	};
+	static const VoxelProps voxelProps[];
+	static const int TOTAL_NUM_OF_BLOCKS; //Total number of blockTypes we have in the game
 
-	static const int TOTAL_NUM_OF_BLOCKS = 15; //Total number of blockIDs we have in the game
+
 	static const int TOTAL_NUM_OF_CUBE_FACES = 6;
 	static const int TOTAL_NUMBER_OF_CUBE_VERTS = 4;
 
@@ -39,13 +55,6 @@ public:
 	// and each side has 4 vertices 
 	static const glm::ivec3 CUBE_FACE_VERTICES_POS[6][4];
 
-	//UV Indices of block faces in the texture atlas
-	static const int VOXEL_UV_INDICES[VoxelData::TOTAL_NUM_OF_BLOCKS][TOTAL_NUM_OF_CUBE_FACES];
-
-
-	
-	
-
 	static glm::vec2 GetUVSFromUVIndex(int index, int vert);
 
 private:
@@ -55,14 +64,5 @@ private:
 
 	//Raw 0-1 data for UVS in each face
 	static const glm::vec2 RAW_UV[TOTAL_NUMBER_OF_CUBE_VERTS];
-
-
-	// ---------------------------------------- Chunk --------------------------------------------
-
-public:
-	static const int CHUNK_LENGTH = 16;
-	static const int CHUNK_HEIGHT = 256;
-
-
 
 };

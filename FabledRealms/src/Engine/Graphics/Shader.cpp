@@ -19,6 +19,7 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
 	std::ifstream fShaderFile;
 
 
+	// Make sure we can throw exceptions
 	vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 	fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 
@@ -54,30 +55,41 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
 		LOG_CORE_ERROR("Failed To Read Fragment Shader at: " << fragmentPath);
 	}
 
+
 	// Compile Shaders
 	
 	// Vertex
 	int success = 0;
+
 	const char* src = vertexCode.c_str();
 	
+	//Create a shader in the GPU
 	int32_t vShaderID = glCreateShader(GL_VERTEX_SHADER);
+
+	//Set the sourcecode of the shader
 	glShaderSource(vShaderID, 1, &src, nullptr);
 
+	//Compile the shader
 	glCompileShader(vShaderID);
+
+	//Check it's compilation status
 	glGetShaderiv(vShaderID, GL_COMPILE_STATUS, &success);
+
+	//Check if we succesfully compiled the shader
 	if (!success)
 	{
-		//Get error infos
+		// Get error infos
 		int maxLength = 0;
 		glGetShaderiv(vShaderID, GL_INFO_LOG_LENGTH, &maxLength);
 
-		//Max length includes the null character
+		// Max length includes the null character
 		char* infoLog = new char[maxLength];
 		glGetShaderInfoLog(vShaderID, maxLength, nullptr, infoLog);
 
-		//We dont need the shader anymore.
+		// We dont need the shader anymore.
 		glDeleteShader(vShaderID);
-
+		
+		// Log the error to the console
 		LOG_CORE_ERROR(infoLog);
 
 		delete[] infoLog;
@@ -86,11 +98,20 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
 	// ---------- Fragment Shader ----------------------------
 
 	src = fragmentCode.c_str();
+
+	//Create a fragment shader in the GPU
 	int fShaderID = glCreateShader(GL_FRAGMENT_SHADER);
+
+	//Set the sourcecode of the shader
 	glShaderSource(fShaderID, 1, &src, nullptr);
 
+	//Compile the shader
 	glCompileShader(fShaderID);
+
+	//Check it's status
 	glGetShaderiv(fShaderID, GL_COMPILE_STATUS, &success);
+
+	//Check if it was a success
 	if (!success)
 	{
 		//Get error infos
@@ -111,30 +132,36 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
 	}
 
 	// Create the Shader Program
-
 	m_RendererID = glCreateProgram();
+
+	//Attached the compiled shaders
 	glAttachShader(m_RendererID, vShaderID);
 	glAttachShader(m_RendererID, fShaderID);
 
 	//Link the program
 	glLinkProgram(m_RendererID);
 	
+	//Check the linking status
 	glGetProgramiv(m_RendererID, GL_LINK_STATUS, &success);
+
 	if (!success)
 	{
+		//Get the length of the error info
 		int maxLength = 0;
 		glGetProgramiv(m_RendererID, GL_INFO_LOG_LENGTH, &maxLength);
 
-		//Max length includes the null character
+		//Note: Max length includes the null character
 		char* infoLog = new char[maxLength];
+
+		//Get the error info
 		glGetProgramInfoLog(m_RendererID, maxLength, nullptr, infoLog);
 
 		//Compilation failed, delete everythng
 		glDeleteProgram(m_RendererID);
-
 		glDeleteShader(vShaderID);
 		glDeleteShader(fShaderID);
 
+		//Log the error
 		LOG_CORE_ERROR(infoLog);
 
 		delete[] infoLog;

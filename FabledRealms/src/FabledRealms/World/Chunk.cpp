@@ -92,9 +92,9 @@ void Chunk::PopulateVoxelData()
 	//Heighmap Data
 	float Heightmap[16][16];
 
-	for (int x = 0; x < VoxelData::CHUNK_LENGTH; x++)
+	for (int x = 0; x < Chunk::CHUNK_LENGTH; x++)
 	{
-		for (int z = 0; z < VoxelData::CHUNK_LENGTH; z++)
+		for (int z = 0; z < Chunk::CHUNK_LENGTH; z++)
 		{
 			//Get Heightmap data from procedural noise
 			//Get worldspace coordinates for this position
@@ -103,7 +103,7 @@ void Chunk::PopulateVoxelData()
 			//Get Heightmap data
 			Heightmap[x][z] = noise.GetNoise(static_cast<float>(world.x), static_cast<float>(world.y));
 
-			for (int y = 0; y < VoxelData::CHUNK_HEIGHT; y++)
+			for (int y = 0; y < Chunk::CHUNK_HEIGHT; y++)
 			{
 				
 
@@ -176,11 +176,11 @@ void Chunk::GenerateMesh()
 	uint32_t currentIndex = 0;
 
 	//Loop throught every voxel in the chunk
-	for (int x = 0; x < VoxelData::CHUNK_LENGTH; x++)
+	for (int x = 0; x < Chunk::CHUNK_LENGTH; x++)
 	{
-		for (int y = 0; y < VoxelData::CHUNK_HEIGHT; y++)
+		for (int y = 0; y < Chunk::CHUNK_HEIGHT; y++)
 		{
-			for (int z = 0; z < VoxelData::CHUNK_LENGTH; z++)
+			for (int z = 0; z < Chunk::CHUNK_LENGTH; z++)
 			{
 				//Position of this voxel
 				glm::ivec3 voxelPos = glm::ivec3(x, y, z);
@@ -201,15 +201,15 @@ void Chunk::GenerateMesh()
 					//Check if there's a block infront of the face
 					glm::ivec3 checkPos = voxelPos + normal;
 					//Convert the position to world Space
-					checkPos += glm::vec3(m_ChunkPos.x, 0.0, m_ChunkPos.y) * glm::vec3(VoxelData::CHUNK_LENGTH);
+					checkPos += glm::vec3(m_ChunkPos.x, 0.0, m_ChunkPos.y) * glm::vec3(Chunk::CHUNK_LENGTH);
 
 					char blockCheckID = World::Get().GetVoxel(checkPos);
 					
-					//If the face has a block in front of it, then it is occluded so we dont need to render what we cant see
-					if (blockCheckID != VoxelData::BLOCK_ID::Air)
+					//If the face has a non-transparent block in front of it, then it is occluded so we dont need to render what we cant see
+					if (!VoxelData::voxelProps[blockCheckID].IsTransparent)
 						continue;
 
-					int uvIndex = VoxelData::VOXEL_UV_INDICES[voxelID][face];
+					int uvIndex = VoxelData::voxelProps[voxelID].UVIndex[face];
 
 					//Loop through all of the face's vertices
 					for (int vert = 0; vert < VoxelData::TOTAL_NUMBER_OF_CUBE_VERTS; vert++)
@@ -277,7 +277,7 @@ void Chunk::RenderChunk(Shader* shader)
 	// Set Model Matrix
 	// This is the position, rotation, and scale of the Chunk
 	// In this case, we're only moving the chunk bby a certain amount
-	glm::vec3 pos = glm::vec3(m_ChunkPos.x * VoxelData::CHUNK_LENGTH, 0.0f, m_ChunkPos.y * VoxelData::CHUNK_LENGTH);
+	glm::vec3 pos = glm::vec3(m_ChunkPos.x * Chunk::CHUNK_LENGTH, 0.0f, m_ChunkPos.y * Chunk::CHUNK_LENGTH);
 	glm::mat4 modelMatrix = glm::mat4(1.0); //Initialize to Identity matrix
 	modelMatrix = glm::translate(modelMatrix, pos);
 

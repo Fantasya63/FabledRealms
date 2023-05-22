@@ -34,6 +34,7 @@ World::~World()
 
 void World::Render(Shader* shader)
 {
+	//Loop through all the chunks and render them
 	for (int x = 0; x < WORLD_LENGTH; x++)
 	{
 		for (int y = 0; y < WORLD_LENGTH; y++)
@@ -47,8 +48,8 @@ void World::Render(Shader* shader)
 char World::GetVoxel(glm::ivec3 worldPos)
 {
 	//Get the world limit in blocks
-	int worldLimitX = VoxelData::CHUNK_LENGTH * WORLD_LENGTH;
-	int worldLimitY = VoxelData::CHUNK_HEIGHT;
+	int worldLimitX = Chunk::CHUNK_LENGTH * WORLD_LENGTH;
+	int worldLimitY = Chunk::CHUNK_HEIGHT;
 
 	//Check for out of bounds
 	if (worldPos.x > worldLimitX - 1 || worldPos.x < 0 ||
@@ -60,10 +61,10 @@ char World::GetVoxel(glm::ivec3 worldPos)
 	}
 
 	//Find out which chunk the voxel falls,
-	glm::ivec2 chunkPos = glm::ivec2(worldPos.x / VoxelData::CHUNK_LENGTH, worldPos.z / VoxelData::CHUNK_LENGTH);
+	glm::ivec2 chunkPos = glm::ivec2(worldPos.x / Chunk::CHUNK_LENGTH, worldPos.z / Chunk::CHUNK_LENGTH);
 
 	//Get position relatice to chunk by converting chunk pos to world space first and subtract it from world pos
-	glm::ivec3 localPos = worldPos - glm::ivec3(chunkPos.x * VoxelData::CHUNK_LENGTH, 0, chunkPos.y * VoxelData::CHUNK_LENGTH);
+	glm::ivec3 localPos = worldPos - glm::ivec3(chunkPos.x * Chunk::CHUNK_LENGTH, 0, chunkPos.y * Chunk::CHUNK_LENGTH);
 
 	//Check for the voxel
 	return m_Chunks[chunkPos.x][chunkPos.y].CheckVoxel(localPos);
@@ -73,8 +74,8 @@ char World::GetVoxel(glm::ivec3 worldPos)
 void World::ChangeVoxel(glm::ivec3 worldPos, char voxelID)
 {
 	//Get the world limit in blocks
-	int worldLimitX = VoxelData::CHUNK_LENGTH * WORLD_LENGTH;
-	int worldLimitY = VoxelData::CHUNK_HEIGHT;
+	int worldLimitX = Chunk::CHUNK_LENGTH * WORLD_LENGTH;
+	int worldLimitY = Chunk::CHUNK_HEIGHT;
 
 	//Check for out of bounds
 	if (worldPos.x > worldLimitX - 1 || worldPos.x < 0 ||
@@ -86,10 +87,10 @@ void World::ChangeVoxel(glm::ivec3 worldPos, char voxelID)
 	}
 
 	//Find out which chunk the voxel falls,
-	glm::ivec2 chunkPos = glm::ivec2(worldPos.x / VoxelData::CHUNK_LENGTH, worldPos.z / VoxelData::CHUNK_LENGTH);
+	glm::ivec2 chunkPos = glm::ivec2(worldPos.x / Chunk::CHUNK_LENGTH, worldPos.z / Chunk::CHUNK_LENGTH);
 
 	//Get position relatice to chunk by converting chunk pos to world space first and subtract it from world pos
-	glm::ivec3 localPos = worldPos - glm::ivec3(chunkPos.x * VoxelData::CHUNK_LENGTH, 0, chunkPos.y * VoxelData::CHUNK_LENGTH);
+	glm::ivec3 localPos = worldPos - glm::ivec3(chunkPos.x * Chunk::CHUNK_LENGTH, 0, chunkPos.y * Chunk::CHUNK_LENGTH);
 
 
 	//Replace the block to air
@@ -112,7 +113,7 @@ void World::ChangeVoxel(glm::ivec3 worldPos, char voxelID)
 			m_Chunks[neighborChunkPos.x][neighborChunkPos.y].GenerateMesh();
 		}
 	}
-	else if (localPos.x == VoxelData::CHUNK_LENGTH - 1)
+	else if (localPos.x == Chunk::CHUNK_LENGTH - 1)
 	{
 		//Get neighboring chunk
 		neighborChunkPos.x = chunkPos.x + 1;
@@ -140,7 +141,7 @@ void World::ChangeVoxel(glm::ivec3 worldPos, char voxelID)
 			m_Chunks[neighborChunkPos.x][neighborChunkPos.y].GenerateMesh();
 		}
 	}
-	else if (localPos.z == VoxelData::CHUNK_LENGTH - 1)
+	else if (localPos.z == Chunk::CHUNK_LENGTH - 1)
 	{
 		//Get neighboring chunk
 		neighborChunkPos.x = chunkPos.x;
@@ -162,6 +163,7 @@ const float MAX_RAY_LENGTH = 10.0;
 const int   RAY_STEPS = 100;
 const float RAY_STEP_SIZE = MAX_RAY_LENGTH / RAY_STEPS;
 
+// Crude approximation of finding the intersection, leads to sometimes getting the wrong block especially in low ray steps
 RayHit World::RayCast(const Ray& ray)
 {
 	RayHit hit;
@@ -174,8 +176,13 @@ RayHit World::RayCast(const Ray& ray)
 
 	for (int i = 0; i < RAY_STEPS + 1; i++)
 	{
+		//Calculate the position for this step
 		pos = ray.Origin + ray.Direction * (i * RAY_STEP_SIZE);
+
+		//Get the voxel position for this block which corresponds to the index of the block in the chunk pos if in local space
 		voxelPos = glm::floor(pos);
+
+		//Get the block in this positon
 		voxel = GetVoxel(voxelPos);
 		if (voxel == VoxelData::BLOCK_ID::Air)
 			continue;
@@ -186,12 +193,12 @@ RayHit World::RayCast(const Ray& ray)
 		hit.VoxelPos = voxelPos;
 
 		//calculate Hit normal
-		glm::vec3 voxelCenter = (glm::vec3)(voxelPos)+glm::vec3(0.5);
+		glm::vec3 voxelCenter = (glm::vec3)(voxelPos) + glm::vec3(0.5);
 		glm::vec3 dir = pos - voxelCenter;
 		dir = glm::normalize(dir);
 
+
 		//Find the axis that's closest to the ray dir
-		
 		float dotX = glm::abs(glm::dot(dir, glm::vec3(1.0, 0.0, 0.0)));
 		float dotY = glm::abs(glm::dot(dir, glm::vec3(0.0, 1.0, 0.0)));
 		float dotZ = glm::abs(glm::dot(dir, glm::vec3(0.0, 0.0, 1.0)));

@@ -140,7 +140,7 @@ void Texture::Bind() const
 
 void Texture::SetTextureWrapAndFilter2D(TEXTURE_FILTER filter)
 {
-	//Set Wrap Options to REPEAT sothat the texture repeats when the UV is outside 0 to 1 range
+	//Set Wrap Options to Clamp To Edge
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 

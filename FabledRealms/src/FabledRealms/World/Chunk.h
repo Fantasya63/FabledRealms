@@ -13,6 +13,9 @@ public:
 	Chunk();
 	~Chunk();
 
+	static const int CHUNK_LENGTH = 16;
+	static const int CHUNK_HEIGHT = 256;
+
 	void Init(glm::ivec2 chunkPosition);
 
 	void PopulateVoxelData();
@@ -24,7 +27,7 @@ public:
 
 private:
 	//Container for BlockIDS at position (x, y, z)
-	char  m_ChunkData[VoxelData::CHUNK_LENGTH][VoxelData::CHUNK_HEIGHT][VoxelData::CHUNK_LENGTH];
+	char  m_ChunkData[Chunk::CHUNK_LENGTH][Chunk::CHUNK_HEIGHT][Chunk::CHUNK_LENGTH];
 	glm::ivec2 m_ChunkPos;
 
 	//Renderer Props

@@ -6,8 +6,13 @@
 
 VertexBuffer::VertexBuffer(float* vertices, uint32_t size)
 {
+	//Create a buffer in the gpu, this will also set the m_RendererID as the location of the data in the GPU (like pointers)
 	glCreateBuffers(1, &m_RendererID);
+
+	//Bind Buffer
 	glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
+
+	//Upload the data to the GPU
 	glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
 
 	SetVertexLayout();
@@ -15,6 +20,7 @@ VertexBuffer::VertexBuffer(float* vertices, uint32_t size)
 
 VertexBuffer::~VertexBuffer()
 {
+	//Delete the data on the GPU
 	glDeleteBuffers(1, &m_RendererID);
 }
 

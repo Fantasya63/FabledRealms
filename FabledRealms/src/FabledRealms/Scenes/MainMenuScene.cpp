@@ -38,19 +38,25 @@ MainMenuScene::MainMenuScene()
 	};
 
 
+	//Create buffer objects
 	m_MenuScreenVBO = VertexBuffer::Create(vertices, sizeof(float) * 32); //Takes in the vertices' size in bytes
 	m_MenuScreenIBO = IndexBuffer::Create(indices, 6);
 
 
+	//Create the main menu shader
 	m_MenuShader = new Shader("Assets/Shaders/MainMenuShader.vert", "Assets/Shaders/MainMenuShader.frag");
-	m_MenuShader->setInt("MenuTex", 0);
 
+	//Set the texture location to the first texture unit
+	m_MenuShader->setInt("MenuTex", 0);
+	
+
+	//Create the Main Menu texture
 	const char texturePath[6][100] = {
 		"Assets/Textures/FabledRealmsSplash.jpg",
 	};
-
 	m_MenuTexture = new Texture(texturePath, Texture::TEXTURE_TYPE::TEXTURE2D, Texture::TEXTURE_FILTER::LINEAR);
 
+	//Play background music
 	AudioManager::Get().PlaySound("Assets/Audio/Menu/Calm-and-Peaceful.mp3", true);
 
 	//Enable Mouse
@@ -72,14 +78,18 @@ MainMenuScene::~MainMenuScene()
 
 void MainMenuScene::Update(const Time& const time)
 {
+	//Clear the frame
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	
+	//Close if we pressed escape
 	if (InputManager::IsKeyDown(KEYCODE_ESCAPE))
 	{
 		Application::Get().RequestClose();
 		return;
 	}
+
+	//Swith to the world scene if we pressed enter
 	else if (InputManager::IsKeyDown(KEYCODE_SPACE))
 	{
 		SceneManager::Get().SwitchScene(SceneManager::WORLD);

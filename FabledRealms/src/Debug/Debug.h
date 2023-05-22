@@ -1,6 +1,6 @@
 #pragma once
 
-
+//If we are in debug mode, enable debug logs and asserts
 #ifdef FR_DEBUG
 	#define FR_ENABLE_ASSERTS
 	#define FR_ENABLE_DEBUG_LOGS

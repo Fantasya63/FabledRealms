@@ -6,6 +6,7 @@
 
 // ----------------------- Input Callbacks --------------------------------------
 
+// Declare function pointers for our callbacks that will be called when making an input
 void(*MouseCallback)(int, int, int) = nullptr;
 void(*KeyboardCallback)(int, int, int, int) = nullptr;
 
@@ -43,8 +44,10 @@ InputManager::InputManager()
 
 void InputManager::SetMouseMode(MouseMode mode)
 {
+	//Get the window Handle
 	GLFWwindow* window = static_cast<GLFWwindow*>(Application::Get().GetWindow()->GetWindowHandle());
 
+	//Map our mouse mode class enum into glfw's
 	int mouseMode;
 	switch (mode)
 	{
@@ -66,25 +69,35 @@ void InputManager::SetMouseMode(MouseMode mode)
 
 	default:
 		FR_CORE_ASSERT(false, "Unknown MouseMode!");
+		break;
 	}
 
+	//Set the mouse mode with the mapped state
 	glfwSetInputMode(window, GLFW_CURSOR, mouseMode);
 }
 
 
 bool InputManager::IsKeyDown(int keycode)
 {
+	//Get the window Handle
 	void* window = Application::Get().GetWindow()->GetWindowHandle();
+
+	//Get the state of the key using the window handle
 	int state = glfwGetKey(static_cast<GLFWwindow*>(window), keycode);
 
+	//return true if it is pressed or being hold down
 	return state == GLFW_PRESS || state == GLFW_REPEAT;
 }
 
 bool InputManager::IsMouseButtonDown(int keycode)
 {
+	//Get the window Handle
 	void* window = Application::Get().GetWindow()->GetWindowHandle();
+
+	//Get the state of the mouse button using the window handle 
 	int state = glfwGetMouseButton(static_cast<GLFWwindow*>(window), keycode);
 
+	//return true if it is pressed or being hold down
 	return state == GLFW_PRESS || state == GLFW_REPEAT;
 }
 
@@ -102,8 +115,12 @@ glm::vec2 InputManager::GetMousePosition()
 {
 	double x, y;
 
+	//Get the Window Handle
 	void* window = Application::Get().GetWindow()->GetWindowHandle();
+
+	//Get the cursor position using the window Handle
 	glfwGetCursorPos(static_cast<GLFWwindow*>(window), &x, &y);
 
+	//Return the resulting value in a vec2
 	return glm::vec2(x, y);
 }

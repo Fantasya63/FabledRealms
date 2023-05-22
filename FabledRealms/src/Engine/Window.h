@@ -23,7 +23,6 @@ public:
 	
 	double GetCurrentTime();
 
-	//Temporary
 	bool WindowShouldClose();
 
 private:
