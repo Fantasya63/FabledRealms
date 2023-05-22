@@ -18,6 +18,7 @@ public:
 	};
 
 	static InputManager& Get() { return *s_Instance; }
+
 	static void SetMouseMode(MouseMode mode);
 
 	static bool IsKeyDown(int keycode);

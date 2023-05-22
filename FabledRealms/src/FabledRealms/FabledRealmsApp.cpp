@@ -54,7 +54,7 @@ FabledRealmsApp::FabledRealmsApp()
     LOG_INFO("        : Vilja Pix 2.0 by ROllerozxa | https://content.minetest.net/packages/ROllerozxa/vilja_pix_2/");
     LOG_INFO("        : CC-BY-SA-4.0");
     LOG_INFO("        : https://spdx.org/licenses/CC-BY-SA-4.0.html");
-    LOG_INFO("        : ");
+    LOG_INFO("          ");
 
 
     SceneManager::Get().SwitchScene(SceneManager::MENU);

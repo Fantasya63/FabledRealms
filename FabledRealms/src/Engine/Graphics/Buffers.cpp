@@ -36,6 +36,8 @@ void VertexBuffer::Bind()
 
 void VertexBuffer::SetVertexLayout()
 {
+	// - According to the OpenGl 
+
 	//POSITION
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
