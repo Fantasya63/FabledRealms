@@ -51,6 +51,7 @@ void KeyboardCallback(int button, int scancode, int action, int mods )
     //Swap the block to place if we pressed the corresponding buttons
     if (action == KEY_PRESS)
     {
+        //Check what button is pressed
         switch (button)
         {
             //Next
@@ -132,6 +133,7 @@ WorldScene::WorldScene()
 {
 
     DLOG_INFO("CREATED WORLD SCENE");
+
     glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
     glEnable(GL_DEPTH_TEST);
 

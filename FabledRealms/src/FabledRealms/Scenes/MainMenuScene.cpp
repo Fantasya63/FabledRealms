@@ -56,13 +56,17 @@ MainMenuScene::MainMenuScene()
 	};
 	m_MenuTexture = new Texture(texturePath, Texture::TEXTURE_TYPE::TEXTURE2D, Texture::TEXTURE_FILTER::LINEAR);
 
+
+	//Stop all background music if there is one playing already
+	AudioManager::Get().StopAllSounds();
+
 	//Play background music
 	AudioManager::Get().PlaySound("Assets/Audio/Menu/Calm-and-Peaceful.mp3", true);
 
 	//Enable Mouse
 	InputManager::SetMouseMode(InputManager::MouseMode::NORMAL);
 
-	LOG_INFO("CREATED WORLD SCENE");
+	DLOG_INFO("CREATED WORLD SCENE");
 }
 
 MainMenuScene::~MainMenuScene()

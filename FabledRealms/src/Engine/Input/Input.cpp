@@ -32,12 +32,12 @@ InputManager* InputManager::s_Instance = nullptr;
 
 InputManager::InputManager()
 {
+	//Make sure there is only one Input Manager instance
 	FR_CORE_ASSERT(!s_Instance, "InputManager Already Exists!");
 	s_Instance = this;
 
 	//Setup Mouse and Keyboard button and callback funtions
 	void* window = Application::Get().GetWindow()->GetWindowHandle();
-
 	glfwSetMouseButtonCallback(static_cast<GLFWwindow*>(window), MouseButtonCallback);
 	glfwSetKeyCallback(static_cast<GLFWwindow*>(window), KeyboardButtonCallback);
 }
@@ -101,16 +101,6 @@ bool InputManager::IsMouseButtonDown(int keycode)
 	return state == GLFW_PRESS || state == GLFW_REPEAT;
 }
 
-void InputManager::SetMouseButtonCallback(void(*callback)(int, int, int))
-{
-	MouseCallback = callback;
-}
-
-void InputManager::SetKeyboardButtonCallback(void(*callback)(int, int, int, int))
-{
-	KeyboardCallback = callback;
-}
-
 glm::vec2 InputManager::GetMousePosition()
 {
 	double x, y;
@@ -123,4 +113,15 @@ glm::vec2 InputManager::GetMousePosition()
 
 	//Return the resulting value in a vec2
 	return glm::vec2(x, y);
+}
+
+
+void InputManager::SetMouseButtonCallback(void(*callback)(int, int, int))
+{
+	MouseCallback = callback;
+}
+
+void InputManager::SetKeyboardButtonCallback(void(*callback)(int, int, int, int))
+{
+	KeyboardCallback = callback;
 }

@@ -4,6 +4,7 @@
 
 VertexArray::VertexArray()
 {
+	//Create a vertex array on the GPU and the m_RendererID will be given a value by Opengl
 	glCreateVertexArrays(1, &m_RendererID);
 }
 
@@ -14,5 +15,6 @@ VertexArray* VertexArray::Create()
 
 void VertexArray::Bind()
 {
+	//Bind the Vertex array
 	glBindVertexArray(m_RendererID);
 }

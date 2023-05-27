@@ -5,6 +5,7 @@
 class SceneManager
 {
 public:
+	// Container for all of the sce
 	enum Scenes
 	{
 		MENU,
@@ -23,4 +24,3 @@ private:
 
 	Scene* currentScene;
 };
-
