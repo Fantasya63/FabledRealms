@@ -16,11 +16,15 @@ void main()
 	if (albedo.a < 0.5)
 		discard;
 
+	float emit = dot(albedo.rgb, vec3(0.62, 0.43, 0.09));
+	emit = emit > 0.5 ? 1.0 : 0.0;
+	//emit = max(0.0, 1.0 - emit);
+
 	float light = max(0.0, dot(v_Normal, normalize(vec3(1.0, 1.0, 2.0))));
 	vec3 diff = light * albedo.rgb;
 	vec3 ambient = vec3(0.1, 0.1, 0.1);
 	
-	vec3 color = (diff + ambient * albedo.rgb) ;//* (sin(u_Time) + 1.0);
+	vec3 color = (diff + ambient * albedo.rgb) + emit * 1.0;// + (sin(u_Time) + 1.0);
 
 	//FOG
 	float fogStart = 48.0;
@@ -35,4 +39,5 @@ void main()
 	
 	//color = vec3(0.0);
 	FragColor = vec4(color, 0.0);
+	//FragColor = ve;
 } 

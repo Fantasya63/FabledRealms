@@ -55,6 +55,7 @@ void FrameBuffer::AddColorAttachment(bool isHDR)
 
 	// Create color texture
 	glCreateTextures(GL_TEXTURE_2D, 1, &m_ColorAttachmentID);
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_ColorAttachmentID);
 
 	Window* window = Application::Get().GetWindow();
@@ -76,11 +77,6 @@ void FrameBuffer::AddColorAttachment(bool isHDR)
 
 	//UnBind
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-
-void FrameBuffer::BindColorAttachment()
-{
-	glBindTexture(GL_TEXTURE_2D, m_ColorAttachmentID);
 }
 
 const uint32_t FrameBuffer::GetColorAttachmentID() const

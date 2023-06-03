@@ -146,15 +146,18 @@ WorldScene::WorldScene()
     // ---------------------------------- Tone Mapping ----------------------------------
 
     m_TonemappingShader = new Shader("Assets/Shaders/TonemappingShader.vert", "Assets/Shaders/TonemappingShader.frag");
+
     m_TonemappingShader->Use();
     m_TonemappingShader->setInt("scene", 0);
     m_TonemappingShader->setInt("bloom", 1);
+
 
     Window* window = Application::Get().GetWindow();
     m_BloomFBO.Init(window->GetWidth(), window->GetHeight(), 5);
 
 
     // ------------------------------------------------------- Crosshair ------------------------------------------------------
+
     m_FullscreenQuadVAO = VertexArray::Create();
     m_FullscreenQuadVAO->Bind();
 
@@ -383,23 +386,24 @@ void WorldScene::Update(const Time& const time)
     glDisable(GL_DEPTH_TEST);
 
     
-    glClear(GL_COLOR_BUFFER_BIT);
+    //glClear(GL_COLOR_BUFFER_BIT);
     m_BloomFBO.RenderBloomTexture(*m_FullscreenQuadVAO, m_HDRBufffer.GetColorAttachmentID(), 0.005f);
 
-    glDisable(GL_BLEND);
+    //glDisable(GL_BLEND);
     //Render to screen with tonemapping
-    glClear(GL_COLOR_BUFFER_BIT);
+    //glClear(GL_COLOR_BUFFER_BIT);
    
     m_TonemappingShader->Use();
     m_FullscreenQuadVAO->Bind();
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_HDRBufffer.GetColorAttachmentID());
 
-    //glActiveTexture(GL_TEXTURE1);
+    glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, m_BloomFBO.GetBloomTexture()); //Use the texture as the screen tex
 
-    m_TonemappingShader->setInt("scene", 0);
-    m_TonemappingShader->setInt("bloom", 1);
+    glActiveTexture(GL_TEXTURE0);
+    //m_TonemappingShader->setInt("scene", 0);
+    //m_TonemappingShader->setInt("bloom", 1);
 
     glDrawElements(GL_TRIANGLES, m_FullscreenQuadIBO->GetCount(), GL_UNSIGNED_INT, 0);
     

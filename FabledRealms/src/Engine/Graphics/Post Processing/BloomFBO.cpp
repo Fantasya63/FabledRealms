@@ -5,6 +5,8 @@
 BloomFBO::BloomFBO()
 {
     m_IsInitialized = false;
+
+    m_ClipShader = new Shader("Assets/Shaders/Post Processing/Bloom/BloomShader.vert", "Assets/Shaders/Post Processing/Bloom/BloomClip.frag");
     m_DownsampleShader = new Shader("Assets/Shaders/Post Processing/Bloom/BloomShader.vert", "Assets/Shaders/Post Processing/Bloom/BloomDownsampleShader.frag");
     m_UpsampleShader = new Shader("Assets/Shaders/Post Processing/Bloom/BloomShader.vert", "Assets/Shaders/Post Processing/Bloom/BloomUpsampleShader.frag");
 }
@@ -34,6 +36,23 @@ bool BloomFBO::Init(uint32_t width, uint32_t height, uint32_t mipChainLength)
         LOG_CORE_ERROR("Window size conversion overflow! Failed to Build BloomFBO!");
         return false;
     }
+
+
+    //Create texture for clipping
+    glGenTextures(1, &m_ClipTexture);
+
+    glBindTexture(GL_TEXTURE_2D, m_ClipTexture);
+
+    //Create float texture format and downscale
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_R11F_G11F_B10F,
+        width, height,
+        0, GL_RGB, GL_FLOAT, nullptr);
+
+    //Set texture filter and wrapping
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     //Create mip textures
     for (int i = 0; i < mipChainLength; i++)
@@ -101,8 +120,11 @@ void BloomFBO::RenderBloomTexture(VertexArray& screenQuad, uint32_t srcTexture, 
     //Bind Frame buffer
     glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
 
+    //Clip HDR
+    RenderClippedHDR(srcTexture, screenQuad);
+
     //Render DownSamples
-    RenderDownsamples(srcTexture, screenQuad);
+    RenderDownsamples(m_ClipTexture, screenQuad);
 
     //Render Upsamples
     RenderUpsamples(filterRadius, screenQuad);
@@ -143,6 +165,9 @@ void BloomFBO::RenderDownsamples(uint32_t srcTexture, VertexArray& screenQuad)
 
         /// Set current mip as texture input for next iteration
         glBindTexture(GL_TEXTURE_2D, mip.RendererID);
+
+        // Disable Karis average for consequent downsamples
+        if (i == 0) { m_DownsampleShader->setInt("mipLevel", 1); }
     }
 }
 
@@ -179,4 +204,21 @@ void BloomFBO::RenderUpsamples(float filterRadius, VertexArray& screenQuad)
 
     //Disable Additive blending
     glDisable(GL_BLEND);
+}
+
+void BloomFBO::RenderClippedHDR(uint32_t srcTex, VertexArray& screenQuad)
+{
+    m_ClipShader->Use();
+    m_ClipShader->setInt("srcTexture", 0);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, srcTex);
+
+    // set output of the frame buffer texture
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+        GL_TEXTURE_2D, m_ClipTexture, 0);
+
+    //Render quad-filled screen
+    screenQuad.Bind();
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }

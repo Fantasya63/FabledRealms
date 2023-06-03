@@ -13,8 +13,6 @@ public:
 
 	void AddColorAttachment(bool isHDR);
 
-	//Test
-	void BindColorAttachment();
 
 	const uint32_t GetColorAttachmentID() const;
 

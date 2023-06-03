@@ -10,9 +10,9 @@ uniform sampler2D bloom;
 void main()
 {
     vec3 hdr = texture(scene, v_UV).rgb;
-    //vec3 bloomCol = texture(bloom, v_UV).rgb;
+    vec3 bloomCol = texture(bloom, v_UV).rgb;
 
-    //hdr = mix(hdr, bloomCol, 0.0);
+    hdr = mix(hdr, bloomCol, 0.4);
     //
     //Tone Mapping
     // reinhard tone mapping

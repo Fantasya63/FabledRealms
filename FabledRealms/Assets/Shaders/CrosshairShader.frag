@@ -24,5 +24,5 @@ void main()
 		discard;
 
 	FragColor = diff;
-	FragColor.rgb *= vec3(2.0);
+	FragColor.rgb *= vec3(10.0);
 }
