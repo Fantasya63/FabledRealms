@@ -9,6 +9,7 @@ public:
 	static VertexArray* Create();
 
 	void Bind();
+	void UnBind(); //Use?
 
 private:
 	VertexArray(); // Not required, but done to keep the api consistent

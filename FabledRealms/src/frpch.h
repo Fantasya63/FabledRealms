@@ -6,3 +6,5 @@
 
 #include "Engine/Log.h"
 #include "Debug/Debug.h"
+#include <string>
+#include <sstream>

@@ -23,13 +23,13 @@
 
 
 #ifdef FR_ENABLE_DEBUG_LOGS
-	#define DLOG_CORE_FATAL(...)	std::cout << "CORE FATAL:   " << __VA_ARGS__ << std::endl;
-	#define DLOG_CORE_ERROR(...)	std::cout << "CORE ERROR:   " << __VA_ARGS__ << std::endl;
+	#define DLOG_CORE_FATAL(...)	std::cerr << "CORE FATAL:   " << __VA_ARGS__ << std::endl;
+	#define DLOG_CORE_ERROR(...)	std::cerr << "CORE ERROR:   " << __VA_ARGS__ << std::endl;
 	#define DLOG_CORE_WARN(...)		std::cout << "CORE WARNING: " << __VA_ARGS__ << std::endl;
 	#define DLOG_CORE_INFO(...)		std::cout << "CORE INFO:    " << __VA_ARGS__ << std::endl;
 	
-	#define DLOG_FATAL(...)	std::cout << "APP FATAL:   " << __VA_ARGS__ << std::endl;
-	#define DLOG_ERROR(...)	std::cout << "APP ERROR:   " << __VA_ARGS__ << std::endl;
+	#define DLOG_FATAL(...)	std::cerr << "APP FATAL:   " << __VA_ARGS__ << std::endl;
+	#define DLOG_ERROR(...)	std::cerr << "APP ERROR:   " << __VA_ARGS__ << std::endl;
 	#define DLOG_WARN(...)	std::cout << "APP WARNING: " << __VA_ARGS__ << std::endl;
 	#define DLOG_INFO(...)	std::cout << "APP INFO:    " << __VA_ARGS__ << std::endl;
 

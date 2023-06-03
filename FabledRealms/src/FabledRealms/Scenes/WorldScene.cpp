@@ -131,10 +131,11 @@ void KeyboardCallback(int button, int scancode, int action, int mods )
 
 WorldScene::WorldScene()
 {
+    m_HDRBufffer.AddColorAttachment(true);
 
     DLOG_INFO("CREATED WORLD SCENE");
 
-    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glEnable(GL_DEPTH_TEST);
 
     //Set the mouse and keyboard callback function to the input system
@@ -142,9 +143,20 @@ WorldScene::WorldScene()
     InputManager::Get().SetMouseButtonCallback(MouseCallback);
     InputManager::Get().SetKeyboardButtonCallback(KeyboardCallback);
 
+    // ---------------------------------- Tone Mapping ----------------------------------
+
+    m_TonemappingShader = new Shader("Assets/Shaders/TonemappingShader.vert", "Assets/Shaders/TonemappingShader.frag");
+    m_TonemappingShader->Use();
+    m_TonemappingShader->setInt("scene", 0);
+    m_TonemappingShader->setInt("bloom", 1);
+
+    Window* window = Application::Get().GetWindow();
+    m_BloomFBO.Init(window->GetWidth(), window->GetHeight(), 5);
+
+
     // ------------------------------------------------------- Crosshair ------------------------------------------------------
-    m_CrosshairVAO = VertexArray::Create();
-    m_CrosshairVAO->Bind();
+    m_FullscreenQuadVAO = VertexArray::Create();
+    m_FullscreenQuadVAO->Bind();
 
     
     //create the vertex data for a full screen quad
@@ -164,8 +176,8 @@ WorldScene::WorldScene()
 
 
     //Create the vertex and Index Buffers
-    m_CrosshairVBO = VertexBuffer::Create(vertices, sizeof(float) * 32); //Takes in the vertices' size in bytes
-    m_CrosshairIBO = IndexBuffer::Create(indices, 6);
+    m_FullscreenQuadVBO = VertexBuffer::Create(vertices, sizeof(float) * 32); //Takes in the vertices' size in bytes
+    m_FullscreenQuadIBO = IndexBuffer::Create(indices, 6);
 
     //Create and Configure the shader
     m_CrosshairShader = new Shader("Assets/Shaders/CrosshairShader.vert", "Assets/Shaders/CrosshairShader.frag");
@@ -294,13 +306,18 @@ void WorldScene::Update(const Time& const time)
         InputManager::SetMouseMode(InputManager::MouseMode::DISABLED);
     }
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
 
 
     m_Camera.Update(time);
 
 
     // ----------------------------- Rendering ------------------------------------------------
+
+    //Setup HDR FBO
+    m_HDRBufffer.Bind();
+    glEnable(GL_DEPTH_TEST); //Enable depth test, this is disabled when rendering the full screen quad
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     // ------------ Crosshair ------------
     // Bind the texture
@@ -313,10 +330,10 @@ void WorldScene::Update(const Time& const time)
     m_CrosshairShader->SetVec2("u_ScreenRes", screenRes);
     
     //Bind the geometry we're rendering
-    m_CrosshairVAO->Bind();
+    m_FullscreenQuadVAO->Bind();
 
     //Render the crosshair
-    glDrawElements(GL_TRIANGLES, m_CrosshairIBO->GetCount(), GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, m_FullscreenQuadIBO->GetCount(), GL_UNSIGNED_INT, 0);
 
 
 
@@ -357,11 +374,35 @@ void WorldScene::Update(const Time& const time)
     //Render the Geometry
     glDrawElements(GL_TRIANGLES, m_CubemapIBO->GetCount(), GL_UNSIGNED_INT, 0);
 
-
     // Change Depth func back to default
     glDepthFunc(GL_LESS); 
 
+    m_HDRBufffer.UnBind();
+
     // -----------------------------------------------------------------------------------
+    glDisable(GL_DEPTH_TEST);
+
+    
+    glClear(GL_COLOR_BUFFER_BIT);
+    m_BloomFBO.RenderBloomTexture(*m_FullscreenQuadVAO, m_HDRBufffer.GetColorAttachmentID(), 0.005f);
+
+    glDisable(GL_BLEND);
+    //Render to screen with tonemapping
+    glClear(GL_COLOR_BUFFER_BIT);
+   
+    m_TonemappingShader->Use();
+    m_FullscreenQuadVAO->Bind();
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, m_HDRBufffer.GetColorAttachmentID());
+
+    //glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, m_BloomFBO.GetBloomTexture()); //Use the texture as the screen tex
+
+    m_TonemappingShader->setInt("scene", 0);
+    m_TonemappingShader->setInt("bloom", 1);
+
+    glDrawElements(GL_TRIANGLES, m_FullscreenQuadIBO->GetCount(), GL_UNSIGNED_INT, 0);
+    
 
     if (InputManager::IsKeyDown(KEYCODE_ESCAPE))
         Application::Get().RequestClose();
@@ -377,6 +418,15 @@ WorldScene::~WorldScene()
 
     delete m_TerrainShader;
     delete m_TerrainTexture;
+
+    delete m_CrosshairShader;
+    delete m_CrosshairTexture;
+
+    delete m_FullscreenQuadVAO;
+    delete m_FullscreenQuadVBO;
+    delete m_FullscreenQuadIBO;
+
+    delete m_TonemappingShader;
 
 	LOG_INFO("DELETED WORLD SCENE");
 }

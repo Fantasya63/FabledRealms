@@ -20,7 +20,7 @@ void main()
 	vec3 diff = light * albedo.rgb;
 	vec3 ambient = vec3(0.1, 0.1, 0.1);
 	
-	vec3 color = diff + ambient * albedo.rgb;
+	vec3 color = (diff + ambient * albedo.rgb) ;//* (sin(u_Time) + 1.0);
 
 	//FOG
 	float fogStart = 48.0;
@@ -33,10 +33,6 @@ void main()
 
 	color = mix(vec3(0.8, 0.8, 1.0), color, fog);
 	
-
+	//color = vec3(0.0);
 	FragColor = vec4(color, 0.0);
-
-	//Gamma Correction
-	float gamma = 2.2;
-    FragColor.rgb = pow(FragColor.rgb, vec3(1.0/gamma));
-}
+} 

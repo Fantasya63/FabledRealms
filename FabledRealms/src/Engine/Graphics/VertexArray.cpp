@@ -18,3 +18,8 @@ void VertexArray::Bind()
 	//Bind the Vertex array
 	glBindVertexArray(m_RendererID);
 }
+
+void VertexArray::UnBind()
+{
+	glBindVertexArray(0);
+}

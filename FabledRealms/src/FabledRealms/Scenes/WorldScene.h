@@ -6,6 +6,8 @@
 #include "Engine/Graphics/VertexArray.h"
 #include "Engine/Graphics/Shader.h"
 #include "Engine/Graphics/Texture.h"
+#include "Engine/Graphics/FrameBuffer.h"
+#include "Engine/Graphics/Post Processing/BloomFBO.h"
 #include "Engine/Graphics/Camera.h"
 
 #include  "FabledRealms/World/World.h"
@@ -20,10 +22,16 @@ public:
 
 
 private:
+	// HDR FBO
+	FrameBuffer m_HDRBufffer;
+	BloomFBO m_BloomFBO;
+
+	Shader* m_TonemappingShader;
+
 	// ----------- Crosshair ----------
-	VertexArray* m_CrosshairVAO;
-	VertexBuffer* m_CrosshairVBO;
-	IndexBuffer* m_CrosshairIBO;
+	VertexArray* m_FullscreenQuadVAO;
+	VertexBuffer* m_FullscreenQuadVBO;
+	IndexBuffer* m_FullscreenQuadIBO;
 
 	Shader* m_CrosshairShader;
 	Texture* m_CrosshairTexture;

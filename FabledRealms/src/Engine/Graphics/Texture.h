@@ -13,7 +13,7 @@ public:
 		 NEAREST = 0,
 		 LINEAR,
 	};
-
+	
 	
 	// Takes in an array of string as paths
 	// For a normal Texture2D, it will only take the first element as the path
@@ -22,6 +22,9 @@ public:
 	~Texture();
 
 	void Bind() const;
+
+	const TEXTURE_TYPE GetTextureType() const { return m_TextureType; }
+	const uint32_t GetRendererID() const { return m_RendererID; }
 
 private:
 	void SetTextureWrapAndFilter2D(TEXTURE_FILTER filter);
