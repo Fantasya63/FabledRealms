@@ -153,7 +153,7 @@ WorldScene::WorldScene()
 
 
     Window* window = Application::Get().GetWindow();
-    m_BloomFBO.Init(window->GetWidth(), window->GetHeight(), 5);
+    m_BloomFBO.Init(window->GetWidth(), window->GetHeight(), 9);
 
 
     // ------------------------------------------------------- Crosshair ------------------------------------------------------
