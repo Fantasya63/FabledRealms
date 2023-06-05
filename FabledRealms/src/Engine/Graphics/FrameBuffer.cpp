@@ -7,16 +7,11 @@
 
 FrameBuffer::FrameBuffer()
 {
-	DLOG_CORE_INFO("FrameBuffer Created");
 	glCreateFramebuffers(1, &m_RendererID);
 }
 
 FrameBuffer::~FrameBuffer()
 {
-	FrameBuffer::Bind();
-	//DeleteAttachments();
-	FrameBuffer::UnBind();
-
 	glDeleteFramebuffers(1, &m_RendererID);
 }
 
