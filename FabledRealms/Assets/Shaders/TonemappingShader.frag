@@ -5,16 +5,16 @@ out vec4 FragColor;
 in vec2 v_UV;
 
 uniform sampler2D scene;
-//uniform sampler2D bloom;
+uniform sampler2D bloom;
 
 
 void main()
 {
     vec3 hdr = texture(scene, v_UV).rgb;
-    //vec3 bloomCol = texture(bloom, v_UV).rgb;
+    vec3 bloomCol = texture(bloom, v_UV).rgb + hdr;
 
-   // hdr = mix(hdr, bloomCol, 0.5);
-    //
+    hdr = mix(hdr, bloomCol, 0.5);
+    
     //Tone Mapping
     // reinhard tone mapping
     vec3 mapped = hdr / (hdr + vec3(1.0));

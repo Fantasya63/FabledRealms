@@ -14,8 +14,6 @@ BloomFBO::~BloomFBO()
     //Delete Clip Texture
     glDeleteTextures(1, &m_ClipTexture);
 
-    DeleteMips();
-
     delete m_DownsampleShader;
     delete m_UpsampleShader;
     delete m_ClipShader;
@@ -24,7 +22,6 @@ BloomFBO::~BloomFBO()
 void BloomFBO::Init(uint32_t width, uint32_t height, uint32_t mipChainLength)
 {
     FrameBuffer::Init(width, height);
-    m_MipchainLength = mipChainLength;
 
     glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
 
@@ -216,16 +213,4 @@ void BloomFBO::RenderClippedHDR(uint32_t srcTex, VertexArray& screenQuad)
     //Render quad-filled screen
     screenQuad.Bind();
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-}
-
-void BloomFBO::DeleteMips()
-{
-    int mipCount = m_MipChain.size();
-    if (!mipCount)
-        return;
-
-    for (int i = 0; i < mipCount; i++)
-    {
-        glDeleteTextures(mipCount, &m_MipChain[i].RendererID);
-    }
 }

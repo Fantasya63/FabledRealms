@@ -26,7 +26,7 @@ private:
 	// HDR FBO
 	HdrFBO* m_HDRBufffer;
 
-	//BloomFBO m_BloomFBO_Old;
+	BloomFBO* m_BloomFBO;
 
 	Shader* m_TonemappingShader;
 

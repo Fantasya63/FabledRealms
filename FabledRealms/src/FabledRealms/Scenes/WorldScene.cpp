@@ -155,9 +155,12 @@ WorldScene::WorldScene()
     Window* window = Application::Get().GetWindow();
     int width = window->GetWidth();
     int height = window->GetHeight();
-   // m_BloomFBO_Old.Init(width, height, 5);
+  
     m_HDRBufffer = new HdrFBO();
     m_HDRBufffer->Init(width, height);
+
+    m_BloomFBO = new BloomFBO();
+    m_BloomFBO->Init(width, height, 5);
 
     // ------------------------------------------------------- Crosshair ------------------------------------------------------
 
@@ -320,6 +323,7 @@ void WorldScene::Update(const Time& const time)
 
     // ----------------------------- Rendering ------------------------------------------------
 
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     //Setup HDR FBO
     m_HDRBufffer->Bind();
 
@@ -399,7 +403,7 @@ void WorldScene::Update(const Time& const time)
     glDisable(GL_DEPTH_TEST);
 
     //glClear(GL_COLOR_BUFFER_BIT);
-    //m_BloomFBO_Old.RenderBloomTexture(*m_FullscreenQuadVAO, m_HDRBufffer.GetColorAttachmentID(0), 0.005f);
+    m_BloomFBO->RenderBloomTexture(*m_FullscreenQuadVAO, m_HDRBufffer->GetColorAttachmentID(0), 0.004f);
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     //glDisable(GL_BLEND);
@@ -414,15 +418,15 @@ void WorldScene::Update(const Time& const time)
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_HDRBufffer->GetColorAttachmentID(0));
 
-    //uint32_t bloomTex = m_BloomFBO_Old.GetBloomTexture();
+    uint32_t bloomTex = m_BloomFBO->GetBloomTexture();
     //DLOG_CORE_INFO("Bloom Tex: " << bloomTex);
 
-    //glActiveTexture(GL_TEXTURE1);
-    //glBindTexture(GL_TEXTURE_2D, bloomTex); //Use the texture as the screen tex
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, bloomTex); //Use the texture as the screen tex
 
     
-    //m_TonemappingShader->setInt("scene", 0);
-    //m_TonemappingShader->setInt("bloom", 1);
+    m_TonemappingShader->setInt("scene", 0);
+    m_TonemappingShader->setInt("bloom", 1);
 
     glDrawElements(GL_TRIANGLES, m_FullscreenQuadIBO->GetCount(), GL_UNSIGNED_INT, 0);
 
@@ -436,6 +440,7 @@ void WorldScene::Update(const Time& const time)
 WorldScene::~WorldScene()
 {
     delete m_HDRBufffer;
+    delete m_BloomFBO;
 
     delete m_CubemapVAO;
     delete m_CubemapVBO;
@@ -464,9 +469,13 @@ void WorldScene::OnWindowResized(int width, int height)
 
     m_HDRBufffer->UnBind();
     delete m_HDRBufffer;
+    delete m_BloomFBO;
 
     m_HDRBufffer = new HdrFBO();
     m_HDRBufffer->Init(width, height);
+
+    m_BloomFBO = new BloomFBO();
+    m_BloomFBO->Init(width, height, 5);
 
     //m_BloomFBO_Old.Resize(width, height);
 }

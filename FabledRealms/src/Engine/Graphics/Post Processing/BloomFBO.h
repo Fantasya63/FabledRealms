@@ -32,11 +32,8 @@ private:
 	void RenderDownsamples(uint32_t srcTexture, VertexArray& screenQuad);
 	void RenderUpsamples(float filterRadius, VertexArray& screenQuad);
 	void RenderClippedHDR(uint32_t srcTex, VertexArray& screenQuad);
-	void DeleteMips();
-
+	
 private:
-	uint32_t m_MipchainLength;
-
 	uint32_t m_ClipTexture;
 	Shader* m_ClipShader;
 	Shader* m_DownsampleShader;
