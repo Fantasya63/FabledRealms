@@ -18,6 +18,7 @@ public:
 
 	void UpdateScene(const Time& time);
 	void SwitchScene(Scenes scene);
+	void OnWindowResized(int width, int height);
 
 private:
 	static SceneManager* s_Instance;

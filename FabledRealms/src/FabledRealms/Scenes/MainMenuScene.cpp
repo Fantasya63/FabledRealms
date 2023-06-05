@@ -111,5 +111,5 @@ void MainMenuScene::Update(const Time& const time)
 	m_MenuShader->SetFloat("u_Time", time.currentTime);
 
 	m_MenuScreenVAO->Bind();
-	glDrawElements(GL_TRIANGLES, m_MenuScreenIBO->GetCount(), GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, m_MenuScreenIBO->GetCount(), GL_UNSIGNED_INT, NULL);
 }

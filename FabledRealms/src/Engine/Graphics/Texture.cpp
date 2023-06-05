@@ -57,6 +57,7 @@ Texture::Texture(const char texturePaths[6][100], TEXTURE_TYPE type, TEXTURE_FIL
 		SetTextureWrapAndFilter2D(filter);
 
 		stbi_image_free(data);
+		//glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
 	// ------------------------------ CUBEMAP ------------------------------------
@@ -116,6 +117,7 @@ Texture::Texture(const char texturePaths[6][100], TEXTURE_TYPE type, TEXTURE_FIL
 
 		//Reenable Flipping on load
 		stbi_set_flip_vertically_on_load(true);
+		//glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 	}
 
 	// ------------------------------ UNKNOWN TYPE -------------------------------S

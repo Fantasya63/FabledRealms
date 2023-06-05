@@ -25,6 +25,8 @@ public:
 
 	bool WindowShouldClose();
 
+	void Resize(int width, int height);
+
 private:
 
 	void* m_Window;

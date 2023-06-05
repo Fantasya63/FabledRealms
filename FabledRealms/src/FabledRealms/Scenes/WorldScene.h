@@ -6,10 +6,11 @@
 #include "Engine/Graphics/VertexArray.h"
 #include "Engine/Graphics/Shader.h"
 #include "Engine/Graphics/Texture.h"
-#include "Engine/Graphics/FrameBuffer.h"
-#include "Engine/Graphics/Post Processing/BloomFBO.h"
-#include "Engine/Graphics/Camera.h"
 
+#include <Engine/Graphics/Post Processing/HdrFBO.h>
+#include <Engine/Graphics/Post Processing/BloomFBO.h>
+
+#include "Engine/Graphics/Camera.h"
 #include  "FabledRealms/World/World.h"
 
 class WorldScene : public Scene
@@ -19,12 +20,13 @@ public:
 	~WorldScene();
 
 	virtual void Update(const Time& time) override;
-
+	virtual void OnWindowResized(int width, int height) override;
 
 private:
 	// HDR FBO
-	FrameBuffer m_HDRBufffer;
-	BloomFBO m_BloomFBO;
+	HdrFBO* m_HDRBufffer;
+
+	//BloomFBO m_BloomFBO_Old;
 
 	Shader* m_TonemappingShader;
 

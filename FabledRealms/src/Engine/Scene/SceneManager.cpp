@@ -57,3 +57,11 @@ void SceneManager::SwitchScene(Scenes scene)
 		FR_CORE_ASSERT(false, "Unknown Scene ID");
 	}
 }
+
+void SceneManager::OnWindowResized(int width, int height)
+{
+	//Make sure we have a scene that we're updating
+	FR_CORE_ASSERT(SceneManager::currentScene != nullptr, "Scene Manager's Current Scene is null!");
+
+	currentScene->OnWindowResized(width, height);
+}

@@ -4,43 +4,37 @@
 
 #include "Engine/Application.h"
 
-FrameBuffer::FrameBuffer(bool addDepthAndStencil)
+
+FrameBuffer::FrameBuffer()
 {
+	DLOG_CORE_INFO("FrameBuffer Created");
 	glCreateFramebuffers(1, &m_RendererID);
-	glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
-
-	//Add Depth And Stencil Attachment
-	if (addDepthAndStencil)
-	{
-		//Hmmm?
-		glCreateRenderbuffers(1, &m_DepthStencilAttachmentID);
-		glBindRenderbuffer(GL_RENDERBUFFER, m_DepthStencilAttachmentID);
-
-		Window* window = Application::Get().GetWindow();
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, window->GetWidth(), window->GetHeight());
-
-		//Attach to FBO
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_DepthStencilAttachmentID);
-
-	}
-
-	//Unbind
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 FrameBuffer::~FrameBuffer()
 {
-	if (m_ColorAttachmentID)
-		glDeleteTextures(1, &m_ColorAttachmentID);
-
+	FrameBuffer::Bind();
+	//DeleteAttachments();
+	FrameBuffer::UnBind();
 
 	glDeleteFramebuffers(1, &m_RendererID);
+}
+
+void FrameBuffer::Init(uint32_t width, uint32_t height)
+{
+	if (m_IsInitialized)
+	{
+		FR_CORE_ASSERT(false, "Framebuffer is already initialized!");
+		return;
+	}
+
+	m_Resolution = glm::ivec2(width, height);
+	m_IsInitialized = true;
 }
 
 void FrameBuffer::Bind()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
-
 }
 
 void FrameBuffer::UnBind()
@@ -48,24 +42,42 @@ void FrameBuffer::UnBind()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void FrameBuffer::AddColorAttachment(bool isHDR)
+void FrameBuffer::AddColorAttachment(uint32_t width, uint32_t height, ColorFormat format)
 {
-	//Bind
+	GLenum colorFormat;
+	switch (format)
+	{
+	case ColorFormat::RGB:
+		colorFormat = GL_RGB;
+		break;
+
+	case ColorFormat::RGB16F:
+		colorFormat = GL_RGB16F;
+		break;
+
+	case ColorFormat::R11F_G11F_B10F:
+		colorFormat = GL_R11F_G11F_B10F;
+		break;
+
+	default:
+		FR_CORE_ASSERT(false, "Unknown Framebuffer color attachment format");
+		return;
+	}
+
+	// Bind Framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
 
 	// Create color texture
-	glCreateTextures(GL_TEXTURE_2D, 1, &m_ColorAttachmentID);
+	uint32_t id;
+	glCreateTextures(GL_TEXTURE_2D, 1, &id);
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, m_ColorAttachmentID);
-
-	Window* window = Application::Get().GetWindow();
-
-	if (isHDR)
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, window->GetWidth(), window->GetHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-	else
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, window->GetWidth(), window->GetHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glBindTexture(GL_TEXTURE_2D, id);
 
 	
+	//Allocate Data
+	glTexImage2D(GL_TEXTURE_2D, 0, colorFormat, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+
+	//Set Filter and wrapping options
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -73,13 +85,39 @@ void FrameBuffer::AddColorAttachment(bool isHDR)
 
 
 	//Add it to the FrameBuffer
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_ColorAttachmentID, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + m_ColorAttachmentIDs.size(), GL_TEXTURE_2D, id, 0);
+
+	m_ColorAttachmentIDs.emplace_back(id);
 
 	//UnBind
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-const uint32_t FrameBuffer::GetColorAttachmentID() const
+void FrameBuffer::AddDepthStencilAttachment(uint32_t width, uint32_t height)
 {
-	return m_ColorAttachmentID;
+	//Bind
+	glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
+
+	
+	glCreateRenderbuffers(1, &m_DepthStencilAttachmentID);
+	glBindRenderbuffer(GL_RENDERBUFFER, m_DepthStencilAttachmentID);
+
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+
+	//Attach to FBO
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_DepthStencilAttachmentID);
+	
+	//Unbind
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+const uint32_t FrameBuffer::GetColorAttachmentID(uint32_t index) const
+{
+	FR_CORE_ASSERT(m_ColorAttachmentIDs.size(), "Color AttachmentIDs is empty!");
+	return m_ColorAttachmentIDs[index];
+}
+
+const glm::ivec2 FrameBuffer::GetResolution() const
+{
+	return  m_Resolution;
 }

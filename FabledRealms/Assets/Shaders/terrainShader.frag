@@ -24,7 +24,7 @@ void main()
 	vec3 diff = light * albedo.rgb;
 	vec3 ambient = vec3(0.1, 0.1, 0.1);
 	
-	vec3 color = (diff + ambient * albedo.rgb) + emit * 1.0;// + (sin(u_Time) + 1.0);
+	vec3 color = (diff + ambient * albedo.rgb) + emit;// + (sin(u_Time) + 1.0);
 
 	//FOG
 	float fogStart = 48.0;

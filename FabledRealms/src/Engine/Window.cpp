@@ -9,12 +9,29 @@
 //Callback function that glfw calls when the window is resized
 void OnWindowResize(GLFWwindow* window, int newWidth, int newHeight)
 {
-	//Update width and height
-	Application::Get().GetWindow()->SetWidthAndHeight(newWidth, newHeight);
+	
 
-	//Update the opengl viewport
-	glViewport(0, 0, newWidth, newHeight);
+	Application::Get().OnWindowResized(newWidth, newHeight);
 }
+
+//From https://www.khronos.org/opengl/wiki/OpenGL_Error
+
+//void GLAPIENTRY
+//MessageCallback(GLenum source,
+//	GLenum type,
+//	GLuint id,
+//	GLenum severity,
+//	GLsizei length,
+//	const GLchar* message,
+//	const void* userParam)
+//{
+//	fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
+//		(type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),
+//		type, severity, message);
+////	FR_CORE_ASSERT(false, "OpenGL Error!");
+//}
+
+
 
 
 Window::Window(const char* title, int width, int height)
@@ -47,6 +64,12 @@ Window::Window(const char* title, int width, int height)
 	LOG_CORE_INFO("  OpenGl version: " << (const char*)glGetString(GL_VERSION));
 
 	SetVSync(true);
+
+//	//Set OpenGL Debug Callback
+//#ifdef FR_DEBUG
+//	glEnable(GL_DEBUG_OUTPUT);
+//	glDebugMessageCallback(MessageCallback, 0);
+//#endif
 }
 
 Window::~Window()
@@ -82,4 +105,13 @@ bool Window::WindowShouldClose()
 {
 	//Returns true if the close button is pressed on the window
 	return glfwWindowShouldClose(static_cast<GLFWwindow*>(m_Window));
+}
+
+void Window::Resize(int width, int height)
+{
+	//Update width and height
+	SetWidthAndHeight(width, height);
+
+	//Update the opengl viewport
+	glViewport(0, 0, width, height);
 }

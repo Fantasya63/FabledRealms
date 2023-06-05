@@ -1,7 +1,7 @@
 #include "frpch.h"
 #include "Application.h"
 #include "Input/Input.h"
-
+#include <Engine/Scene/SceneManager.h>
 
 Application* Application::s_Instance = nullptr;
 
@@ -43,6 +43,14 @@ void Application::Run()
 
 		m_Window->OnUpdate();
 
+		//Resize
+		if (m_ResizeWindow)
+		{
+			m_Window->Resize(m_NewResolution.x, m_NewResolution.y);
+			SceneManager::Get().OnWindowResized(m_NewResolution.x, m_NewResolution.y);
+			m_ResizeWindow = false;
+		}
+
 		if (m_Window->WindowShouldClose())
 			m_Running = false;
 	}
@@ -51,4 +59,11 @@ void Application::Run()
 void Application::RequestClose()
 {
 	m_Running = false;
+}
+
+void Application::OnWindowResized(int width, int height)
+{
+	//Delay Resize till the end of frame
+	m_ResizeWindow = true;
+	m_NewResolution = glm::ivec2(width, height);
 }

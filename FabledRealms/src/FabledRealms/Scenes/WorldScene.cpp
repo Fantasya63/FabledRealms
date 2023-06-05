@@ -13,6 +13,7 @@ static const Camera* callbackCamera = nullptr;
 
 static char currentBlock = VoxelData::BLOCK_ID::Stone;
 
+
 void MouseCallback(int button, int action, int mods)
 {
     FR_ASSERT(callbackCamera, "Callback camera is not set!");
@@ -131,7 +132,6 @@ void KeyboardCallback(int button, int scancode, int action, int mods )
 
 WorldScene::WorldScene()
 {
-    m_HDRBufffer.AddColorAttachment(true);
 
     DLOG_INFO("CREATED WORLD SCENE");
 
@@ -153,8 +153,11 @@ WorldScene::WorldScene()
 
 
     Window* window = Application::Get().GetWindow();
-    m_BloomFBO.Init(window->GetWidth(), window->GetHeight(), 9);
-
+    int width = window->GetWidth();
+    int height = window->GetHeight();
+   // m_BloomFBO_Old.Init(width, height, 5);
+    m_HDRBufffer = new HdrFBO();
+    m_HDRBufffer->Init(width, height);
 
     // ------------------------------------------------------- Crosshair ------------------------------------------------------
 
@@ -318,9 +321,15 @@ void WorldScene::Update(const Time& const time)
     // ----------------------------- Rendering ------------------------------------------------
 
     //Setup HDR FBO
-    m_HDRBufffer.Bind();
-    glEnable(GL_DEPTH_TEST); //Enable depth test, this is disabled when rendering the full screen quad
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    m_HDRBufffer->Bind();
+
+    //Enable depth test, this is disabled when rendering the full screen quad
+    glEnable(GL_DEPTH_TEST); 
+
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
 
     // ------------ Crosshair ------------
     // Bind the texture
@@ -376,37 +385,49 @@ void WorldScene::Update(const Time& const time)
 
     //Render the Geometry
     glDrawElements(GL_TRIANGLES, m_CubemapIBO->GetCount(), GL_UNSIGNED_INT, 0);
+    m_CubemapVAO->UnBind();
 
     // Change Depth func back to default
     glDepthFunc(GL_LESS); 
 
-    m_HDRBufffer.UnBind();
+    m_HDRBufffer->UnBind();
+
+
+
 
     // -----------------------------------------------------------------------------------
     glDisable(GL_DEPTH_TEST);
 
-    
     //glClear(GL_COLOR_BUFFER_BIT);
-    m_BloomFBO.RenderBloomTexture(*m_FullscreenQuadVAO, m_HDRBufffer.GetColorAttachmentID(), 0.005f);
+    //m_BloomFBO_Old.RenderBloomTexture(*m_FullscreenQuadVAO, m_HDRBufffer.GetColorAttachmentID(0), 0.005f);
 
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     //glDisable(GL_BLEND);
     //Render to screen with tonemapping
     //glClear(GL_COLOR_BUFFER_BIT);
    
     m_TonemappingShader->Use();
+    //m_TonemappingShader->setInt("scene", 0);
+    //m_TonemappingShader->setInt("bloom", 1);
+
     m_FullscreenQuadVAO->Bind();
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_HDRBufffer.GetColorAttachmentID());
+    glBindTexture(GL_TEXTURE_2D, m_HDRBufffer->GetColorAttachmentID(0));
 
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, m_BloomFBO.GetBloomTexture()); //Use the texture as the screen tex
+    //uint32_t bloomTex = m_BloomFBO_Old.GetBloomTexture();
+    //DLOG_CORE_INFO("Bloom Tex: " << bloomTex);
 
-    glActiveTexture(GL_TEXTURE0);
+    //glActiveTexture(GL_TEXTURE1);
+    //glBindTexture(GL_TEXTURE_2D, bloomTex); //Use the texture as the screen tex
+
+    
     //m_TonemappingShader->setInt("scene", 0);
     //m_TonemappingShader->setInt("bloom", 1);
 
     glDrawElements(GL_TRIANGLES, m_FullscreenQuadIBO->GetCount(), GL_UNSIGNED_INT, 0);
-    
+
+
+    glActiveTexture(GL_TEXTURE0);
 
     if (InputManager::IsKeyDown(KEYCODE_ESCAPE))
         Application::Get().RequestClose();
@@ -414,6 +435,8 @@ void WorldScene::Update(const Time& const time)
 
 WorldScene::~WorldScene()
 {
+    delete m_HDRBufffer;
+
     delete m_CubemapVAO;
     delete m_CubemapVBO;
     delete m_CubemapIBO;
@@ -433,4 +456,17 @@ WorldScene::~WorldScene()
     delete m_TonemappingShader;
 
 	LOG_INFO("DELETED WORLD SCENE");
+}
+
+void WorldScene::OnWindowResized(int width, int height)
+{
+    DLOG_CORE_INFO("Window Resized: " << width << ", " << height);
+
+    m_HDRBufffer->UnBind();
+    delete m_HDRBufffer;
+
+    m_HDRBufffer = new HdrFBO();
+    m_HDRBufffer->Init(width, height);
+
+    //m_BloomFBO_Old.Resize(width, height);
 }

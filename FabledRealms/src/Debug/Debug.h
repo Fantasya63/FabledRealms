@@ -11,7 +11,7 @@
 
 #ifdef  FR_ENABLE_ASSERTS
 	#define FR_ASSERT(x, ...)		{ if(!(x)) { std::cout << "ERROR: Assertion Failed: " << __LINE__ << " " __VA_ARGS__ << std::endl; __debugbreak(); } }
-	#define FR_CORE_ASSERT(x, ...)	{ if(!(x)) { std::cout << "CORE ERROR: Assertion Failed" << __LINE__ << " " <<  __VA_ARGS__ << std::endl; __debugbreak(); } }
+	#define FR_CORE_ASSERT(x, ...)	{ if(!(x)) { std::cout << "CORE ERROR: Assertion Failed: " << __LINE__ << " " <<  __VA_ARGS__ << std::endl; __debugbreak(); } }
 #else
 	#define FR_ASSERT(x, ...)
 	#define FR_CORE_ASSERT(x, ...)

@@ -4,8 +4,6 @@
 
 BloomFBO::BloomFBO()
 {
-    m_IsInitialized = false;
-
     m_ClipShader = new Shader("Assets/Shaders/Post Processing/Bloom/BloomShader.vert", "Assets/Shaders/Post Processing/Bloom/BloomClip.frag");
     m_DownsampleShader = new Shader("Assets/Shaders/Post Processing/Bloom/BloomShader.vert", "Assets/Shaders/Post Processing/Bloom/BloomDownsampleShader.frag");
     m_UpsampleShader = new Shader("Assets/Shaders/Post Processing/Bloom/BloomShader.vert", "Assets/Shaders/Post Processing/Bloom/BloomUpsampleShader.frag");
@@ -13,19 +11,21 @@ BloomFBO::BloomFBO()
 
 BloomFBO::~BloomFBO()
 {
+    //Delete Clip Texture
+    glDeleteTextures(1, &m_ClipTexture);
+
+    DeleteMips();
+
     delete m_DownsampleShader;
     delete m_UpsampleShader;
+    delete m_ClipShader;
 }
 
-bool BloomFBO::Init(uint32_t width, uint32_t height, uint32_t mipChainLength)
+void BloomFBO::Init(uint32_t width, uint32_t height, uint32_t mipChainLength)
 {
-    if (m_IsInitialized)
-        return true;
+    FrameBuffer::Init(width, height);
+    m_MipchainLength = mipChainLength;
 
-    m_Resolution = glm::vec2(width, height);
-
-    //Create Our FBO
-    glGenFramebuffers(1, &m_RendererID);
     glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
 
     glm::vec2 mipSize((float)width, (float)height);
@@ -34,7 +34,7 @@ bool BloomFBO::Init(uint32_t width, uint32_t height, uint32_t mipChainLength)
     //Safety Check
     if (width > (uint32_t)INT_MAX || height > (uint32_t)INT_MAX) {
         LOG_CORE_ERROR("Window size conversion overflow! Failed to Build BloomFBO!");
-        return false;
+        return;
     }
 
 
@@ -97,18 +97,13 @@ bool BloomFBO::Init(uint32_t width, uint32_t height, uint32_t mipChainLength)
     {
         FR_CORE_ASSERT(false, "BloomFBO Completion status is not met!");
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        return false;
+        return;
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    m_IsInitialized = true;
-    return true;
+    return;
 }
 
-void BloomFBO::Bind()
-{
-    glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
-}
 
 const std::vector<BloomMip>& BloomFBO::MipChain() const
 {
@@ -151,7 +146,7 @@ void BloomFBO::RenderDownsamples(uint32_t srcTexture, VertexArray& screenQuad)
         const BloomMip& mip = m_MipChain[i];
         //Set the viewport size to the mip's size
         glViewport(0, 0, mip.TexSize.x, mip.TexSize.y);
-        
+
         //Set output  color attachment
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
             GL_TEXTURE_2D, mip.RendererID, 0);
@@ -159,7 +154,7 @@ void BloomFBO::RenderDownsamples(uint32_t srcTexture, VertexArray& screenQuad)
         //Render screen-filled quad
         screenQuad.Bind();
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        
+
         //Set current mip resolution as the srcResolution for the next iteration
         m_DownsampleShader->SetVec2("srcResolution", mip.TexSize);
 
@@ -191,7 +186,7 @@ void BloomFBO::RenderUpsamples(float filterRadius, VertexArray& screenQuad)
 
         //Set viewport to the one we will be writing
         glViewport(0, 0, nextMip.TexSize.x, nextMip.TexSize.y);
-        
+
         // set output of the frame buffer texture
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
             GL_TEXTURE_2D, nextMip.RendererID, 0);
@@ -199,7 +194,7 @@ void BloomFBO::RenderUpsamples(float filterRadius, VertexArray& screenQuad)
         //Render quad-filled screen
         screenQuad.Bind();
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        
+
     }
 
     //Disable Additive blending
@@ -221,4 +216,16 @@ void BloomFBO::RenderClippedHDR(uint32_t srcTex, VertexArray& screenQuad)
     //Render quad-filled screen
     screenQuad.Bind();
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+}
+
+void BloomFBO::DeleteMips()
+{
+    int mipCount = m_MipChain.size();
+    if (!mipCount)
+        return;
+
+    for (int i = 0; i < mipCount; i++)
+    {
+        glDeleteTextures(mipCount, &m_MipChain[i].RendererID);
+    }
 }
