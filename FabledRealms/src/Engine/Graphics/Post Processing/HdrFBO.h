@@ -1,5 +1,5 @@
 #pragma once
-#include <Engine/Graphics/FrameBuffer.h>
+#include <Engine/Graphics/Rendering/FrameBuffer.h>
 
 
 class HdrFBO : public FrameBuffer

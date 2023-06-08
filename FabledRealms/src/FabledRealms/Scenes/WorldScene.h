@@ -7,6 +7,7 @@
 #include "Engine/Graphics/Shader.h"
 #include "Engine/Graphics/Texture.h"
 
+#include <Engine/Graphics/Rendering/GeomertryBuffer.h>
 #include <Engine/Graphics/Post Processing/HdrFBO.h>
 #include <Engine/Graphics/Post Processing/BloomFBO.h>
 
@@ -23,12 +24,17 @@ public:
 	virtual void OnWindowResized(int width, int height) override;
 
 private:
-	// HDR FBO
+	// Frame Buffers
+	GeomertryBuffer* m_GeometryBuffer;
 	HdrFBO* m_HDRBufffer;
-
 	BloomFBO* m_BloomFBO;
 
+
+
+	// Shaders
 	Shader* m_TonemappingShader;
+	Shader* m_GeometryBufferShader;
+
 
 	// ----------- Crosshair ----------
 	VertexArray* m_FullscreenQuadVAO;
@@ -38,6 +44,8 @@ private:
 	Shader* m_CrosshairShader;
 	Texture* m_CrosshairTexture;
 
+
+
 	// ----------- Cubemap -----------
 
 	VertexArray* m_CubemapVAO;
@@ -45,6 +53,8 @@ private:
 	IndexBuffer* m_CubemapIBO;
 	Shader* m_CubemapShader;
 	Texture* m_CubemapTexture;
+
+
 
 	// ------------ World ---------------
 	World m_World;

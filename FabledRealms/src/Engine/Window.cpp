@@ -31,7 +31,7 @@ void OnWindowResize(GLFWwindow* window, int newWidth, int newHeight)
 ////	FR_CORE_ASSERT(false, "OpenGL Error!");
 //}
 
-
+//#define FULLSCREEN
 
 
 Window::Window(const char* title, int width, int height)
@@ -45,8 +45,11 @@ Window::Window(const char* title, int width, int height)
 	FR_CORE_ASSERT(status, "Failed to initialize GLFW");
 
 	//Create Window
+#ifdef FULLSCREEN
+	m_Window = glfwCreateWindow(m_Width, m_Height, m_Title, glfwGetPrimaryMonitor(), NULL);
+#else // FULLSCREEN
 	m_Window = glfwCreateWindow(m_Width, m_Height, m_Title, NULL, NULL);
-	
+#endif
 	//Make the opengl context to current
 	glfwMakeContextCurrent((GLFWwindow*)m_Window);
 

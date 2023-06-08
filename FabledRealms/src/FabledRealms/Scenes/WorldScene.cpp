@@ -152,6 +152,13 @@ WorldScene::WorldScene()
     m_TonemappingShader->setInt("bloom", 1);
 
 
+
+
+
+    //--------------------------------------- Frame Buffers -------------------------------------------------------
+
+
+
     Window* window = Application::Get().GetWindow();
     int width = window->GetWidth();
     int height = window->GetHeight();
@@ -162,6 +169,10 @@ WorldScene::WorldScene()
     m_BloomFBO = new BloomFBO();
     m_BloomFBO->Init(width, height, 5);
 
+    m_GeometryBuffer = new GeomertryBuffer();
+    m_GeometryBuffer->Init(width, height);
+    
+        
     // ------------------------------------------------------- Crosshair ------------------------------------------------------
 
     m_FullscreenQuadVAO = VertexArray::Create();
@@ -441,6 +452,7 @@ WorldScene::~WorldScene()
 {
     delete m_HDRBufffer;
     delete m_BloomFBO;
+    delete m_GeometryBuffer;
 
     delete m_CubemapVAO;
     delete m_CubemapVBO;
@@ -468,14 +480,20 @@ void WorldScene::OnWindowResized(int width, int height)
     DLOG_CORE_INFO("Window Resized: " << width << ", " << height);
 
     m_HDRBufffer->UnBind();
+
+    //Delete Frame Buffers
     delete m_HDRBufffer;
     delete m_BloomFBO;
+    delete m_GeometryBuffer;
 
     m_HDRBufffer = new HdrFBO();
     m_HDRBufffer->Init(width, height);
 
     m_BloomFBO = new BloomFBO();
     m_BloomFBO->Init(width, height, 5);
+
+    m_GeometryBuffer = new GeomertryBuffer();
+    m_GeometryBuffer->Init(width, height);
 
     //m_BloomFBO_Old.Resize(width, height);
 }

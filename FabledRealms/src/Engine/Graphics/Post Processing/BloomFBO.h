@@ -4,7 +4,7 @@
 #include <Engine/Graphics/Shader.h>
 #include <Engine/Graphics/VertexArray.h>
 
-#include <Engine/Graphics/FrameBuffer.h>
+#include <Engine/Graphics/Rendering/FrameBuffer.h>
 
 
 struct BloomMip
