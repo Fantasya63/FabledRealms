@@ -21,6 +21,8 @@ public:
 	uint32_t NormalTexID;
 	uint32_t MetallicTexID;
 
+	uint32_t CubemapTexID;
+
 	bool m_IsInitialized = false;
 
 public:

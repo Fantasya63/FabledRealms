@@ -136,7 +136,19 @@ Texture::~Texture()
 
 void Texture::Bind() const
 {
-	glBindTexture(GL_TEXTURE_2D, m_RendererID);
+	switch (m_TextureType)
+	{
+	case Texture::TEXTURE_TYPE::TEXTURE2D:
+		glBindTexture(GL_TEXTURE_2D, m_RendererID);
+		break;
+	case Texture::TEXTURE_TYPE::CUBEMAP:
+		glBindTexture(GL_TEXTURE_CUBE_MAP, m_RendererID);
+		break;
+	default:
+		FR_CORE_ASSERT(false, "Unknown Texture Type");
+		break;
+	}
+	
 }
 
 

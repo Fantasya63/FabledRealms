@@ -38,11 +38,22 @@ void Mesh::RenderMesh(Shader& shader)
 		glActiveTexture(GL_TEXTURE3);
 		glBindTexture(GL_TEXTURE_2D, MetallicTexID);
 	}
+
+	if (CubemapTexID)
+	{
+		glActiveTexture(GL_TEXTURE4);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, CubemapTexID);
+	}
+
+
+
+
 	//Setup Shader
 	shader.setInt("DiffuseTex", 0);
 	shader.setInt("RoughnessTex", 1);
 	shader.setInt("NormalTex", 2);
 	shader.setInt("MetallicTex", 3);
+	shader.setInt("CubemapTex", 4);
 
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, NumOfIndices, GL_UNSIGNED_INT, NULL);

@@ -3,11 +3,11 @@
 out vec4 FragColor;
 
 in vec3 v_UV;
-uniform samplerCube skybox;
+uniform samplerCube CubemapTex;
 
 void main()
 {    
-    FragColor = texture(skybox, v_UV);
+    FragColor = texture(CubemapTex, v_UV);
 
     //Gamma Correction
 	//float gamma = 2.2;
