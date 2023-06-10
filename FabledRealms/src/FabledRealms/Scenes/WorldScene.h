@@ -53,7 +53,6 @@ private:
 
 	// ------------ World ---------------
 	World m_World;
-
 	Shader* m_TerrainShader;
 	
 	Camera m_Camera = Camera(glm::vec3(0.0f, 55.0f, 0.0f));

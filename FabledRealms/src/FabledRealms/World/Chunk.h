@@ -20,10 +20,13 @@ public:
 
 	void PopulateVoxelData();
 	void GenerateMesh();
-	void RenderChunk(Shader* shader, Texture& texture);
+	void RenderChunk(Shader* shader);
 
 	char CheckVoxel(glm::ivec3 localPos); //Position relative to the chunk
 	void SetVoxel(glm::ivec3 localPos, char voxelID);
+
+public:
+	Mesh m_ChunkMesh;
 
 private:
 	
@@ -32,5 +35,5 @@ private:
 	char  m_ChunkData[Chunk::CHUNK_LENGTH][Chunk::CHUNK_HEIGHT][Chunk::CHUNK_LENGTH];
 	glm::ivec2 m_ChunkPos;
 
-	Mesh m_ChunkMesh;
+	
 };

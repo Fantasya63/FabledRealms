@@ -228,8 +228,11 @@ void Chunk::GenerateMesh()
 					faceVerts[3].Tangent = tangent;
 
 					//Append to vertices
-					vertices.insert(vertices.end(), faceVerts.begin(), faceVerts.end());
-
+					//vertices.insert(vertices.end(), faceVerts.begin(), faceVerts.end());
+					vertices.emplace_back(faceVerts[0]);
+					vertices.emplace_back(faceVerts[1]);
+					vertices.emplace_back(faceVerts[2]);
+					vertices.emplace_back(faceVerts[3]);
 
 					// Add Indices
 					// These are the indices of the vertex that make up a Face
@@ -256,7 +259,7 @@ void Chunk::GenerateMesh()
 	Mesh::InitMeshChunk(m_ChunkMesh, vertices, indices);
 }
 
-void Chunk::RenderChunk(Shader* shader, Texture& texture)
+void Chunk::RenderChunk(Shader* shader)
 {
 	// Set Model Matrix
 	// This is the position, rotation, and scale of the Chunk
@@ -266,9 +269,7 @@ void Chunk::RenderChunk(Shader* shader, Texture& texture)
 	modelMatrix = glm::translate(modelMatrix, pos);
 
 	shader->SetMat4("a_ModelMatrix", modelMatrix);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture.GetRendererID());
-
-	//Bind the Vertex Array that's about to be rendered
+	
+	//Render MEsh
 	m_ChunkMesh.RenderMesh(*shader);
 }

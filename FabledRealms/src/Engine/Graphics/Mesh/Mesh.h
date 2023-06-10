@@ -16,12 +16,12 @@ public:
 	uint32_t NumOfIndices;
 
 	//Texture slots
-	uint32_t DiffuseTexID;
-	uint32_t RoughnessTexID;
-	uint32_t NormalTexID;
-	uint32_t MetallicTexID;
+	uint32_t DiffuseTexID   = 0;
+	uint32_t RoughnessTexID = 0;
+	uint32_t NormalTexID    = 0;
+	uint32_t MetallicTexID  = 0;
 
-	uint32_t CubemapTexID;
+	uint32_t CubemapTexID   = 0;
 
 	bool m_IsInitialized = false;
 

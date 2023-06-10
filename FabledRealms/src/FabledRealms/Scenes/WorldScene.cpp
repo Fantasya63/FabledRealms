@@ -288,15 +288,14 @@ void WorldScene::Update(const Time& const time)
     // ----------- World -------------------
 
     // Configure the shader
-    //m_TerrainShader->Use();
-    //glm::mat4 view = m_Camera.GetViewMatrix();
-    //m_TerrainShader->SetMat4("a_ViewMatrix", m_Camera.GetViewMatrix());
-    //m_TerrainShader->SetMat4("a_ProjMatrix", m_Camera.GetProjMatrix(Application::Get().GetWindow()->GetAspectRatio()));
-    //m_TerrainShader->setInt("blockTex", 0);
-    //m_TerrainShader->SetFloat("u_Time", time.currentTime);
-    //
-    ////Render the world
-    //m_World.Render(m_TerrainShader);
+    m_TerrainShader->Use();
+    glm::mat4 view = m_Camera.GetViewMatrix();
+    m_TerrainShader->SetMat4("a_ViewMatrix", m_Camera.GetViewMatrix());
+    m_TerrainShader->SetMat4("a_ProjMatrix", m_Camera.GetProjMatrix(Application::Get().GetWindow()->GetAspectRatio()));
+    m_TerrainShader->SetFloat("u_Time", time.currentTime);
+    
+    //Render the world
+    m_World.Render(m_TerrainShader);
 
 
 
@@ -314,7 +313,7 @@ void WorldScene::Update(const Time& const time)
     m_CubemapMesh.RenderMesh(*m_CubemapShader);
 
     // Change Depth func back to default
-    //glDepthFunc(GL_LESS); 
+    glDepthFunc(GL_LESS); 
 
    // m_HDRBufffer->UnBind();
 

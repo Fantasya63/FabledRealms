@@ -6,13 +6,13 @@ in vec2 v_UV;
 in vec3 v_Pos;
 in vec3 v_Normal;
 
-uniform sampler2D blockTex;
+uniform sampler2D DiffuseTex;
 uniform float u_Time;
 
 
 void main()
 {
-	vec4 albedo = texture(blockTex, v_UV);
+	vec4 albedo = texture(DiffuseTex, v_UV);
 	if (albedo.a < 0.5)
 		discard;
 
