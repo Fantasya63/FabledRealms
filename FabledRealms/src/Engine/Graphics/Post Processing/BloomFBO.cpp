@@ -11,6 +11,8 @@ BloomFBO::BloomFBO()
 
 BloomFBO::~BloomFBO()
 {
+    Mesh::CleanUpMesh(m_ScreenQuad);
+
     //Delete Clip Texture
     glDeleteTextures(1, &m_ClipTexture);
 
@@ -24,6 +26,9 @@ void BloomFBO::Init(uint32_t width, uint32_t height, uint32_t mipChainLength)
     FrameBuffer::Init(width, height);
 
     glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
+
+    Mesh::InitMeshFullScreenQuad(m_ScreenQuad);
+
 
     glm::vec2 mipSize((float)width, (float)height);
     glm::ivec2 mipIntSize(width, height);
@@ -107,28 +112,30 @@ const std::vector<BloomMip>& BloomFBO::MipChain() const
     return m_MipChain;
 }
 
-void BloomFBO::RenderBloomTexture(VertexArray& screenQuad, uint32_t srcTexture, float filterRadius)
+void BloomFBO::RenderBloomTexture(uint32_t srcTexture, float filterRadius)
 {
     //Bind Frame buffer
     glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
+    glBindVertexArray(m_ScreenQuad.VAO);
 
     //Clip HDR
-    RenderClippedHDR(srcTexture, screenQuad);
+    RenderClippedHDR(srcTexture);
 
     //Render DownSamples
-    RenderDownsamples(m_ClipTexture, screenQuad);
+    RenderDownsamples(m_ClipTexture);
 
     //Render Upsamples
-    RenderUpsamples(filterRadius, screenQuad);
+    RenderUpsamples(filterRadius);
 
     //Unbind
+    glBindVertexArray(0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     //Restore Viewport
     glViewport(0, 0, m_Resolution.x, m_Resolution.y);
 }
 
-void BloomFBO::RenderDownsamples(uint32_t srcTexture, VertexArray& screenQuad)
+void BloomFBO::RenderDownsamples(uint32_t srcTexture)
 {
     //screenQuad.Bind();
     m_DownsampleShader->Use();
@@ -149,8 +156,7 @@ void BloomFBO::RenderDownsamples(uint32_t srcTexture, VertexArray& screenQuad)
             GL_TEXTURE_2D, mip.RendererID, 0);
 
         //Render screen-filled quad
-        screenQuad.Bind();
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
 
         //Set current mip resolution as the srcResolution for the next iteration
         m_DownsampleShader->SetVec2("srcResolution", mip.TexSize);
@@ -163,7 +169,7 @@ void BloomFBO::RenderDownsamples(uint32_t srcTexture, VertexArray& screenQuad)
     }
 }
 
-void BloomFBO::RenderUpsamples(float filterRadius, VertexArray& screenQuad)
+void BloomFBO::RenderUpsamples(float filterRadius)
 {
     m_UpsampleShader->Use();
     m_UpsampleShader->SetFloat("filterRadius", filterRadius);
@@ -189,16 +195,14 @@ void BloomFBO::RenderUpsamples(float filterRadius, VertexArray& screenQuad)
             GL_TEXTURE_2D, nextMip.RendererID, 0);
 
         //Render quad-filled screen
-        screenQuad.Bind();
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
     }
 
     //Disable Additive blending
     glDisable(GL_BLEND);
 }
 
-void BloomFBO::RenderClippedHDR(uint32_t srcTex, VertexArray& screenQuad)
+void BloomFBO::RenderClippedHDR(uint32_t srcTex)
 {
     m_ClipShader->Use();
     m_ClipShader->setInt("srcTexture", 0);
@@ -210,7 +214,5 @@ void BloomFBO::RenderClippedHDR(uint32_t srcTex, VertexArray& screenQuad)
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
         GL_TEXTURE_2D, m_ClipTexture, 0);
 
-    //Render quad-filled screen
-    screenQuad.Bind();
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
 }

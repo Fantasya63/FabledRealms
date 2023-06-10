@@ -2,7 +2,7 @@
 #include <glm/glm.hpp>
 #include <vector>
 #include <Engine/Graphics/Shader.h>
-#include <Engine/Graphics/VertexArray.h>
+#include <Engine/Graphics/Mesh/Mesh.h>
 
 #include <Engine/Graphics/Rendering/FrameBuffer.h>
 
@@ -25,15 +25,17 @@ public:
 
 	const std::vector<BloomMip>& MipChain() const;
 
-	void RenderBloomTexture(VertexArray& screenQuad, uint32_t srcTexture, float filterRadius);
+	void RenderBloomTexture(uint32_t srcTexture, float filterRadius);
 	const uint32_t GetBloomTexture() const { return m_MipChain[0].RendererID; }
 
 private:
-	void RenderDownsamples(uint32_t srcTexture, VertexArray& screenQuad);
-	void RenderUpsamples(float filterRadius, VertexArray& screenQuad);
-	void RenderClippedHDR(uint32_t srcTex, VertexArray& screenQuad);
+	void RenderDownsamples(uint32_t srcTexture);
+	void RenderUpsamples(float filterRadius);
+	void RenderClippedHDR(uint32_t srcTex);
 	
 private:
+	Mesh m_ScreenQuad;
+
 	uint32_t m_ClipTexture;
 	Shader* m_ClipShader;
 	Shader* m_DownsampleShader;

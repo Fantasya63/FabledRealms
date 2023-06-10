@@ -1,9 +1,9 @@
 #pragma once
-#include "Engine/Graphics/Buffers.h"
-#include "Engine/Graphics/VertexArray.h"
-#include "Engine/Graphics/Shader.h"
-
+#include <Engine/Graphics/Mesh/Mesh.h>
+#include <Engine/Graphics/Shader.h>
 #include <glm/glm.hpp>
+
+#include <Engine/Graphics/Texture.h>
 #include "VoxelData.h"
 
 
@@ -20,18 +20,17 @@ public:
 
 	void PopulateVoxelData();
 	void GenerateMesh();
-	void RenderChunk(Shader* shader);
+	void RenderChunk(Shader* shader, Texture& texture);
 
 	char CheckVoxel(glm::ivec3 localPos); //Position relative to the chunk
 	void SetVoxel(glm::ivec3 localPos, char voxelID);
 
 private:
+	
+
 	//Container for BlockIDS at position (x, y, z)
 	char  m_ChunkData[Chunk::CHUNK_LENGTH][Chunk::CHUNK_HEIGHT][Chunk::CHUNK_LENGTH];
 	glm::ivec2 m_ChunkPos;
 
-	//Renderer Props
-	VertexArray* m_ChunkVAO = nullptr;
-	VertexBuffer* m_ChunkVBO = nullptr;
-	IndexBuffer* m_ChunkIBO = nullptr;
+	Mesh m_ChunkMesh;
 };

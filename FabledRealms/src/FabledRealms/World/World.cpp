@@ -3,11 +3,20 @@
 
 World* World::s_Instance = nullptr;
 
+
+
+
 World::World()
 {
 	//Make sure that there is only one World Instance (Singleton)
 	FR_CORE_ASSERT(!s_Instance, "World Already Exists!");
 	s_Instance = this;
+
+	//Create the texture atlas
+	const char texturePath[6][100] = {
+		"Assets/Textures/terrain.png",
+	};
+	m_DiffuseTex = new Texture(texturePath, Texture::TEXTURE_TYPE::TEXTURE2D, Texture::TEXTURE_FILTER::NEAREST);
 
 	//Initialize Chunks
 	for (int x = 0; x < WORLD_LENGTH; x++)
@@ -30,16 +39,19 @@ World::World()
 
 World::~World()
 {
+	delete m_DiffuseTex;
 }
 
 void World::Render(Shader* shader)
 {
+	
+
 	//Loop through all the chunks and render them
 	for (int x = 0; x < WORLD_LENGTH; x++)
 	{
 		for (int y = 0; y < WORLD_LENGTH; y++)
 		{
-			m_Chunks[x][y].RenderChunk(shader);
+			m_Chunks[x][y].RenderChunk(shader, *m_DiffuseTex);
 		}
 	}
 }

@@ -6,7 +6,7 @@ in vec2 v_UV;
 
 uniform float u_Time;
 uniform vec2 u_ScreenRes;
-uniform sampler2D MenuTex;
+uniform sampler2D DiffuseTex;
 
 void main()
 {
@@ -16,7 +16,7 @@ void main()
 	uv.x *= aspect;
 	uv += vec2(0.5);
 
-	vec3 diff = texture(MenuTex, uv).rgb;
+	vec3 diff = texture(DiffuseTex, uv).rgb;
 	vec3 blue = vec3(0.0, 0.75, 1.0) * diff;
 	vec3 red = vec3(1.0, 0.0, 0.0) * diff;
 

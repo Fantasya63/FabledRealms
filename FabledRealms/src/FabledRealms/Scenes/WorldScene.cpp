@@ -172,33 +172,11 @@ WorldScene::WorldScene()
     m_GeometryBuffer = new GeomertryBuffer();
     m_GeometryBuffer->Init(width, height);
     
-        
+    Mesh::InitMeshFullScreenQuad(m_FullScreenQuadMesh);
+
     // ------------------------------------------------------- Crosshair ------------------------------------------------------
-
-    m_FullscreenQuadVAO = VertexArray::Create();
-    m_FullscreenQuadVAO->Bind();
-
     
-    //create the vertex data for a full screen quad
-    float vertices[]{
-        // POS              Normal            UV
-        -1.0f,  1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,     // top left
-        -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,     // bottom left
-         1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,     // bottom right
-         1.0f,  1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f,     // top right
-    };
-
-    //Create it's index data
-    uint32_t indices[6]{  // note that we start from 0!
-        0, 1, 2,  // first Triangle
-        0, 2, 3   // second Triangle
-    };
-
-
-    //Create the vertex and Index Buffers
-    m_FullscreenQuadVBO = VertexBuffer::Create(vertices, sizeof(float) * 32); //Takes in the vertices' size in bytes
-    m_FullscreenQuadIBO = IndexBuffer::Create(indices, 6);
-
+        
     //Create and Configure the shader
     m_CrosshairShader = new Shader("Assets/Shaders/CrosshairShader.vert", "Assets/Shaders/CrosshairShader.frag");
     m_CrosshairShader->setInt("CrosshairTex", 0);
@@ -210,6 +188,9 @@ WorldScene::WorldScene()
     };
     m_CrosshairTexture = new Texture(crosshairTexturePath, Texture::TEXTURE_TYPE::TEXTURE2D, Texture::TEXTURE_FILTER::LINEAR);
 
+
+    Mesh::InitMeshFullScreenQuad(m_CrosshairMesh);
+    m_CrosshairMesh.DiffuseTexID = m_CrosshairTexture->GetRendererID();
 
 
 
@@ -227,60 +208,7 @@ WorldScene::WorldScene()
     m_CubemapTexture = new Texture(cubmapTexturePath, Texture::TEXTURE_TYPE::CUBEMAP, Texture::TEXTURE_FILTER::LINEAR);
 
 
-    //Vertex Data for Skybox
-    float skyboxVertices[] = {
-       
-        //Positions          Normal            UV
-        -1.0f,  1.0f,  1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, //Back Top Left   [0]
-         1.0f,  1.0f,  1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, //Back Top Right  [1]
-         1.0f, -1.0f,  1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, //Back Bot Right  [2]
-        -1.0f, -1.0f,  1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, //Back Bot Left   [3]
-
-        -1.0f,  1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, //Front Top Left  [4]
-         1.0f,  1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, //Front Top Right [5]
-         1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, //Front Bot Right [6]
-        -1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, //Front Bot Left  [7]
-    };
-
-    // Index of the vertices for the skybox
-    // Refer to skyboxVertices Indices
-    uint32_t skyboxIndices[] =
-    {
-        //Back Face
-        0, 2, 3,
-        0, 1, 2,
-
-        //Front Face
-        4, 7, 6,
-        4, 6, 5,
-
-        //Left
-        4, 3, 7,
-        4, 0, 3,
-
-        //Right
-        1, 6, 2,
-        1, 5, 6,
-
-        //Top
-        4, 1, 0,
-        4, 5, 1,
-
-        //Bottom
-        7, 3, 2,
-        7, 2, 6
-    };
-
-    //Create the vertex array and Bind it
-    m_CubemapVAO = VertexArray::Create();
-    m_CubemapVAO->Bind();
-
-    //Create vertex buffer
-    m_CubemapVBO = VertexBuffer::Create(skyboxVertices, sizeof(float) * 64); //Takes in the size of vertices in bytes
-
-    //Create index buffer
-    int indexCount = sizeof(skyboxIndices) / sizeof(skyboxIndices[0]);
-    m_CubemapIBO = IndexBuffer::Create(skyboxIndices, indexCount);
+    Mesh::InitMeshCubemap(m_CubemapMesh);
 
 
     //Create the shader for the sky
@@ -295,11 +223,7 @@ WorldScene::WorldScene()
     m_TerrainShader->SetMat4("a_ProjMatrix", m_Camera.GetProjMatrix(Application::Get().GetWindow()->GetAspectRatio()));
 
 
-    //Create the texture atlas
-    const char texturePath[6][100] = {
-        "Assets/Textures/terrain.png",
-    };
-    m_TerrainTexture = new Texture(texturePath, Texture::TEXTURE_TYPE::TEXTURE2D, Texture::TEXTURE_FILTER::NEAREST);
+   
 
 
     //Disable Mouse
@@ -334,115 +258,92 @@ void WorldScene::Update(const Time& const time)
 
     // ----------------------------- Rendering ------------------------------------------------
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     //Setup HDR FBO
-    m_HDRBufffer->Bind();
+    //m_HDRBufffer->Bind();
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     //Enable depth test, this is disabled when rendering the full screen quad
-    glEnable(GL_DEPTH_TEST); 
-
-
+    //glEnable(GL_DEPTH_TEST); 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
 
     // ------------ Crosshair ------------
     // Bind the texture
-    m_CrosshairTexture->Bind();
-
+    
     // Configure the shader
     m_CrosshairShader->Use();
     Window* window = Application::Get().GetWindow();
     glm::vec2 screenRes = glm::vec2(window->GetWidth(), window->GetHeight());
     m_CrosshairShader->SetVec2("u_ScreenRes", screenRes);
-    
-    //Bind the geometry we're rendering
-    m_FullscreenQuadVAO->Bind();
 
-    //Render the crosshair
-    glDrawElements(GL_TRIANGLES, m_FullscreenQuadIBO->GetCount(), GL_UNSIGNED_INT, 0);
+
+    m_CrosshairMesh.RenderMesh(*m_CrosshairShader);
 
 
 
 
     // ----------- World -------------------
 
-     // Bind the texture
-    m_TerrainTexture->Bind();
-
     // Configure the shader
-    m_TerrainShader->Use();
-    glm::mat4 view = m_Camera.GetViewMatrix();
-    m_TerrainShader->SetMat4("a_ViewMatrix", m_Camera.GetViewMatrix());
-    m_TerrainShader->SetMat4("a_ProjMatrix", m_Camera.GetProjMatrix(Application::Get().GetWindow()->GetAspectRatio()));
-    m_TerrainShader->setInt("blockTex", 0);
-    m_TerrainShader->SetFloat("u_Time", time.currentTime);
-
-    //Render the world
-    m_World.Render(m_TerrainShader);
+    //m_TerrainShader->Use();
+    //glm::mat4 view = m_Camera.GetViewMatrix();
+    //m_TerrainShader->SetMat4("a_ViewMatrix", m_Camera.GetViewMatrix());
+    //m_TerrainShader->SetMat4("a_ProjMatrix", m_Camera.GetProjMatrix(Application::Get().GetWindow()->GetAspectRatio()));
+    //m_TerrainShader->setInt("blockTex", 0);
+    //m_TerrainShader->SetFloat("u_Time", time.currentTime);
+    //
+    ////Render the world
+    //m_World.Render(m_TerrainShader);
 
 
 
     // ----- Render Skybox -------
     // change depth function so depth test passes when values are equal to depth buffer's content
-    glDepthFunc(GL_EQUAL);  
+    //glDepthFunc(GL_EQUAL);  
     
     //Bind the texture
-    m_CubemapTexture->Bind();
+    //m_CubemapTexture->Bind();
 
     //Configure the shader
-    m_CubemapShader->Use();
-    m_CubemapShader->SetMat4("a_ViewMatrix", glm::mat4(glm::mat3(m_Camera.GetViewMatrix()))); // Strip away the translations in the matrix
-    m_TerrainShader->SetMat4("a_ProjMatrix", m_Camera.GetProjMatrix(Application::Get().GetWindow()->GetAspectRatio()));
-
-    //Bind the geometry we're rendering
-    m_CubemapVAO->Bind();
+    //m_CubemapShader->Use();
+    //m_CubemapShader->SetMat4("a_ViewMatrix", glm::mat4(glm::mat3(m_Camera.GetViewMatrix()))); // Strip away the translations in the matrix
+    //m_TerrainShader->SetMat4("a_ProjMatrix", m_Camera.GetProjMatrix(Application::Get().GetWindow()->GetAspectRatio()));
 
     //Render the Geometry
-    glDrawElements(GL_TRIANGLES, m_CubemapIBO->GetCount(), GL_UNSIGNED_INT, 0);
-    m_CubemapVAO->UnBind();
+   // m_CubemapMesh.RenderMesh();
 
     // Change Depth func back to default
-    glDepthFunc(GL_LESS); 
+    //glDepthFunc(GL_LESS); 
 
-    m_HDRBufffer->UnBind();
+   // m_HDRBufffer->UnBind();
 
 
 
 
     // -----------------------------------------------------------------------------------
-    glDisable(GL_DEPTH_TEST);
+    //glDisable(GL_DEPTH_TEST);
 
     //glClear(GL_COLOR_BUFFER_BIT);
-    m_BloomFBO->RenderBloomTexture(*m_FullscreenQuadVAO, m_HDRBufffer->GetColorAttachmentID(0), 0.004f);
+    //m_BloomFBO->RenderBloomTexture(m_FullScreenQuadMesh, m_HDRBufffer->GetColorAttachmentID(0), 0.004f);
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     //glDisable(GL_BLEND);
     //Render to screen with tonemapping
     //glClear(GL_COLOR_BUFFER_BIT);
    
-    m_TonemappingShader->Use();
+    //m_TonemappingShader->Use();
     //m_TonemappingShader->setInt("scene", 0);
     //m_TonemappingShader->setInt("bloom", 1);
 
-    m_FullscreenQuadVAO->Bind();
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_HDRBufffer->GetColorAttachmentID(0));
-
-    uint32_t bloomTex = m_BloomFBO->GetBloomTexture();
-    //DLOG_CORE_INFO("Bloom Tex: " << bloomTex);
-
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, bloomTex); //Use the texture as the screen tex
-
+   // m_FullScreenQuadMesh.ActivateTexture(GL_TEXTURE0, m_HDRBufffer->GetColorAttachmentID(0));
+    //m_FullScreenQuadMesh.ActivateTexture(GL_TEXTURE1, m_BloomFBO->GetBloomTexture());
     
-    m_TonemappingShader->setInt("scene", 0);
-    m_TonemappingShader->setInt("bloom", 1);
-
-    glDrawElements(GL_TRIANGLES, m_FullscreenQuadIBO->GetCount(), GL_UNSIGNED_INT, 0);
-
-
-    glActiveTexture(GL_TEXTURE0);
+    //m_TonemappingShader->setInt("scene", 0);
+    //m_TonemappingShader->setInt("bloom", 1);
+    //m_FullScreenQuadMesh.RenderMesh();
 
     if (InputManager::IsKeyDown(KEYCODE_ESCAPE))
         Application::Get().RequestClose();
@@ -454,25 +355,19 @@ WorldScene::~WorldScene()
     delete m_BloomFBO;
     delete m_GeometryBuffer;
 
-    delete m_CubemapVAO;
-    delete m_CubemapVBO;
-    delete m_CubemapIBO;
     delete m_CubemapShader;
     delete m_CubemapTexture;
 
     delete m_TerrainShader;
-    delete m_TerrainTexture;
 
     delete m_CrosshairShader;
     delete m_CrosshairTexture;
 
-    delete m_FullscreenQuadVAO;
-    delete m_FullscreenQuadVBO;
-    delete m_FullscreenQuadIBO;
-
     delete m_TonemappingShader;
 
-	LOG_INFO("DELETED WORLD SCENE");
+    Mesh::CleanUpMesh(m_CubemapMesh);
+    Mesh::CleanUpMesh(m_FullScreenQuadMesh);
+    Mesh::CleanUpMesh(m_CrosshairMesh);
 }
 
 void WorldScene::OnWindowResized(int width, int height)

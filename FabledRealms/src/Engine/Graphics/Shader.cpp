@@ -90,7 +90,7 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
 		glDeleteShader(vShaderID);
 		
 		// Log the error to the console
-		LOG_CORE_ERROR(infoLog);
+		FR_CORE_ASSERT(false, infoLog);
 
 		delete[] infoLog;
 	}
@@ -126,7 +126,7 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
 		glDeleteShader(vShaderID);
 		glDeleteShader(fShaderID);
 
-		LOG_CORE_ERROR(infoLog);
+		FR_CORE_ASSERT(false, infoLog);
 		
 		delete[] infoLog;
 	}
@@ -162,7 +162,7 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
 		glDeleteShader(fShaderID);
 
 		//Log the error
-		LOG_CORE_ERROR(infoLog);
+		FR_CORE_ASSERT(false, infoLog);
 
 		delete[] infoLog;
 	}

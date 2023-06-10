@@ -2,8 +2,6 @@
 
 #include "Engine/Application.h"
 
-#include "Engine/Graphics/Buffers.h"
-#include "Engine/Graphics/VertexArray.h"
 #include "Engine/Graphics/Shader.h"
 #include "Engine/Graphics/Texture.h"
 #include "Engine/Graphics/Camera.h"

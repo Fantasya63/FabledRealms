@@ -49,6 +49,8 @@ private:
 	bool IsChunkInWorld(glm::ivec2 chunkCoord);
 
 private:
+	Texture* m_DiffuseTex;
+
 	//Create a 16 by 16 chunk array to store our chunks
 	Chunk m_Chunks[WORLD_LENGTH][WORLD_LENGTH];
 	static World* s_Instance;

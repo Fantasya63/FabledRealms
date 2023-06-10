@@ -1,9 +1,7 @@
 #include "frpch.h"
 
 #include "Engine/Application.h"
-
 #include "Engine/Input/Input.h"
-
 #include "Engine/Scene/SceneManager.h"
 #include "Engine/Sound/AudioManager.h"
 
@@ -21,40 +19,22 @@ MainMenuScene::MainMenuScene()
     //Cull backfaces to save GPU resources
     glCullFace(GL_BACK);
 
-	m_MenuScreenVAO = VertexArray::Create();
-	m_MenuScreenVAO->Bind();
-
-	float vertices[] {
-		// POS              Normal            UV
-		-1.0f,  1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,     // top left
-		-1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,     // bottom left
-		 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,     // bottom right
-		 1.0f,  1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f,     // top right
-	};
-
-	uint32_t indices[6]{  // note that we start from 0!
-		0, 1, 2,  // first Triangle
-		0, 2, 3   // second Triangle
-	};
-
-
-	//Create buffer objects
-	m_MenuScreenVBO = VertexBuffer::Create(vertices, sizeof(float) * 32); //Takes in the vertices' size in bytes
-	m_MenuScreenIBO = IndexBuffer::Create(indices, 6);
 
 
 	//Create the main menu shader
 	m_MenuShader = new Shader("Assets/Shaders/MainMenuShader.vert", "Assets/Shaders/MainMenuShader.frag");
-
-	//Set the texture location to the first texture unit
-	m_MenuShader->setInt("MenuTex", 0);
-	
 
 	//Create the Main Menu texture
 	const char texturePath[6][100] = {
 		"Assets/Textures/FabledRealmsSplash.jpg",
 	};
 	m_MenuTexture = new Texture(texturePath, Texture::TEXTURE_TYPE::TEXTURE2D, Texture::TEXTURE_FILTER::LINEAR);
+
+
+	//Init mesh
+	Mesh::InitMeshFullScreenQuad(m_ScreenQuadMesh);
+	m_ScreenQuadMesh.DiffuseTexID = m_MenuTexture->GetRendererID();
+
 
 
 	//Stop all background music if there is one playing already
@@ -73,11 +53,10 @@ MainMenuScene::~MainMenuScene()
 {
 	//AudioManager::Get().StopAllSounds();
 
-	delete m_MenuScreenVAO;
-	delete m_MenuScreenVBO;
-	delete m_MenuScreenIBO;
 	delete m_MenuShader;
 	delete m_MenuTexture;
+
+	Mesh::CleanUpMesh(m_ScreenQuadMesh);
 }
 
 void MainMenuScene::Update(const Time& const time)
@@ -101,15 +80,11 @@ void MainMenuScene::Update(const Time& const time)
 	}
 
 	// -- RENDERING ------------------------------------
-	m_MenuTexture->Bind();
 	m_MenuShader->Use();
-
 	Window* window = Application::Get().GetWindow();
 	glm::vec2 screenRes = glm::vec2(window->GetWidth(), window->GetHeight());
-
 	m_MenuShader->SetVec2("u_ScreenRes", screenRes);
 	m_MenuShader->SetFloat("u_Time", time.currentTime);
 
-	m_MenuScreenVAO->Bind();
-	glDrawElements(GL_TRIANGLES, m_MenuScreenIBO->GetCount(), GL_UNSIGNED_INT, NULL);
+	m_ScreenQuadMesh.RenderMesh(*m_MenuShader);
 }

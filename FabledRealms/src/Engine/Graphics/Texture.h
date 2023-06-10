@@ -14,6 +14,17 @@ public:
 		 LINEAR,
 	};
 	
+	enum class TEXTURE_SLOT
+	{
+		DIFFUSE = 0,
+		ROUGHNESS,
+		NORMAL,
+		METALLIC,
+		DATA1,
+		DATA2,
+
+		CUBEMAP,
+	};
 	
 	// Takes in an array of string as paths
 	// For a normal Texture2D, it will only take the first element as the path
@@ -32,7 +43,7 @@ private:
 
 private:
 	
-	uint32_t m_RendererID;
+	uint32_t m_RendererID = 0;
 	TEXTURE_TYPE m_TextureType;
 };
 

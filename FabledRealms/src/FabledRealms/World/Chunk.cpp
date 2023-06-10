@@ -20,6 +20,8 @@ Chunk::Chunk()
 
 Chunk::~Chunk()
 {
+	Mesh::CleanUpMesh(m_ChunkMesh);
+
 	//Save Data to disk
 	std::string saveDir = "game/data/world/";
 	std::string filename = std::to_string(m_ChunkPos.x) + "-" + std::to_string(m_ChunkPos.y) + ".bin";
@@ -35,12 +37,6 @@ Chunk::~Chunk()
 	
 	//close the file
 	file.close();
-
-	DLOG_CORE_INFO("Saving Chunks");
-
-	delete m_ChunkVAO;
-	delete m_ChunkVBO;
-	delete m_ChunkIBO;
 }
 
 void Chunk::Init(glm::ivec2 chunkPosition)
@@ -65,7 +61,6 @@ void Chunk::Init(glm::ivec2 chunkPosition)
 		//We Generate data
 		PopulateVoxelData();
 	}
-	
 }
 
 void Chunk::SetVoxel(glm::ivec3 localPos, char voxelID)
@@ -146,30 +141,18 @@ void Chunk::PopulateVoxelData()
 }
 
 void Chunk::GenerateMesh()
-{
-	//Check if there is already a mesh generated for this chunk
-	if (m_ChunkVAO != nullptr)
+{	
+	if (m_ChunkMesh.m_IsInitialized)
 	{
-		//Delete the mesh
-		delete m_ChunkVAO;
-		delete m_ChunkVBO;
-		delete m_ChunkIBO;
-
-		m_ChunkVAO = nullptr;
-		m_ChunkVBO = nullptr;
-		m_ChunkIBO = nullptr;
+		Mesh::CleanUpMesh(m_ChunkMesh);
 	}
 
 
-	std::vector<float> vertices;
-	// Reserve 8192 floats ideal for a flat world 
-	// (16 * 16 * 4 * 8) Chunk area * Vertices per face * num Floats per vertices (Position, Normal, UV)
-	vertices.reserve(8192);
+	std::vector<Vertex> vertices;
+	vertices.reserve(1024);
 
 	std::vector<uint32_t> indices;
-	// Reserve 8192 floats ideal for a flat world 
-	// (16 * 16 * 6) Chunk area * Num of Indices per face
-	indices.reserve(1536);
+	indices.reserve(1024);
 		
 
 	//For keeping track of the index values
@@ -211,31 +194,42 @@ void Chunk::GenerateMesh()
 
 					int uvIndex = VoxelData::voxelProps[voxelID].UVIndex[face];
 
+
+					std::vector<Vertex> faceVerts;
+					faceVerts.reserve(4);
+
+
+
 					//Loop through all of the face's vertices
 					for (int vert = 0; vert < VoxelData::TOTAL_NUMBER_OF_CUBE_VERTS; vert++)
 					{
+						Vertex vertex{};
+
 						//get vertex position at this voxel pos
-						glm::ivec3 pos = voxelPos + VoxelData::CUBE_FACE_VERTICES_POS[face][vert];
-
-						//Add x, y, and z positions
-						vertices.emplace_back(pos.x);
-						vertices.emplace_back(pos.y);
-						vertices.emplace_back(pos.z);
-
-						//Add Normals
-						vertices.emplace_back(normal.x);
-						vertices.emplace_back(normal.y);
-						vertices.emplace_back(normal.z);
-
+						vertex.Position = voxelPos + VoxelData::CUBE_FACE_VERTICES_POS[face][vert];
 
 
 						//Get the UV from the lookup table
-						glm::vec2 uv = VoxelData::GetUVSFromUVIndex(uvIndex, vert);
+						vertex.UV1 = VoxelData::GetUVSFromUVIndex(uvIndex, vert);
 
-						//Add UVs
-						vertices.emplace_back(uv.x);
-						vertices.emplace_back(uv.y);
+
+						//Add Normals
+						vertex.Normal = normal;
+						
+						
+						faceVerts.emplace_back(vertex);
 					}
+
+					//Calculate Tangent
+					glm::vec3 tangent = Mesh::GetTangentVector(faceVerts);
+					faceVerts[0].Tangent = tangent;
+					faceVerts[1].Tangent = tangent;
+					faceVerts[2].Tangent = tangent;
+					faceVerts[3].Tangent = tangent;
+
+					//Append to vertices
+					vertices.insert(vertices.end(), faceVerts.begin(), faceVerts.end());
+
 
 					// Add Indices
 					// These are the indices of the vertex that make up a Face
@@ -259,20 +253,10 @@ void Chunk::GenerateMesh()
 		}
 	}
 
-	// SetUp Vertex Array
-	m_ChunkVAO = VertexArray::Create();
-	m_ChunkVAO->Bind();
-
-	// SetUp Vertex Buffer
-	//Takes in a float* to the array and the size of the array in bytes
-	m_ChunkVBO = VertexBuffer::Create(&vertices[0], vertices.size() * sizeof(float));
-	
-	// SetUp Index Buffer
-	// Takes in a uint32_t* as the array and the number of elements the array has
-	m_ChunkIBO = IndexBuffer::Create(&indices[0], indices.size());
+	Mesh::InitMeshChunk(m_ChunkMesh, vertices, indices);
 }
 
-void Chunk::RenderChunk(Shader* shader)
+void Chunk::RenderChunk(Shader* shader, Texture& texture)
 {
 	// Set Model Matrix
 	// This is the position, rotation, and scale of the Chunk
@@ -282,10 +266,9 @@ void Chunk::RenderChunk(Shader* shader)
 	modelMatrix = glm::translate(modelMatrix, pos);
 
 	shader->SetMat4("a_ModelMatrix", modelMatrix);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture.GetRendererID());
 
 	//Bind the Vertex Array that's about to be rendered
-	m_ChunkVAO->Bind();
-	
-	//Render the VAO
-	glDrawElements(GL_TRIANGLES, m_ChunkIBO->GetCount(), GL_UNSIGNED_INT, 0);
+	m_ChunkMesh.RenderMesh(*shader);
 }
