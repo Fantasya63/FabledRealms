@@ -260,12 +260,12 @@ void WorldScene::Update(const Time& const time)
 
     //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     //Setup HDR FBO
-    //m_HDRBufffer->Bind();
+    m_HDRBufffer->Bind();
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    //glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     //Enable depth test, this is disabled when rendering the full screen quad
-    //glEnable(GL_DEPTH_TEST); 
+    glEnable(GL_DEPTH_TEST); 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
@@ -315,32 +315,37 @@ void WorldScene::Update(const Time& const time)
     // Change Depth func back to default
     glDepthFunc(GL_LESS); 
 
-   // m_HDRBufffer->UnBind();
+   m_HDRBufffer->UnBind();
 
 
 
 
-    // -----------------------------------------------------------------------------------
-    //glDisable(GL_DEPTH_TEST);
-
-    //glClear(GL_COLOR_BUFFER_BIT);
-    //m_BloomFBO->RenderBloomTexture(m_FullScreenQuadMesh, m_HDRBufffer->GetColorAttachmentID(0), 0.004f);
-
-    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-    //glDisable(GL_BLEND);
-    //Render to screen with tonemapping
-    //glClear(GL_COLOR_BUFFER_BIT);
-   
-    //m_TonemappingShader->Use();
-    //m_TonemappingShader->setInt("scene", 0);
-    //m_TonemappingShader->setInt("bloom", 1);
-
-   // m_FullScreenQuadMesh.ActivateTexture(GL_TEXTURE0, m_HDRBufffer->GetColorAttachmentID(0));
-    //m_FullScreenQuadMesh.ActivateTexture(GL_TEXTURE1, m_BloomFBO->GetBloomTexture());
+    // --------------------------------------- Post Process --------------------------------------------
     
-    //m_TonemappingShader->setInt("scene", 0);
-    //m_TonemappingShader->setInt("bloom", 1);
-    //m_FullScreenQuadMesh.RenderMesh();
+   
+    glDisable(GL_DEPTH_TEST);
+
+    glClear(GL_COLOR_BUFFER_BIT);
+    m_BloomFBO->RenderBloomTexture(m_HDRBufffer->GetColorAttachmentID(0), 0.004f);
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glDisable(GL_BLEND);
+
+    // Render to screen with tonemapping
+   
+    m_TonemappingShader->Use();
+    m_TonemappingShader->setInt("scene", 0);
+    m_TonemappingShader->setInt("bloom", 1);
+
+    glBindVertexArray(m_FullScreenQuadMesh.VAO);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, m_HDRBufffer->GetColorAttachmentID(0));
+
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, m_BloomFBO->GetBloomTexture());
+
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
+    glActiveTexture(GL_TEXTURE0);
 
     if (InputManager::IsKeyDown(KEYCODE_ESCAPE))
         Application::Get().RequestClose();
