@@ -7,7 +7,6 @@ in vec2 v_UV;
 uniform sampler2D scene;
 uniform sampler2D bloom;
 
-
 void main()
 {
     vec3 hdr = texture(scene, v_UV).rgb;

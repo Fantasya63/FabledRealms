@@ -30,6 +30,8 @@ public:
 	const uint32_t GetColorAttachmentID(uint32_t index) const;
 	const glm::ivec2 GetResolution() const;
 
+	
+
 protected:
 	virtual void Init(uint32_t width, uint32_t height);
 	
@@ -41,6 +43,7 @@ protected:
 	uint32_t m_RendererID;
 
 private:
+
 	bool m_IsInitialized = false;
 	std::vector<uint32_t> m_ColorAttachmentIDs;
 

@@ -15,7 +15,7 @@ struct BloomMip
 };
 
 
-class BloomFBO : FrameBuffer
+class BloomFBO : public FrameBuffer
 {
 public:
 	BloomFBO();

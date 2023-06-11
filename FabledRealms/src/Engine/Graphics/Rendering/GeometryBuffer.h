@@ -1,11 +1,11 @@
 #pragma once
 #include <Engine/Graphics/Rendering/FrameBuffer.h>
 
-class GeomertryBuffer : FrameBuffer
+class GeometryBuffer : public FrameBuffer
 {
 public:
-	GeomertryBuffer();
-	~GeomertryBuffer();
+	GeometryBuffer();
+	~GeometryBuffer();
 
 	void Init(uint32_t width, uint32_t height);
 };

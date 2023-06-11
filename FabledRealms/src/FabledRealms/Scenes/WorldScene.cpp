@@ -169,10 +169,16 @@ WorldScene::WorldScene()
     m_BloomFBO = new BloomFBO();
     m_BloomFBO->Init(width, height, 5);
 
-    m_GeometryBuffer = new GeomertryBuffer();
+    m_GeometryBuffer = new GeometryBuffer();
     m_GeometryBuffer->Init(width, height);
-    
-    Mesh::InitMeshFullScreenQuad(m_FullScreenQuadMesh);
+    m_GeometryBufferShader = new Shader("Assets/Shaders/GeometryBufferShader.vert", "Assets/Shaders/GeometryBufferShader.frag");
+
+    m_DefferedLightingShader = new Shader("Assets/Shaders/DefferedLightingShader.vert", "Assets/Shaders/DefferedLightingShader.frag");
+    m_DefferedLightingShader->setInt("PositionEmission", 0);
+    m_DefferedLightingShader->setInt("ColorMetallic", 1);
+    m_DefferedLightingShader->setInt("NormalRoughness", 2);
+
+
 
     // ------------------------------------------------------- Crosshair ------------------------------------------------------
     
@@ -232,6 +238,7 @@ WorldScene::WorldScene()
 
 
 
+
 void WorldScene::Update(const Time& const time)
 {
 
@@ -260,7 +267,8 @@ void WorldScene::Update(const Time& const time)
 
     //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     //Setup HDR FBO
-    m_HDRBufffer->Bind();
+    m_GeometryBuffer->Bind();
+    //m_HDRBufffer->Bind();
 
     //glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -270,17 +278,7 @@ void WorldScene::Update(const Time& const time)
 
 
 
-    // ------------ Crosshair ------------
-    // Bind the texture
-    
-    // Configure the shader
-    m_CrosshairShader->Use();
-    Window* window = Application::Get().GetWindow();
-    glm::vec2 screenRes = glm::vec2(window->GetWidth(), window->GetHeight());
-    m_CrosshairShader->SetVec2("u_ScreenRes", screenRes);
-
-
-    m_CrosshairMesh.RenderMesh(*m_CrosshairShader);
+   
 
 
 
@@ -288,32 +286,65 @@ void WorldScene::Update(const Time& const time)
     // ----------- World -------------------
 
     // Configure the shader
-    m_TerrainShader->Use();
+    //m_TerrainShader->Use();
+    m_GeometryBufferShader->Use();
     glm::mat4 view = m_Camera.GetViewMatrix();
-    m_TerrainShader->SetMat4("a_ViewMatrix", m_Camera.GetViewMatrix());
-    m_TerrainShader->SetMat4("a_ProjMatrix", m_Camera.GetProjMatrix(Application::Get().GetWindow()->GetAspectRatio()));
-    m_TerrainShader->SetFloat("u_Time", time.currentTime);
+    m_GeometryBufferShader->SetMat4("a_ViewMatrix", m_Camera.GetViewMatrix());
+    m_GeometryBufferShader->SetMat4("a_ProjMatrix", m_Camera.GetProjMatrix(Application::Get().GetWindow()->GetAspectRatio()));
+    m_GeometryBufferShader->SetFloat("u_Time", time.currentTime);
     
     //Render the world
     m_World.Render(m_TerrainShader);
 
 
+    //Deffered Lighting
+
+    m_HDRBufffer->Bind();
+    glDisable(GL_DEPTH_TEST);
+
+    m_DefferedLightingShader->Use();
+    glBindVertexArray(m_CrosshairMesh.VAO);
+
+
+
+    //Setup texture Units
+
+    //PositionEmission;
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, m_GeometryBuffer->GetColorAttachmentID(0));
+
+    
+    //ColorMetallic;
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, m_GeometryBuffer->GetColorAttachmentID(1));
+    
+    //NormalRoughness;
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, m_GeometryBuffer->GetColorAttachmentID(2));
+
+    
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
+    glActiveTexture(GL_TEXTURE0);
+
+    glEnable(GL_DEPTH_TEST);
+
+
 
     // ----- Render Skybox -------
     // change depth function so depth test passes when values are equal to depth buffer's content
-    glDepthFunc(GL_EQUAL);  
-    
-    
-    //Configure the shader
-    m_CubemapShader->Use();
-    m_CubemapShader->SetMat4("a_ViewMatrix", glm::mat4(glm::mat3(m_Camera.GetViewMatrix()))); // Strip away the translations in the matrix
-    m_TerrainShader->SetMat4("a_ProjMatrix", m_Camera.GetProjMatrix(Application::Get().GetWindow()->GetAspectRatio()));
-
-    //Render the Geometry
-    m_CubemapMesh.RenderMesh(*m_CubemapShader);
-
-    // Change Depth func back to default
-    glDepthFunc(GL_LESS); 
+    //glDepthFunc(GL_EQUAL);  
+    //
+    //
+    ////Configure the shader
+    //m_CubemapShader->Use();
+    //m_CubemapShader->SetMat4("a_ViewMatrix", glm::mat4(glm::mat3(m_Camera.GetViewMatrix()))); // Strip away the translations in the matrix
+    //m_TerrainShader->SetMat4("a_ProjMatrix", m_Camera.GetProjMatrix(Application::Get().GetWindow()->GetAspectRatio()));
+    //
+    ////Render the Geometry
+    //m_CubemapMesh.RenderMesh(*m_CubemapShader);
+    //
+    //// Change Depth func back to default
+    //glDepthFunc(GL_LESS); 
 
    m_HDRBufffer->UnBind();
 
@@ -322,6 +353,24 @@ void WorldScene::Update(const Time& const time)
 
     // --------------------------------------- Post Process --------------------------------------------
     
+   // ------------ Crosshair ------------
+   // Bind the texture
+
+  // // Configure the shader
+  // m_CrosshairShader->Use();
+  // Window* window = Application::Get().GetWindow();
+  // glm::vec2 screenRes = glm::vec2(window->GetWidth(), window->GetHeight());
+  // m_CrosshairShader->SetVec2("u_ScreenRes", screenRes);
+  //
+  //
+  // m_CrosshairMesh.RenderMesh(*m_CrosshairShader);
+
+
+
+
+
+
+
    
     glDisable(GL_DEPTH_TEST);
 
@@ -337,7 +386,7 @@ void WorldScene::Update(const Time& const time)
     m_TonemappingShader->setInt("scene", 0);
     m_TonemappingShader->setInt("bloom", 1);
 
-    glBindVertexArray(m_FullScreenQuadMesh.VAO);
+    glBindVertexArray(m_CrosshairMesh.VAO);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_HDRBufffer->GetColorAttachmentID(0));
 
@@ -347,9 +396,13 @@ void WorldScene::Update(const Time& const time)
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
     glActiveTexture(GL_TEXTURE0);
 
+    glBindVertexArray(0);
+
     if (InputManager::IsKeyDown(KEYCODE_ESCAPE))
         Application::Get().RequestClose();
 }
+
+
 
 WorldScene::~WorldScene()
 {
@@ -368,9 +421,10 @@ WorldScene::~WorldScene()
     delete m_TonemappingShader;
 
     Mesh::CleanUpMesh(m_CubemapMesh);
-    Mesh::CleanUpMesh(m_FullScreenQuadMesh);
     Mesh::CleanUpMesh(m_CrosshairMesh);
 }
+
+
 
 void WorldScene::OnWindowResized(int width, int height)
 {
@@ -389,7 +443,7 @@ void WorldScene::OnWindowResized(int width, int height)
     m_BloomFBO = new BloomFBO();
     m_BloomFBO->Init(width, height, 5);
 
-    m_GeometryBuffer = new GeomertryBuffer();
+    m_GeometryBuffer = new GeometryBuffer();
     m_GeometryBuffer->Init(width, height);
 
     //m_BloomFBO_Old.Resize(width, height);

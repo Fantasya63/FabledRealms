@@ -1,18 +1,19 @@
 #include "frpch.h"
-#include "GeomertryBuffer.h"
+#include "GeometryBuffer.h"
 
-GeomertryBuffer::GeomertryBuffer()
+GeometryBuffer::GeometryBuffer()
 {
 }
 
-GeomertryBuffer::~GeomertryBuffer()
+GeometryBuffer::~GeometryBuffer()
 {
 }
 
 //TODO: Calculate position based on scene depth
-void GeomertryBuffer::Init(uint32_t width, uint32_t height)
+void GeometryBuffer::Init(uint32_t width, uint32_t height)
 {
 	FrameBuffer::Init(width, height);
+	FrameBuffer::Bind();
 
 	//Position and emission
 	FrameBuffer::AddColorAttachment(width, height, ColorFormat::RGBA16F);

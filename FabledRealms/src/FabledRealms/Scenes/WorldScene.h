@@ -5,7 +5,7 @@
 #include "Engine/Graphics/Shader.h"
 #include "Engine/Graphics/Texture.h"
 
-#include <Engine/Graphics/Rendering/GeomertryBuffer.h>
+#include <Engine/Graphics/Rendering/GeometryBuffer.h>
 #include <Engine/Graphics/Post Processing/HdrFBO.h>
 #include <Engine/Graphics/Post Processing/BloomFBO.h>
 
@@ -23,7 +23,7 @@ public:
 
 private:
 	// Frame Buffers
-	GeomertryBuffer* m_GeometryBuffer;
+	GeometryBuffer* m_GeometryBuffer;
 	HdrFBO* m_HDRBufffer;
 	BloomFBO* m_BloomFBO;
 
@@ -32,10 +32,10 @@ private:
 	// Shaders
 	Shader* m_TonemappingShader;
 	Shader* m_GeometryBufferShader;
+	Shader* m_DefferedLightingShader;
 
 
 	// ----------- Crosshair ----------
-	Mesh m_FullScreenQuadMesh;
 	Mesh m_CrosshairMesh;
 
 	Shader* m_CrosshairShader;
