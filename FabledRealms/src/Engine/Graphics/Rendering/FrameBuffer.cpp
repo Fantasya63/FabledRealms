@@ -132,6 +132,7 @@ void FrameBuffer::AddDepthStencilAttachment(uint32_t width, uint32_t height)
 const uint32_t FrameBuffer::GetColorAttachmentID(uint32_t index) const
 {
 	FR_CORE_ASSERT(m_ColorAttachmentIDs.size(), "Color AttachmentIDs is empty!");
+	FR_CORE_ASSERT(index < m_ColorAttachmentIDs.size(), "Index out of range!");
 	return m_ColorAttachmentIDs[index];
 }
 

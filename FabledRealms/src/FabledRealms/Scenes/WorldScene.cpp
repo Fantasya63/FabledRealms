@@ -174,9 +174,9 @@ WorldScene::WorldScene()
     m_GeometryBufferShader = new Shader("Assets/Shaders/GeometryBufferShader.vert", "Assets/Shaders/GeometryBufferShader.frag");
 
     m_DefferedLightingShader = new Shader("Assets/Shaders/DefferedLightingShader.vert", "Assets/Shaders/DefferedLightingShader.frag");
-    m_DefferedLightingShader->setInt("PositionEmission", 0);
-    m_DefferedLightingShader->setInt("ColorMetallic", 1);
-    m_DefferedLightingShader->setInt("NormalRoughness", 2);
+    m_DefferedLightingShader->setInt("PositionEmissionTex", 0);
+    m_DefferedLightingShader->setInt("ColorMetallicTex", 1);
+    m_DefferedLightingShader->setInt("NormalRoughnessTex", 2);
 
 
 
@@ -268,6 +268,8 @@ void WorldScene::Update(const Time& const time)
     //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     //Setup HDR FBO
     m_GeometryBuffer->Bind();
+    unsigned int attachments[] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2};
+    glDrawBuffers(3, attachments);
     //m_HDRBufffer->Bind();
 
     //glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -303,6 +305,10 @@ void WorldScene::Update(const Time& const time)
     glDisable(GL_DEPTH_TEST);
 
     m_DefferedLightingShader->Use();
+    m_DefferedLightingShader->setInt("PositionEmissionTex", 0);
+    m_DefferedLightingShader->setInt("ColorMetallicTex", 1);
+    m_DefferedLightingShader->setInt("NormalRoughnessTex", 2);
+
     glBindVertexArray(m_CrosshairMesh.VAO);
 
 
