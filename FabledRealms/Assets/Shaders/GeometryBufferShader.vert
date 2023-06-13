@@ -8,7 +8,6 @@ layout (location = 3) in vec3 a_Tangent;
 out vec2 v_UV;
 out vec3 v_Pos;
 out vec3 v_Normal;
-out vec3 v_Tangent;
 out mat3 v_TBN;
 
 uniform mat4 a_ProjMatrix;
@@ -31,4 +30,6 @@ void main()
 
 	mat3 TBN = mat3(T, B, N);
 	v_TBN = TBN;
+
+	v_Normal = a_Normal;
 }

@@ -275,5 +275,8 @@ glm::vec2 VoxelData::GetUVSFromUVIndex(int index, int vert)
 	//Add offset depending on what vert it is
 	texturePos += test;
 
+	//Test
+	return VoxelData::RAW_UV[vert];
+	
 	return texturePos;
 }

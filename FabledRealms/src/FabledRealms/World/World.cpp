@@ -13,10 +13,28 @@ World::World()
 	s_Instance = this;
 
 	//Create the texture atlas
-	const char texturePath[6][100] = {
-		"Assets/Textures/terrain.png",
+	const char diffusePath[6][100] = {
+		"Assets/Textures/oak_planks.png",
 	};
-	m_DiffuseTex = new Texture(texturePath, Texture::TEXTURE_TYPE::TEXTURE2D, Texture::TEXTURE_FILTER::NEAREST);
+	m_DiffuseTex = new Texture(diffusePath, Texture::TEXTURE_TYPE::TEXTURE2D, Texture::TEXTURE_FILTER::NEAREST);
+
+	const char specularPath[6][100] = {
+		"Assets/Textures/oak_planks_s.png",
+	};
+	m_SpecularTex = new Texture(specularPath, Texture::TEXTURE_TYPE::TEXTURE2D, Texture::TEXTURE_FILTER::NEAREST);
+
+	const char normalPath[6][100] = {
+		"Assets/Textures/oak_planks_n.png",
+	};
+	m_NormalTex = new Texture(normalPath, Texture::TEXTURE_TYPE::TEXTURE2D, Texture::TEXTURE_FILTER::NEAREST);
+
+
+
+
+
+
+
+
 
 	//Initialize Chunks
 	for (int x = 0; x < WORLD_LENGTH; x++)
@@ -34,6 +52,8 @@ World::World()
 		{
 			m_Chunks[x][y].GenerateMesh();
 			m_Chunks[x][y].m_ChunkMesh.DiffuseTexID = m_DiffuseTex->GetRendererID();
+			m_Chunks[x][y].m_ChunkMesh.RoughnessTexID = m_SpecularTex->GetRendererID();
+			m_Chunks[x][y].m_ChunkMesh.NormalTexID = m_NormalTex->GetRendererID();
 		}
 	}
 }
@@ -41,6 +61,8 @@ World::World()
 World::~World()
 {
 	delete m_DiffuseTex;
+	delete m_SpecularTex;
+	delete m_NormalTex;
 }
 
 void World::Render(Shader* shader)

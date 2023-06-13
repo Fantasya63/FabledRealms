@@ -203,7 +203,7 @@ void Chunk::GenerateMesh()
 					//Loop through all of the face's vertices
 					for (int vert = 0; vert < VoxelData::TOTAL_NUMBER_OF_CUBE_VERTS; vert++)
 					{
-						Vertex vertex{};
+						Vertex vertex;
 
 						//get vertex position at this voxel pos
 						vertex.Position = voxelPos + VoxelData::CUBE_FACE_VERTICES_POS[face][vert];

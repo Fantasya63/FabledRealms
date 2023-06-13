@@ -127,7 +127,7 @@ glm::vec3 Mesh::GetTangentVector(const std::vector<Vertex>& vertices)
 	glm::vec2 deltaUV1 = vertices[1].UV1 - vertices[0].UV1;
 	glm::vec2 deltaUV2 = vertices[2].UV1 - vertices[0].UV1;
 
-	float f = 1.0f / deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y;
+	float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
 
 	glm::vec3 tangent;
 	tangent.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
