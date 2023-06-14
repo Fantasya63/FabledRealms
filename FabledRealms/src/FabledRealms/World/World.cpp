@@ -14,17 +14,17 @@ World::World()
 
 	//Create the texture atlas
 	const char diffusePath[6][100] = {
-		"Assets/Textures/oak_planks.png",
+		"Assets/Textures/stone_bricks.png",
 	};
 	m_DiffuseTex = new Texture(diffusePath, Texture::TEXTURE_TYPE::TEXTURE2D, Texture::TEXTURE_FILTER::NEAREST);
 
 	const char specularPath[6][100] = {
-		"Assets/Textures/oak_planks_s.png",
+		"Assets/Textures/stone_bricks_s.png",
 	};
 	m_SpecularTex = new Texture(specularPath, Texture::TEXTURE_TYPE::TEXTURE2D, Texture::TEXTURE_FILTER::NEAREST);
 
 	const char normalPath[6][100] = {
-		"Assets/Textures/oak_planks_n.png",
+		"Assets/Textures/stone_bricks_n.png",
 	};
 	m_NormalTex = new Texture(normalPath, Texture::TEXTURE_TYPE::TEXTURE2D, Texture::TEXTURE_FILTER::NEAREST);
 

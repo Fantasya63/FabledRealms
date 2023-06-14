@@ -28,6 +28,8 @@ public:
 
 
 	const uint32_t GetColorAttachmentID(uint32_t index) const;
+	const uint32_t GetRendererID() const { return m_RendererID; };
+	
 	const glm::ivec2 GetResolution() const;
 
 	

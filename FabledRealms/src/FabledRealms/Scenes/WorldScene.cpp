@@ -335,22 +335,33 @@ void WorldScene::Update(const Time& const time)
     glEnable(GL_DEPTH_TEST);
 
 
+    //Copy Depth values to default frame buffer
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, m_GeometryBuffer->GetRendererID());
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_HDRBufffer->GetRendererID());
+
+    Window* window = Application::Get().GetWindow();
+    glm::vec2 screenRes = glm::vec2(window->GetWidth(), window->GetHeight());
+    glBlitFramebuffer(0, 0, screenRes.x, screenRes.y, 0, 0, screenRes.x, screenRes.y, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+    
+    m_HDRBufffer->Bind();
+
 
     // ----- Render Skybox -------
     // change depth function so depth test passes when values are equal to depth buffer's content
-    //glDepthFunc(GL_EQUAL);  
-    //
-    //
-    ////Configure the shader
-    //m_CubemapShader->Use();
-    //m_CubemapShader->SetMat4("a_ViewMatrix", glm::mat4(glm::mat3(m_Camera.GetViewMatrix()))); // Strip away the translations in the matrix
-    //m_TerrainShader->SetMat4("a_ProjMatrix", m_Camera.GetProjMatrix(Application::Get().GetWindow()->GetAspectRatio()));
-    //
-    ////Render the Geometry
-    //m_CubemapMesh.RenderMesh(*m_CubemapShader);
-    //
-    //// Change Depth func back to default
-    //glDepthFunc(GL_LESS); 
+
+    glDepthFunc(GL_EQUAL);  
+    
+    
+    //Configure the shader
+    m_CubemapShader->Use();
+    m_CubemapShader->SetMat4("a_ViewMatrix", glm::mat4(glm::mat3(m_Camera.GetViewMatrix()))); // Strip away the translations in the matrix
+    m_TerrainShader->SetMat4("a_ProjMatrix", m_Camera.GetProjMatrix(Application::Get().GetWindow()->GetAspectRatio()));
+    
+    //Render the Geometry
+    m_CubemapMesh.RenderMesh(*m_CubemapShader);
+    
+    // Change Depth func back to default
+    glDepthFunc(GL_LESS); 
 
    m_HDRBufffer->UnBind();
 

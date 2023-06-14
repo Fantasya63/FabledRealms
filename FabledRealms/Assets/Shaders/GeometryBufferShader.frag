@@ -40,7 +40,7 @@ void main()
 
 	vec3 normal = vec3(normalTex.x, normalTex.y, sqrt(1.0 - dot(normalTex.xy, normalTex.xy)));
 	normal = normal * vec3(2.0) - vec3(1.0);
-	normal = normalize(v_TBN * normal);
+	//normal = normalize(v_TBN * normal);
 
 
 	if (albedo.a < 0.5)

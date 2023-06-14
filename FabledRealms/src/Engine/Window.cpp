@@ -31,7 +31,7 @@ void OnWindowResize(GLFWwindow* window, int newWidth, int newHeight)
 ////	FR_CORE_ASSERT(false, "OpenGL Error!");
 //}
 
-//#define FULLSCREEN
+#define FULLSCREEN
 
 
 Window::Window(const char* title, int width, int height)
