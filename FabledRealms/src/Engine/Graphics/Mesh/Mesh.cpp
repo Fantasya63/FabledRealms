@@ -49,15 +49,14 @@ void Mesh::RenderMesh(Shader& shader)
 
 
 	//Setup Shader
-	shader.setInt("DiffuseTex", 0);
-	shader.setInt("RoughnessTex", 1);
-	shader.setInt("NormalTex", 2);
-	shader.setInt("MetallicTex", 3);
-	shader.setInt("CubemapTex", 4);
+	shader.SetInt("DiffuseTex", 0);
+	shader.SetInt("RoughnessTex", 1);
+	shader.SetInt("NormalTex", 2);
+	shader.SetInt("MetallicTex", 3);
+	shader.SetInt("CubemapTex", 4);
 
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, NumOfIndices, GL_UNSIGNED_INT, NULL);
-
 	glActiveTexture(GL_TEXTURE0);
 }
 

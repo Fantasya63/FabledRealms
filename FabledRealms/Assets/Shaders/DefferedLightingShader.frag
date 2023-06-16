@@ -1,4 +1,4 @@
-#version 440 core
+#version 460 core
 
 out vec4 FragColor;
 
@@ -65,12 +65,12 @@ void main()
     vec3 albedo = ColMetallic.rgb;
 
     float metallic = 0.0;
-    //if (ColMetallic.a > 0.5)
-    //{
-    //    metallic = 1.0;
-    //}
+    if (ColMetallic.a > 0.5)
+    {
+        metallic = 1.0;
+    }
 
-    vec3 lightColor = vec3(23.47, 21.31, 20.79);
+    vec3 lightColor = vec3(1.0, 1.0, 1.0);//vec3(23.47, 21.31, 20.79);
     vec3 L = normalize(vec3(0.8, 1.0, 1.0));
     vec3 H = normalize(V + L);
 
@@ -99,5 +99,5 @@ void main()
     vec3 ambient = vec3(0.03) * albedo;
 
     FragColor = vec4((kD * albedo / PI + specular) * lightColor * NdotL + ambient, 1.0);
-    //FragColor = vec4(N, 1.0);
+    FragColor = vec4(N, 1.0);
 }

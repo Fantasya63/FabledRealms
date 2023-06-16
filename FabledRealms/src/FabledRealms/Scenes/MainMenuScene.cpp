@@ -21,19 +21,19 @@ MainMenuScene::MainMenuScene()
 
 
 
+	glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+
+
 	//Create the main menu shader
 	m_MenuShader = new Shader("Assets/Shaders/MainMenuShader.vert", "Assets/Shaders/MainMenuShader.frag");
 
 	//Create the Main Menu texture
-	const char texturePath[6][100] = {
-		"Assets/Textures/FabledRealmsSplash.jpg",
-	};
-	m_MenuTexture = new Texture(texturePath, Texture::TEXTURE_TYPE::TEXTURE2D, Texture::TEXTURE_FILTER::LINEAR);
-
+	const std::string path = "Assets/Textures/FabledRealmsSplash.jpg";
+	m_MenuTexture.InitTexture2D(path, Texture::TEXTURE_FILTER::LINEAR, true, true); //Its not possible to not have mipmaps in opengl? or generally?
 
 	//Init mesh
 	Mesh::InitMeshFullScreenQuad(m_ScreenQuadMesh);
-	m_ScreenQuadMesh.DiffuseTexID = m_MenuTexture->GetRendererID();
+	m_ScreenQuadMesh.DiffuseTexID = m_MenuTexture.GetRendererID();
 
 
 
@@ -54,8 +54,7 @@ MainMenuScene::~MainMenuScene()
 	//AudioManager::Get().StopAllSounds();
 
 	delete m_MenuShader;
-	delete m_MenuTexture;
-
+	
 	Mesh::CleanUpMesh(m_ScreenQuadMesh);
 }
 

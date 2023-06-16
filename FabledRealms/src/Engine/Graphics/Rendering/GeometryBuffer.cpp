@@ -17,15 +17,18 @@ void GeometryBuffer::Init(uint32_t width, uint32_t height)
 
 	//Position and emission
 	FrameBuffer::AddColorAttachment(width, height, ColorFormat::RGBA16F);
-	
+
 	//Color and metalic
 	FrameBuffer::AddColorAttachment(width, height, ColorFormat::RGBA);
-	
+
 	//Normal, Roughness
 	FrameBuffer::AddColorAttachment(width, height, ColorFormat::RGBA16F);
+
+
+	AddDepthStencilAttachment(width, height);
 
 	//Tell the GPU about our attachments
 	FrameBuffer::SetDrawBuffers();
 
-	AddDepthStencilAttachment(width, height);
 }
+

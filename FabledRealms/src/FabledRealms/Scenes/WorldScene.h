@@ -39,7 +39,7 @@ private:
 	Mesh m_CrosshairMesh;
 
 	Shader* m_CrosshairShader;
-	Texture* m_CrosshairTexture;
+	Texture m_CrosshairTexture;
 
 
 
@@ -47,7 +47,7 @@ private:
 
 	Mesh m_CubemapMesh;
 	Shader* m_CubemapShader;
-	Texture* m_CubemapTexture;
+	Texture m_CubemapTexture;
 
 
 

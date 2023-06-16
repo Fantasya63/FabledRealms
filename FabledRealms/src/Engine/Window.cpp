@@ -16,22 +16,24 @@ void OnWindowResize(GLFWwindow* window, int newWidth, int newHeight)
 
 //From https://www.khronos.org/opengl/wiki/OpenGL_Error
 
-//void GLAPIENTRY
-//MessageCallback(GLenum source,
-//	GLenum type,
-//	GLuint id,
-//	GLenum severity,
-//	GLsizei length,
-//	const GLchar* message,
-//	const void* userParam)
-//{
-//	fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
-//		(type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),
-//		type, severity, message);
-////	FR_CORE_ASSERT(false, "OpenGL Error!");
-//}
+void GLAPIENTRY
+MessageCallback(GLenum source,
+	GLenum type,
+	GLuint id,
+	GLenum severity,
+	GLsizei length,
+	const GLchar* message,
+	const void* userParam)
+{
+	fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
+		(type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),
+		type, severity, message);
 
-#define FULLSCREEN
+	__debugbreak();
+//	FR_CORE_ASSERT(false, "OpenGL Error!");
+}
+
+//#define FULLSCREEN
 
 
 Window::Window(const char* title, int width, int height)
@@ -43,6 +45,16 @@ Window::Window(const char* title, int width, int height)
 	//Initialize glfw
 	int status = glfwInit();
 	FR_CORE_ASSERT(status, "Failed to initialize GLFW");
+
+
+	//Opengl 4.6
+	
+	//Window Hints
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+
 
 	//Create Window
 #ifdef FULLSCREEN
@@ -68,11 +80,11 @@ Window::Window(const char* title, int width, int height)
 
 	SetVSync(true);
 
-//	//Set OpenGL Debug Callback
-//#ifdef FR_DEBUG
-//	glEnable(GL_DEBUG_OUTPUT);
-//	glDebugMessageCallback(MessageCallback, 0);
-//#endif
+	//Set OpenGL Debug Callback
+#ifdef FR_DEBUG
+	glEnable(GL_DEBUG_OUTPUT);
+	glDebugMessageCallback(MessageCallback, 0);
+#endif
 }
 
 Window::~Window()

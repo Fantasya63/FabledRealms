@@ -182,7 +182,7 @@ void Shader::Use() const
 	glUseProgram(m_RendererID);
 }
 
-void Shader::setInt(const const char* name, int value)
+void Shader::SetInt(const const char* name, int value)
 {
 	glUniform1i(glGetUniformLocation(m_RendererID, name), value);
 }

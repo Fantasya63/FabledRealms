@@ -148,8 +148,8 @@ WorldScene::WorldScene()
     m_TonemappingShader = new Shader("Assets/Shaders/TonemappingShader.vert", "Assets/Shaders/TonemappingShader.frag");
 
     m_TonemappingShader->Use();
-    m_TonemappingShader->setInt("scene", 0);
-    m_TonemappingShader->setInt("bloom", 1);
+    m_TonemappingShader->SetInt("scene", 0);
+    m_TonemappingShader->SetInt("bloom", 1);
 
 
 
@@ -171,12 +171,19 @@ WorldScene::WorldScene()
 
     m_GeometryBuffer = new GeometryBuffer();
     m_GeometryBuffer->Init(width, height);
-    m_GeometryBufferShader = new Shader("Assets/Shaders/GeometryBufferShader.vert", "Assets/Shaders/GeometryBufferShader.frag");
 
-    m_DefferedLightingShader = new Shader("Assets/Shaders/DefferedLightingShader.vert", "Assets/Shaders/DefferedLightingShader.frag");
-    m_DefferedLightingShader->setInt("PositionEmissionTex", 0);
-    m_DefferedLightingShader->setInt("ColorMetallicTex", 1);
-    m_DefferedLightingShader->setInt("NormalRoughnessTex", 2);
+
+
+    m_GeometryBufferShader = new Shader("Assets/Shaders/GeometryBufferShader.vert",
+        "Assets/Shaders/GeometryBufferShader.frag");
+
+    m_DefferedLightingShader = new Shader("Assets/Shaders/DefferedLightingShader.vert",
+        "Assets/Shaders/DefferedLightingShader.frag");
+
+
+    m_DefferedLightingShader->SetInt("PositionEmissionTex", 0);
+    m_DefferedLightingShader->SetInt("ColorMetallicTex", 1);
+    m_DefferedLightingShader->SetInt("NormalRoughnessTex", 2);
 
 
 
@@ -185,25 +192,21 @@ WorldScene::WorldScene()
         
     //Create and Configure the shader
     m_CrosshairShader = new Shader("Assets/Shaders/CrosshairShader.vert", "Assets/Shaders/CrosshairShader.frag");
-    m_CrosshairShader->setInt("CrosshairTex", 0);
+    m_CrosshairShader->SetInt("CrosshairTex", 0);
 
 
     //Create the crosshair texture
-    const char crosshairTexturePath[6][100] = {
-        "Assets/Textures/crosshair.png",
-    };
-    m_CrosshairTexture = new Texture(crosshairTexturePath, Texture::TEXTURE_TYPE::TEXTURE2D, Texture::TEXTURE_FILTER::LINEAR);
-
+    const std::string crosshairTexturePath = "Assets/Textures/crosshair.png";
+    m_CrosshairTexture.InitTexture2D(crosshairTexturePath, Texture::TEXTURE_FILTER::LINEAR, true, true);
 
     Mesh::InitMeshFullScreenQuad(m_CrosshairMesh);
-    m_CrosshairMesh.DiffuseTexID = m_CrosshairTexture->GetRendererID();
+    m_CrosshairMesh.DiffuseTexID = m_CrosshairTexture.GetRendererID();
 
 
 
     // ------------------------------------------------------- Cubemap --------------------------------------------------------
     
-    //Create the cubemap texture
-    const char cubmapTexturePath[6][100] = {
+    const std::string cubemapPaths[] = {
         "Assets/Textures/Cubemap/right.png",
         "Assets/Textures/Cubemap/left.png",
         "Assets/Textures/Cubemap/top.png",
@@ -211,11 +214,12 @@ WorldScene::WorldScene()
         "Assets/Textures/Cubemap/front.png",
         "Assets/Textures/Cubemap/back.png",
     };
-    m_CubemapTexture = new Texture(cubmapTexturePath, Texture::TEXTURE_TYPE::CUBEMAP, Texture::TEXTURE_FILTER::LINEAR);
 
+    m_CubemapTexture.InitEquirectangularMap("Assets/Environment/kloppenheim_06_puresky_4k.hdr", nullptr);
+    //m_CubemapTexture.InitCubemapTexture(cubemapPaths);
 
     Mesh::InitMeshCubemap(m_CubemapMesh);
-    m_CubemapMesh.CubemapTexID = m_CubemapTexture->GetRendererID();
+    m_CubemapMesh.CubemapTexID = m_CubemapTexture.GetRendererID();
 
     //Create the shader for the sky
     m_CubemapShader = new Shader("Assets/Shaders/Cubemap.vert", "Assets/Shaders/Cubemap.frag");
@@ -305,9 +309,9 @@ void WorldScene::Update(const Time& const time)
     glDisable(GL_DEPTH_TEST);
 
     m_DefferedLightingShader->Use();
-    m_DefferedLightingShader->setInt("PositionEmissionTex", 0);
-    m_DefferedLightingShader->setInt("ColorMetallicTex", 1);
-    m_DefferedLightingShader->setInt("NormalRoughnessTex", 2);
+    m_DefferedLightingShader->SetInt("PositionEmissionTex", 0);
+    m_DefferedLightingShader->SetInt("ColorMetallicTex", 1);
+    m_DefferedLightingShader->SetInt("NormalRoughnessTex", 2);
 
     glBindVertexArray(m_CrosshairMesh.VAO);
 
@@ -370,17 +374,17 @@ void WorldScene::Update(const Time& const time)
 
     // --------------------------------------- Post Process --------------------------------------------
     
-   // ------------ Crosshair ------------
-   // Bind the texture
+    // ------------ Crosshair ------------
+    // Bind the texture
 
-  // // Configure the shader
-  // m_CrosshairShader->Use();
-  // Window* window = Application::Get().GetWindow();
-  // glm::vec2 screenRes = glm::vec2(window->GetWidth(), window->GetHeight());
-  // m_CrosshairShader->SetVec2("u_ScreenRes", screenRes);
-  //
-  //
-  // m_CrosshairMesh.RenderMesh(*m_CrosshairShader);
+    // // Configure the shader
+    // m_CrosshairShader->Use();
+    // Window* window = Application::Get().GetWindow();
+    // glm::vec2 screenRes = glm::vec2(window->GetWidth(), window->GetHeight());
+    // m_CrosshairShader->SetVec2("u_ScreenRes", screenRes);
+
+
+    // m_CrosshairMesh.RenderMesh(*m_CrosshairShader);
 
 
 
@@ -400,8 +404,8 @@ void WorldScene::Update(const Time& const time)
     // Render to screen with tonemapping
    
     m_TonemappingShader->Use();
-    m_TonemappingShader->setInt("scene", 0);
-    m_TonemappingShader->setInt("bloom", 1);
+    m_TonemappingShader->SetInt("scene", 0);
+    m_TonemappingShader->SetInt("bloom", 1);
 
     glBindVertexArray(m_CrosshairMesh.VAO);
     glActiveTexture(GL_TEXTURE0);
@@ -428,13 +432,11 @@ WorldScene::~WorldScene()
     delete m_GeometryBuffer;
 
     delete m_CubemapShader;
-    delete m_CubemapTexture;
-
+    
     delete m_TerrainShader;
 
     delete m_CrosshairShader;
-    delete m_CrosshairTexture;
-
+    
     delete m_TonemappingShader;
 
     Mesh::CleanUpMesh(m_CubemapMesh);

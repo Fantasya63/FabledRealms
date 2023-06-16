@@ -7,6 +7,7 @@
 
 FrameBuffer::FrameBuffer()
 {
+	DLOG_CORE_INFO("FrameBuffer base constructor");
 	glCreateFramebuffers(1, &m_RendererID);
 }
 
@@ -14,6 +15,8 @@ FrameBuffer::~FrameBuffer()
 {
 	glDeleteFramebuffers(1, &m_RendererID);
 }
+
+
 
 void FrameBuffer::Init(uint32_t width, uint32_t height)
 {
@@ -27,30 +30,40 @@ void FrameBuffer::Init(uint32_t width, uint32_t height)
 	m_IsInitialized = true;
 }
 
+
+
 void FrameBuffer::SetDrawBuffers()
 {
+	FrameBuffer::Bind();
+
 	std::vector<GLenum> buffers;
 
-	//Populate buffers
 	int count = m_ColorAttachmentIDs.size();
 	for (int i = 0; i < count; i++)
 	{
 		buffers.emplace_back(GL_COLOR_ATTACHMENT0 + i);
 	}
-
-	//Tell opengl which attachments we are outputing to
+	
 	glDrawBuffers(count, buffers.data());
+
+	FrameBuffer::UnBind();
 }
+
+
 
 void FrameBuffer::Bind()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
 }
 
+
+
 void FrameBuffer::UnBind()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
+
+
 
 void FrameBuffer::AddColorAttachment(uint32_t width, uint32_t height, ColorFormat format)
 {
@@ -111,6 +124,8 @@ void FrameBuffer::AddColorAttachment(uint32_t width, uint32_t height, ColorForma
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
+
+
 void FrameBuffer::AddDepthStencilAttachment(uint32_t width, uint32_t height)
 {
 	//Bind
@@ -129,12 +144,16 @@ void FrameBuffer::AddDepthStencilAttachment(uint32_t width, uint32_t height)
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
+
+
 const uint32_t FrameBuffer::GetColorAttachmentID(uint32_t index) const
 {
 	FR_CORE_ASSERT(m_ColorAttachmentIDs.size(), "Color AttachmentIDs is empty!");
 	FR_CORE_ASSERT(index < m_ColorAttachmentIDs.size(), "Index out of range!");
 	return m_ColorAttachmentIDs[index];
 }
+
+
 
 const glm::ivec2 FrameBuffer::GetResolution() const
 {

@@ -1,4 +1,4 @@
-#version 440 core
+#version 460 core
 
 out vec4 FragColor;
 
@@ -12,7 +12,7 @@ void main()
     vec3 hdr = texture(scene, v_UV).rgb;
     vec3 bloomCol = texture(bloom, v_UV).rgb + hdr;
 
-    hdr = mix(hdr, bloomCol, 0.5);
+    //hdr = mix(hdr, bloomCol, 0.5);
     
     //Tone Mapping
     // reinhard tone mapping

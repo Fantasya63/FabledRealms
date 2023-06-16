@@ -140,7 +140,7 @@ void BloomFBO::RenderDownsamples(uint32_t srcTexture)
     //screenQuad.Bind();
     m_DownsampleShader->Use();
     m_DownsampleShader->SetVec2("srcResolution", m_Resolution);
-    m_DownsampleShader->setInt("mipLevel", 0);
+    m_DownsampleShader->SetInt("mipLevel", 0);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, srcTexture);
 
@@ -165,7 +165,7 @@ void BloomFBO::RenderDownsamples(uint32_t srcTexture)
         glBindTexture(GL_TEXTURE_2D, mip.RendererID);
 
         // Disable Karis average for consequent downsamples
-        if (i == 0) { m_DownsampleShader->setInt("mipLevel", 1); }
+        if (i == 0) { m_DownsampleShader->SetInt("mipLevel", 1); }
     }
 }
 
@@ -205,7 +205,7 @@ void BloomFBO::RenderUpsamples(float filterRadius)
 void BloomFBO::RenderClippedHDR(uint32_t srcTex)
 {
     m_ClipShader->Use();
-    m_ClipShader->setInt("srcTexture", 0);
+    m_ClipShader->SetInt("srcTexture", 0);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, srcTex);

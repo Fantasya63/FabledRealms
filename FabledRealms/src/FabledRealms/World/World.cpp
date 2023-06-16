@@ -13,23 +13,14 @@ World::World()
 	s_Instance = this;
 
 	//Create the texture atlas
-	const char diffusePath[6][100] = {
-		"Assets/Textures/stone_bricks.png",
-	};
-	m_DiffuseTex = new Texture(diffusePath, Texture::TEXTURE_TYPE::TEXTURE2D, Texture::TEXTURE_FILTER::NEAREST);
-
-	const char specularPath[6][100] = {
-		"Assets/Textures/stone_bricks_s.png",
-	};
-	m_SpecularTex = new Texture(specularPath, Texture::TEXTURE_TYPE::TEXTURE2D, Texture::TEXTURE_FILTER::NEAREST);
-
-	const char normalPath[6][100] = {
-		"Assets/Textures/stone_bricks_n.png",
-	};
-	m_NormalTex = new Texture(normalPath, Texture::TEXTURE_TYPE::TEXTURE2D, Texture::TEXTURE_FILTER::NEAREST);
+	const std::string diffusePath = "Assets/Textures/weathered_planks_diff_1k.png";
+	const std::string specularPath = "Assets/Textures/weathered_planks_arm_1k.png";
+	const std::string normalPath = "Assets/Textures/weathered_planks_nor_gl_1k.png";
 
 
-
+	m_DiffuseTex.InitTexture2D(diffusePath, Texture::TEXTURE_FILTER::NEAREST, true, true);
+	m_SpecularTex.InitTexture2D(specularPath, Texture::TEXTURE_FILTER::NEAREST, true, true);
+	m_NormalTex.InitTexture2D(normalPath, Texture::TEXTURE_FILTER::NEAREST, true, true);
 
 
 
@@ -51,18 +42,15 @@ World::World()
 		for (int y = 0; y < WORLD_LENGTH; y++)
 		{
 			m_Chunks[x][y].GenerateMesh();
-			m_Chunks[x][y].m_ChunkMesh.DiffuseTexID = m_DiffuseTex->GetRendererID();
-			m_Chunks[x][y].m_ChunkMesh.RoughnessTexID = m_SpecularTex->GetRendererID();
-			m_Chunks[x][y].m_ChunkMesh.NormalTexID = m_NormalTex->GetRendererID();
+			m_Chunks[x][y].m_ChunkMesh.DiffuseTexID = m_DiffuseTex.GetRendererID();
+			m_Chunks[x][y].m_ChunkMesh.RoughnessTexID = m_SpecularTex.GetRendererID();
+			m_Chunks[x][y].m_ChunkMesh.NormalTexID = m_NormalTex.GetRendererID();
 		}
 	}
 }
 
 World::~World()
 {
-	delete m_DiffuseTex;
-	delete m_SpecularTex;
-	delete m_NormalTex;
 }
 
 void World::Render(Shader* shader)

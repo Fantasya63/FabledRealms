@@ -18,5 +18,5 @@ private:
 	Mesh m_ScreenQuadMesh;
 
 	Shader* m_MenuShader;
-	Texture* m_MenuTexture;
+	Texture m_MenuTexture;
 };
