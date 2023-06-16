@@ -261,6 +261,8 @@ void Chunk::GenerateMesh()
 
 void Chunk::RenderChunk(Shader* shader)
 {
+	shader->Use();
+
 	// Set Model Matrix
 	// This is the position, rotation, and scale of the Chunk
 	// In this case, we're only moving the chunk bby a certain amount
@@ -272,4 +274,5 @@ void Chunk::RenderChunk(Shader* shader)
 	
 	//Render MEsh
 	m_ChunkMesh.RenderMesh(*shader);
+	glUseProgram(0);
 }

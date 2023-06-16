@@ -180,7 +180,7 @@ WorldScene::WorldScene()
     m_DefferedLightingShader = new Shader("Assets/Shaders/DefferedLightingShader.vert",
         "Assets/Shaders/DefferedLightingShader.frag");
 
-
+    m_DefferedLightingShader->Use();
     m_DefferedLightingShader->SetInt("PositionEmissionTex", 0);
     m_DefferedLightingShader->SetInt("ColorMetallicTex", 1);
     m_DefferedLightingShader->SetInt("NormalRoughnessTex", 2);
@@ -300,7 +300,7 @@ void WorldScene::Update(const Time& const time)
     m_GeometryBufferShader->SetFloat("u_Time", time.currentTime);
     
     //Render the world
-    m_World.Render(m_TerrainShader);
+    m_World.Render(m_GeometryBufferShader);
 
 
     //Deffered Lighting

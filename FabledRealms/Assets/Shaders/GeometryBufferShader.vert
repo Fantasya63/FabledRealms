@@ -26,7 +26,7 @@ void main()
 
 	vec3 T = normalize(vec3(a_ModelMatrix * vec4(a_Tangent, 0.0)));
 	vec3 N = normalize(vec3(a_ModelMatrix * vec4(a_Normal, 0.0)));
-	vec3 B = normalize(cross(T, N)); // Maybe the order is wrong?
+	vec3 B = normalize(cross(N, T)); // Maybe the order is wrong?
 
 	mat3 TBN = mat3(T, B, N);
 	v_TBN = TBN;

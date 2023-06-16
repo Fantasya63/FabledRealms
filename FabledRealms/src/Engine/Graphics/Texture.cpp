@@ -309,7 +309,6 @@ void Texture::InitEquirectangularMap(const std::string& path, Texture* radianceT
 
 	glViewport(0, 0, 512, 512); // don't forget to configure the viewport to the capture dimensions.
 	glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
-	glBindVertexArray(mesh.VAO);
 	for (unsigned int i = 0; i < 6; ++i)
 	{
 		equirectangularToCubemapShader.SetMat4("view", captureViews[i]);
@@ -317,10 +316,11 @@ void Texture::InitEquirectangularMap(const std::string& path, Texture* radianceT
 			GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, m_RendererID, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		
+		glBindVertexArray(mesh.VAO);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
+		glBindVertexArray(0);
+
 	}
-	glBindVertexArray(0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 

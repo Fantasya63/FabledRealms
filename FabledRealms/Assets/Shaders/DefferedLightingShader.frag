@@ -99,5 +99,5 @@ void main()
     vec3 ambient = vec3(0.03) * albedo;
 
     FragColor = vec4((kD * albedo / PI + specular) * lightColor * NdotL + ambient, 1.0);
-    FragColor = vec4(N, 1.0);
+    //FragColor = vec4(N, 1.0);
 }

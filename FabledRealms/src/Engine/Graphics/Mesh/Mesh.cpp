@@ -14,6 +14,15 @@ void Mesh::RenderMesh(Shader& shader)
 	FR_CORE_ASSERT(VBO, "Mesh VBO is not Initialized!");
 	FR_CORE_ASSERT(IBO, "Mesh EBO is not Initialized!");
 
+
+	//Setup Shader
+	shader.SetInt("DiffuseTex", 0);
+	shader.SetInt("RoughnessTex", 1);
+	shader.SetInt("NormalTex", 2);
+	shader.SetInt("MetallicTex", 3);
+	shader.SetInt("CubemapTex", 4);
+
+
 	// Textures
 	if (DiffuseTexID)
 	{
@@ -45,15 +54,7 @@ void Mesh::RenderMesh(Shader& shader)
 		glBindTexture(GL_TEXTURE_CUBE_MAP, CubemapTexID);
 	}
 
-
-
-
-	//Setup Shader
-	shader.SetInt("DiffuseTex", 0);
-	shader.SetInt("RoughnessTex", 1);
-	shader.SetInt("NormalTex", 2);
-	shader.SetInt("MetallicTex", 3);
-	shader.SetInt("CubemapTex", 4);
+	
 
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, NumOfIndices, GL_UNSIGNED_INT, NULL);
