@@ -23,7 +23,7 @@ public:
 
 
 
-	void Bind() const;
+	void Bind(uint32_t slot = 0) const;
 
 	const TEXTURE_TYPE GetTextureType() const { return m_TextureType; }
 	const uint32_t GetRendererID() const { return m_RendererID; }
@@ -33,7 +33,8 @@ private:
 	void SetTextureWrapAndFilterCubemap(TEXTURE_FILTER filter);
 
 private:
-	
+	uint32_t m_Width, m_Height;
+
 	uint32_t m_RendererID = 0;
 	TEXTURE_TYPE m_TextureType;
 };

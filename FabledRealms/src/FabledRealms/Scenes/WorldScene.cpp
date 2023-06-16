@@ -226,15 +226,6 @@ WorldScene::WorldScene()
 
 
 
-    // ---------------------------------------------- World -----------------------------------------------------
-
-    //Create and configure the shader for the terrain
-    m_TerrainShader = new Shader("Assets/Shaders/TerrainShader.vert", "Assets/Shaders/TerrainShader.frag");
-    m_TerrainShader->SetMat4("a_ProjMatrix", m_Camera.GetProjMatrix(Application::Get().GetWindow()->GetAspectRatio()));
-
-
-   
-
 
     //Disable Mouse
     InputManager::SetMouseMode(InputManager::MouseMode::DISABLED);
@@ -359,7 +350,7 @@ void WorldScene::Update(const Time& const time)
     //Configure the shader
     m_CubemapShader->Use();
     m_CubemapShader->SetMat4("a_ViewMatrix", glm::mat4(glm::mat3(m_Camera.GetViewMatrix()))); // Strip away the translations in the matrix
-    m_TerrainShader->SetMat4("a_ProjMatrix", m_Camera.GetProjMatrix(Application::Get().GetWindow()->GetAspectRatio()));
+    m_CubemapShader->SetMat4("a_ProjMatrix", m_Camera.GetProjMatrix(Application::Get().GetWindow()->GetAspectRatio()));
     
     //Render the Geometry
     m_CubemapMesh.RenderMesh(*m_CubemapShader);
@@ -433,8 +424,6 @@ WorldScene::~WorldScene()
 
     delete m_CubemapShader;
     
-    delete m_TerrainShader;
-
     delete m_CrosshairShader;
     
     delete m_TonemappingShader;

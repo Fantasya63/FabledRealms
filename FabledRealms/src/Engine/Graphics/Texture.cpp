@@ -21,13 +21,14 @@ Texture::~Texture()
 	glDeleteTextures(1, &m_RendererID);
 }
 
-void Texture::Bind() const
+void Texture::Bind(uint32_t slot) const
 {
 	switch (m_TextureType)
 	{
 	case Texture::TEXTURE_TYPE::TEXTURE2D:
-		glBindTexture(GL_TEXTURE_2D, m_RendererID);
+		glBindTextureUnit(slot, m_RendererID);
 		break;
+
 	case Texture::TEXTURE_TYPE::CUBEMAP:
 		glBindTexture(GL_TEXTURE_CUBE_MAP, m_RendererID);
 		break;
@@ -42,7 +43,7 @@ void Texture::Bind() const
 void Texture::SetTextureWrapAndFilter2D(TEXTURE_FILTER filter)
 {
 	//Set Wrap Options to Clamp To Edge
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 	//Set Filter Options
@@ -110,11 +111,16 @@ void Texture::InitTexture2D(const std::string& path, TEXTURE_FILTER filter, bool
 
 	
 	glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
-	glBindTexture(GL_TEXTURE_2D, m_RendererID);
-
+	
 	//Load Texture Data From Disk
 	data = stbi_load(path.c_str(), &width, &height, &numChannels, 0);
 	FR_CORE_ASSERT(data, "Failed to load texture at : " << path);
+
+	
+
+	m_Width = width;
+	m_Height = height;
+
 
 
 	//We currently only support RGB and RGBA textures
@@ -126,7 +132,7 @@ void Texture::InitTexture2D(const std::string& path, TEXTURE_FILTER filter, bool
 		if (isColorData)
 			gpuFormat = GL_SRGB8_ALPHA8;
 		else
-			gpuFormat = GL_RGBA;
+			gpuFormat = GL_RGBA8;
 	}
 	else if (numChannels == 3)
 	{
@@ -135,7 +141,7 @@ void Texture::InitTexture2D(const std::string& path, TEXTURE_FILTER filter, bool
 		if (isColorData)
 			gpuFormat = GL_SRGB8;
 		else
-			gpuFormat = GL_RGB;
+			gpuFormat = GL_RGB8;
 	}
 	else
 	{
@@ -146,20 +152,47 @@ void Texture::InitTexture2D(const std::string& path, TEXTURE_FILTER filter, bool
 
 	// Upload Image Data to the GPU.
 	// Takes in: Which target, mipmap level, format to store texture on gpu, width, height, legacy opengl (should always be 0), format of source, data type of src, image data, 
-	glTexImage2D(GL_TEXTURE_2D, 0, gpuFormat, width, height, 0, srcFormat, GL_UNSIGNED_BYTE, data);
+	glTextureStorage2D(m_RendererID, 1, gpuFormat, m_Width, m_Height);
+	//glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	//glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+
+	//Set Filter Options
+	switch (filter)
+	{
+	case Texture::TEXTURE_FILTER::NEAREST:
+		glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		break;
+
+	case Texture::TEXTURE_FILTER::LINEAR:
+		glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		break;
+
+	default:
+		LOG_CORE_ERROR("Unknown Texture Filter Option");
+		FR_CORE_ASSERT(false, "");
+		break;
+	}
+
 
 
 	//Tell the GPU to Generate Mipmaps
-	if (generateMipmaps)
-		glGenerateMipmap(GL_TEXTURE_2D);
+	//if (generateMipmaps)
+	///	glGenerateMipmap(GL_TEXTURE_2D);
 	
-		
+
 
 	//Select Texture Filtering Options
-	SetTextureWrapAndFilter2D(filter);
+	//SetTextureWrapAndFilter2D(filter);
+
+
+	glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Height, srcFormat, GL_UNSIGNED_BYTE, data);
+
 
 	stbi_image_free(data);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	//glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void Texture::InitCubemapTexture(const std::string path[6])
@@ -228,11 +261,11 @@ void Texture::InitCubemapTexture(const std::string path[6])
 void Texture::InitEquirectangularMap(const std::string& path, Texture* radianceTexture)
 {
 	//From https://learnopengl.com/PBR/IBL/Diffuse-irradiance
+	
+	FR_CORE_ASSERT(!m_RendererID, "Texture already initiallized!");
 	m_TextureType = TEXTURE_TYPE::CUBEMAP;
 
 
-
-	FR_CORE_ASSERT(!m_RendererID, "Texture already initiallized!");
 
 	unsigned int hdrTexture;
 	stbi_set_flip_vertically_on_load(true);
@@ -337,4 +370,6 @@ void Texture::InitEquirectangularMap(const std::string& path, Texture* radianceT
 		stbi_image_free(data);
 		return;
 	}
+
+	//TODO: Continue creating the irradiance map
 }
