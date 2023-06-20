@@ -24,7 +24,7 @@ public:
 		R11F_G11F_B10F,
 	};
 	void AddColorAttachment(uint32_t width, uint32_t height, ColorFormat format);
-	void AddDepthStencilAttachment(uint32_t width, uint32_t height);
+	void AddDepthAttachment(uint32_t width, uint32_t height);
 
 
 	const uint32_t GetColorAttachmentID(uint32_t index) const;

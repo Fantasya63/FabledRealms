@@ -7,6 +7,7 @@ in vec2 v_UV;
 uniform sampler2D scene;
 uniform sampler2D bloom;
 
+
 void main()
 {
     vec3 hdr = texture(scene, v_UV).rgb;
@@ -16,11 +17,11 @@ void main()
     
     //Tone Mapping
     // reinhard tone mapping
-    vec3 mapped = hdr ;// (hdr + vec3(1.0));
+    vec3 mapped = hdr / (hdr + vec3(1.0));
 
     //Gamma Correction
-	//float gamma = 2.2;
-    //mapped = pow(mapped.rgb, vec3(1.0/gamma));
+	float gamma = 2.2;
+    mapped = pow(mapped.rgb, vec3(1.0/gamma));
 
     FragColor = vec4(mapped, 1.0);
 }

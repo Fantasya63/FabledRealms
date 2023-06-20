@@ -263,7 +263,7 @@ void WorldScene::Update(const Time& const time)
     //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     //Setup HDR FBO
     m_GeometryBuffer->Bind();
-    unsigned int attachments[] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2};
+    unsigned int attachments[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
     glDrawBuffers(3, attachments);
     //m_HDRBufffer->Bind();
 
@@ -286,7 +286,7 @@ void WorldScene::Update(const Time& const time)
     //m_TerrainShader->Use();
     m_GeometryBufferShader->Use();
     glm::mat4 view = m_Camera.GetViewMatrix();
-    m_GeometryBufferShader->SetMat4("a_ViewMatrix", m_Camera.GetViewMatrix());
+    m_GeometryBufferShader->SetMat4("a_ViewMatrix", view);
     m_GeometryBufferShader->SetMat4("a_ProjMatrix", m_Camera.GetProjMatrix(Application::Get().GetWindow()->GetAspectRatio()));
     m_GeometryBufferShader->SetFloat("u_Time", time.currentTime);
     
@@ -303,7 +303,12 @@ void WorldScene::Update(const Time& const time)
     m_DefferedLightingShader->SetInt("PositionEmissionTex", 0);
     m_DefferedLightingShader->SetInt("ColorMetallicTex", 1);
     m_DefferedLightingShader->SetInt("NormalRoughnessTex", 2);
+    
+    glm::vec3 LightDir(0.8, 1.0, 1.0);
+    LightDir = glm::normalize(LightDir);
+    //LightDir = view * glm::vec4(LightDir, 0.0);
 
+    m_DefferedLightingShader->SetVec3("LightDir", LightDir);
     glBindVertexArray(m_CrosshairMesh.VAO);
 
 
@@ -344,7 +349,7 @@ void WorldScene::Update(const Time& const time)
     // ----- Render Skybox -------
     // change depth function so depth test passes when values are equal to depth buffer's content
 
-    glDepthFunc(GL_EQUAL);  
+    glDepthFunc(GL_LEQUAL);  
     
     
     //Configure the shader
@@ -354,9 +359,6 @@ void WorldScene::Update(const Time& const time)
     
     //Render the Geometry
     m_CubemapMesh.RenderMesh(*m_CubemapShader);
-    
-    // Change Depth func back to default
-    glDepthFunc(GL_LESS); 
 
    m_HDRBufffer->UnBind();
 

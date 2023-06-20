@@ -8,7 +8,8 @@
 FrameBuffer::FrameBuffer()
 {
 	DLOG_CORE_INFO("FrameBuffer base constructor");
-	glCreateFramebuffers(1, &m_RendererID);
+	glGenFramebuffers(1, &m_RendererID);
+	//glCreateFramebuffers(1, &m_RendererID);
 }
 
 FrameBuffer::~FrameBuffer()
@@ -100,7 +101,7 @@ void FrameBuffer::AddColorAttachment(uint32_t width, uint32_t height, ColorForma
 
 	// Create color texture
 	uint32_t id;
-	glCreateTextures(GL_TEXTURE_2D, 1, &id);
+	glGenTextures(1, &id);
 	glActiveTexture(GL_TEXTURE0 + m_ColorAttachmentIDs.size());
 	glBindTexture(GL_TEXTURE_2D, id);
 
@@ -126,15 +127,13 @@ void FrameBuffer::AddColorAttachment(uint32_t width, uint32_t height, ColorForma
 
 
 
-void FrameBuffer::AddDepthStencilAttachment(uint32_t width, uint32_t height)
+void FrameBuffer::AddDepthAttachment(uint32_t width, uint32_t height)
 {
 	//Bind
 	glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
 
-	
-	glCreateRenderbuffers(1, &m_DepthStencilAttachmentID);
+	glGenRenderbuffers(1, &m_DepthStencilAttachmentID);
 	glBindRenderbuffer(GL_RENDERBUFFER, m_DepthStencilAttachmentID);
-
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
 
 	//Attach to FBO

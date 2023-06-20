@@ -10,18 +10,12 @@
 
 MainMenuScene::MainMenuScene()
 {
-	//Set OpenGl's Winding order
 	glFrontFace(GL_CCW);
-
-	//Enable Culling
-    glEnable(GL_CULL_FACE);
-
-    //Cull backfaces to save GPU resources
-    glCullFace(GL_BACK);
-
-
-
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
 	glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+
+
 
 
 	//Create the main menu shader
@@ -29,7 +23,7 @@ MainMenuScene::MainMenuScene()
 
 	//Create the Main Menu texture
 	const std::string path = "Assets/Textures/FabledRealmsSplash.jpg";
-	m_MenuTexture.InitTexture2D(path, Texture::TEXTURE_FILTER::LINEAR, true, true); //Its not possible to not have mipmaps in opengl? or generally?
+	m_MenuTexture.InitTexture2D(path, Texture::TEXTURE_FILTER::LINEAR, true, true);
 
 	//Init mesh
 	Mesh::InitMeshFullScreenQuad(m_ScreenQuadMesh);
@@ -78,7 +72,12 @@ void MainMenuScene::Update(const Time& const time)
 		return;
 	}
 
+
+
+
 	// -- RENDERING ------------------------------------
+	
+
 	m_MenuShader->Use();
 	Window* window = Application::Get().GetWindow();
 	glm::vec2 screenRes = glm::vec2(window->GetWidth(), window->GetHeight());

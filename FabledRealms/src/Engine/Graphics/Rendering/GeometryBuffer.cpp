@@ -25,7 +25,7 @@ void GeometryBuffer::Init(uint32_t width, uint32_t height)
 	FrameBuffer::AddColorAttachment(width, height, ColorFormat::RGBA16F);
 
 
-	AddDepthStencilAttachment(width, height);
+	AddDepthAttachment(width, height);
 
 	//Tell the GPU about our attachments
 	FrameBuffer::SetDrawBuffers();

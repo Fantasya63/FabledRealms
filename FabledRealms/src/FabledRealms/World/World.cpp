@@ -13,9 +13,13 @@ World::World()
 	s_Instance = this;
 
 	//Create the texture atlas
-	const std::string diffusePath = "Assets/Textures/oak_planks.png";
-	const std::string specularPath = "Assets/Textures/oak_planks_s.png";
-	const std::string normalPath = "Assets/Textures/oak_planks_n.png";
+	//const std::string diffusePath = "Assets/Textures/oak_planks.png";
+	//const std::string specularPath = "Assets/Textures/oak_planks_s.png";
+	//const std::string normalPath = "Assets/Textures/oak_planks_n.png";
+
+	const std::string diffusePath = "Assets/Textures/gold_block.png";
+	const std::string specularPath = "Assets/Textures/gold_block_s.png";
+	const std::string normalPath = "Assets/Textures/gold_block_n.png";
 
 
 	m_DiffuseTex.InitTexture2D(diffusePath, Texture::TEXTURE_FILTER::NEAREST, true, true);

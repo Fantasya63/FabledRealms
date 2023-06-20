@@ -13,7 +13,7 @@ uniform sampler2D DiffuseTex;
 uniform sampler2D RoughnessTex;
 uniform sampler2D NormalTex;
 uniform sampler2D MetallicTex;
-
+uniform samplerCube CubemapTex;
 
 void main()
 {
@@ -33,7 +33,7 @@ void main()
 	vec4 albedo = texture(DiffuseTex, v_UV);
 	vec4 specular = texture(RoughnessTex, v_UV);
 	
-	float roughness = specular.r;
+	float roughness = 1.0 - specular.r;
 	
 	vec4 normalTex = texture(NormalTex, v_UV);
 	normalTex.g = 1.0 - normalTex.g;

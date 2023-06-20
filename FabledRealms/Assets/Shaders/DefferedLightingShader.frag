@@ -9,8 +9,9 @@ uniform sampler2D ColorMetallicTex;
 uniform sampler2D NormalRoughnessTex;
 
 
- const float PI = 3.14159265359;
+const float PI = 3.14159265359;
 
+uniform vec3 LightDir;
 
 vec3 fresnelSchlick(float cosTheta, vec3 F0)
 {
@@ -71,7 +72,7 @@ void main()
     }
 
     vec3 lightColor = vec3(1.0, 1.0, 1.0);//vec3(23.47, 21.31, 20.79);
-    vec3 L = normalize(vec3(0.8, 1.0, 1.0));
+    vec3 L = LightDir;
     vec3 H = normalize(V + L);
 
     //TODO - Use F0 input from textures
