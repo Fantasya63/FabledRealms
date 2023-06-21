@@ -48,7 +48,7 @@ private:
 	Mesh m_CubemapMesh;
 	Shader* m_CubemapShader;
 	Texture m_CubemapTexture;
-
+	Texture m_DiffuseIrradianceTexture;
 
 
 	// ------------ World ---------------

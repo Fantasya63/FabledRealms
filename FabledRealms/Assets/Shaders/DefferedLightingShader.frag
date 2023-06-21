@@ -7,7 +7,7 @@ in vec2 v_UV;
 uniform sampler2D PositionEmissionTex;
 uniform sampler2D ColorMetallicTex;
 uniform sampler2D NormalRoughnessTex;
-
+uniform samplerCube irradianceMap;
 
 const float PI = 3.14159265359;
 
@@ -97,8 +97,17 @@ void main()
 
     float NdotL = max(dot(N, L), 0.0);
 
-    vec3 ambient = vec3(0.03) * albedo;
 
-    FragColor = vec4((kD * albedo / PI + specular) * lightColor * NdotL + ambient, 1.0);
+    FragColor = vec4((kD * albedo / PI + specular) * lightColor * NdotL, 1.0);
+
+
+    //Ambient lighting
+    vec3 irradiance = texture(irradianceMap, N).rgb;
+    vec3 diffuse = irradiance * albedo;
+    vec3 ambient = kD * diffuse;
+
+    FragColor += vec4(ambient, 0.0);
+
+
     //FragColor = vec4(N, 1.0);
 }

@@ -215,7 +215,7 @@ WorldScene::WorldScene()
         "Assets/Textures/Cubemap/back.png",
     };
 
-    m_CubemapTexture.InitEquirectangularMap("Assets/Environment/kloppenheim_06_puresky_4k.hdr", nullptr);
+    m_CubemapTexture.InitEquirectangularMap("Assets/Environment/kloppenheim_06_puresky_4k.hdr", &m_DiffuseIrradianceTexture);
     //m_CubemapTexture.InitCubemapTexture(cubemapPaths);
 
     Mesh::InitMeshCubemap(m_CubemapMesh);
@@ -291,7 +291,7 @@ void WorldScene::Update(const Time& const time)
     m_GeometryBufferShader->SetFloat("u_Time", time.currentTime);
     
     //Render the world
-    m_World.Render(m_GeometryBufferShader);
+    m_World.Render(m_GeometryBufferShader, m_DiffuseIrradianceTexture.GetRendererID());
 
 
     //Deffered Lighting
@@ -303,6 +303,7 @@ void WorldScene::Update(const Time& const time)
     m_DefferedLightingShader->SetInt("PositionEmissionTex", 0);
     m_DefferedLightingShader->SetInt("ColorMetallicTex", 1);
     m_DefferedLightingShader->SetInt("NormalRoughnessTex", 2);
+    m_DefferedLightingShader->SetInt("irradianceMap", 5);
     
     glm::vec3 LightDir(0.8, 1.0, 1.0);
     LightDir = glm::normalize(LightDir);

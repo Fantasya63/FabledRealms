@@ -13,13 +13,13 @@ World::World()
 	s_Instance = this;
 
 	//Create the texture atlas
-	//const std::string diffusePath = "Assets/Textures/oak_planks.png";
-	//const std::string specularPath = "Assets/Textures/oak_planks_s.png";
-	//const std::string normalPath = "Assets/Textures/oak_planks_n.png";
+	const std::string diffusePath = "Assets/Textures/oak_planks.png";
+	const std::string specularPath = "Assets/Textures/oak_planks_s.png";
+	const std::string normalPath = "Assets/Textures/oak_planks_n.png";
 
-	const std::string diffusePath = "Assets/Textures/gold_block.png";
-	const std::string specularPath = "Assets/Textures/gold_block_s.png";
-	const std::string normalPath = "Assets/Textures/gold_block_n.png";
+	//const std::string diffusePath = "Assets/Textures/gold_block.png";
+	//const std::string specularPath = "Assets/Textures/gold_block_s.png";
+	//const std::string normalPath = "Assets/Textures/gold_block_n.png";
 
 
 	m_DiffuseTex.InitTexture2D(diffusePath, Texture::TEXTURE_FILTER::NEAREST, true, true);
@@ -57,13 +57,14 @@ World::~World()
 {
 }
 
-void World::Render(Shader* shader)
+void World::Render(Shader* shader, uint32_t diffuseIrradianceTex)
 {
 	//Loop through all the chunks and render them
 	for (int x = 0; x < WORLD_LENGTH; x++)
 	{
 		for (int y = 0; y < WORLD_LENGTH; y++)
 		{
+			m_Chunks[x][y].m_ChunkMesh.diffuseIrradianceTexID = diffuseIrradianceTex;
 			m_Chunks[x][y].RenderChunk(shader);
 		}
 	}

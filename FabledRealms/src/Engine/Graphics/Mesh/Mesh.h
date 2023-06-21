@@ -22,6 +22,7 @@ public:
 	uint32_t MetallicTexID  = 0;
 
 	uint32_t CubemapTexID   = 0;
+	uint32_t diffuseIrradianceTexID = 0;
 
 	bool m_IsInitialized = false;
 

@@ -54,6 +54,12 @@ void Mesh::RenderMesh(Shader& shader)
 		glBindTexture(GL_TEXTURE_CUBE_MAP, CubemapTexID);
 	}
 
+	if (diffuseIrradianceTexID)
+	{
+		glActiveTexture(GL_TEXTURE5);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, diffuseIrradianceTexID);
+	}
+	
 	
 
 	glBindVertexArray(VAO);
