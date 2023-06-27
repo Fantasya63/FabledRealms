@@ -23,6 +23,8 @@ public:
 
 	uint32_t CubemapTexID   = 0;
 	uint32_t diffuseIrradianceTexID = 0;
+	uint32_t prefilteredMapTexID = 0;
+	uint32_t brdfLUTTexID = 0;
 
 	bool m_IsInitialized = false;
 

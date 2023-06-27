@@ -57,14 +57,13 @@ World::~World()
 {
 }
 
-void World::Render(Shader* shader, uint32_t diffuseIrradianceTex)
+void World::Render(Shader* shader)
 {
 	//Loop through all the chunks and render them
 	for (int x = 0; x < WORLD_LENGTH; x++)
 	{
 		for (int y = 0; y < WORLD_LENGTH; y++)
 		{
-			m_Chunks[x][y].m_ChunkMesh.diffuseIrradianceTexID = diffuseIrradianceTex;
 			m_Chunks[x][y].RenderChunk(shader);
 		}
 	}

@@ -25,6 +25,15 @@ MessageCallback(GLenum source,
 	const GLchar* message,
 	const void* userParam)
 {
+	// Suppress some useless warnings
+	switch (id)
+	{
+	case 2: // NVIDIA: "shader will be recompiled due to GL state mismatches"
+		return;
+	default:
+		break;
+	}
+
 	fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
 		(type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),
 		type, severity, message);
@@ -50,8 +59,8 @@ Window::Window(const char* title, int width, int height)
 	//Opengl 4.6
 	
 	//Window Hints
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 #ifdef __APPLE__
@@ -84,11 +93,19 @@ Window::Window(const char* title, int width, int height)
 
 	SetVSync(true);
 
+
+	//INIT
+	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+
+
+
+
+
 	//Set OpenGL Debug Callback
-//#ifdef FR_DEBUG
-//	glEnable(GL_DEBUG_OUTPUT);
-//	glDebugMessageCallback(MessageCallback, 0);
-//#endif
+#ifdef FR_DEBUG
+	glEnable(GL_DEBUG_OUTPUT);
+	glDebugMessageCallback(MessageCallback, 0);
+#endif
 }
 
 Window::~Window()

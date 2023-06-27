@@ -49,6 +49,9 @@ private:
 	Shader* m_CubemapShader;
 	Texture m_CubemapTexture;
 	Texture m_DiffuseIrradianceTexture;
+	Texture m_prefilteredTexture;
+	Texture m_brdfTexture;
+	Texture m_BakedBRDFTexture;
 
 
 	// ------------ World ---------------

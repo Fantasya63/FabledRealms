@@ -29,6 +29,9 @@ public:
 	Mesh m_ChunkMesh;
 
 private:
+	unsigned int CalculateAO(const AOSurroundingData& aoData, glm::ivec3& pos);
+
+private:
 	
 
 	//Container for BlockIDS at position (x, y, z)

@@ -7,4 +7,5 @@ struct Vertex
 
 	glm::vec3 Normal;
 	glm::vec3 Tangent;
+	int AO;
 };

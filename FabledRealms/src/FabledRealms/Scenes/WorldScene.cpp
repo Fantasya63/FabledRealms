@@ -215,11 +215,16 @@ WorldScene::WorldScene()
         "Assets/Textures/Cubemap/back.png",
     };
 
-    m_CubemapTexture.InitEquirectangularMap("Assets/Environment/kloppenheim_06_puresky_4k.hdr", &m_DiffuseIrradianceTexture);
+    //m_CubemapTexture.InitEquirectangularMap("Assets/Environment/kloppenheim_06_puresky_4k.hdr", m_DiffuseIrradianceTexture, m_prefilteredTexture, m_brdfTexture);
+    m_CubemapTexture.InitEquirectangularMap("Assets/Environment/ninomaru_teien_4k.hdr", m_DiffuseIrradianceTexture, m_prefilteredTexture, m_brdfTexture);
     //m_CubemapTexture.InitCubemapTexture(cubemapPaths);
+
+    m_BakedBRDFTexture.InitTexture2D("Assets/Textures/ibl_brdf_lut.png", Texture::TEXTURE_FILTER::LINEAR, false, false);
+
 
     Mesh::InitMeshCubemap(m_CubemapMesh);
     m_CubemapMesh.CubemapTexID = m_CubemapTexture.GetRendererID();
+    //m_CubemapMesh.CubemapTexID =.GetRendererID();
 
     //Create the shader for the sky
     m_CubemapShader = new Shader("Assets/Shaders/Cubemap.vert", "Assets/Shaders/Cubemap.frag");
@@ -291,7 +296,7 @@ void WorldScene::Update(const Time& const time)
     m_GeometryBufferShader->SetFloat("u_Time", time.currentTime);
     
     //Render the world
-    m_World.Render(m_GeometryBufferShader, m_DiffuseIrradianceTexture.GetRendererID());
+    m_World.Render(m_GeometryBufferShader);
 
 
     //Deffered Lighting
@@ -304,12 +309,17 @@ void WorldScene::Update(const Time& const time)
     m_DefferedLightingShader->SetInt("ColorMetallicTex", 1);
     m_DefferedLightingShader->SetInt("NormalRoughnessTex", 2);
     m_DefferedLightingShader->SetInt("irradianceMap", 5);
+    m_DefferedLightingShader->SetInt("prefilteredMap", 6);
+    m_DefferedLightingShader->SetInt("brdfLUT", 7);
     
     glm::vec3 LightDir(0.8, 1.0, 1.0);
     LightDir = glm::normalize(LightDir);
     //LightDir = view * glm::vec4(LightDir, 0.0);
 
     m_DefferedLightingShader->SetVec3("LightDir", LightDir);
+    glm::vec3 camPos = m_Camera.GetPosition();
+    m_DefferedLightingShader->SetVec3("camPos", camPos);
+
     glBindVertexArray(m_CrosshairMesh.VAO);
 
 
@@ -329,7 +339,19 @@ void WorldScene::Update(const Time& const time)
     glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, m_GeometryBuffer->GetColorAttachmentID(2));
 
+
+    glActiveTexture(GL_TEXTURE5);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, m_DiffuseIrradianceTexture.GetRendererID());
+
+   
+    glActiveTexture(GL_TEXTURE6);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, m_prefilteredTexture.GetRendererID());
     
+
+    glActiveTexture(GL_TEXTURE7);
+    glBindTexture(GL_TEXTURE_2D, m_brdfTexture.GetRendererID());
+
+    //Lighting Pass
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
     glActiveTexture(GL_TEXTURE0);
 

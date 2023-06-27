@@ -60,10 +60,23 @@ void Mesh::RenderMesh(Shader& shader)
 		glBindTexture(GL_TEXTURE_CUBE_MAP, diffuseIrradianceTexID);
 	}
 	
+	if (prefilteredMapTexID)
+	{
+		glActiveTexture(GL_TEXTURE6);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, prefilteredMapTexID);
+	}
 	
+	if (brdfLUTTexID)
+	{
+		glActiveTexture(GL_TEXTURE7);
+		glBindTexture(GL_TEXTURE_2D, brdfLUTTexID);
+	}
+
+
 
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, NumOfIndices, GL_UNSIGNED_INT, NULL);
+	glBindVertexArray(0);
 	glActiveTexture(GL_TEXTURE0);
 }
 
@@ -109,6 +122,10 @@ void SendData(Mesh& mesh, const std::vector<Vertex>& vertices, const std::vector
 	//TANGENT
 	glEnableVertexAttribArray(3);
 	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Tangent));
+
+	//AO
+	glEnableVertexAttribArray(4);
+	glVertexAttribPointer(4, 1, GL_UNSIGNED_INT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, AO));
 }
 
 void Mesh::CleanUpMesh(Mesh& mesh)
@@ -149,26 +166,26 @@ void Mesh::InitMeshFullScreenQuad(Mesh& mesh)
 
 	//Quad data
 	const std::vector<Vertex> vertices = {
-			// POS                 UV1			  Normal              Tangent
+				// POS                 UV1			  Normal              Tangent		AO
 		
 		//Top Left
 		{
-			{ -1.0f,  1.0f, 0.0f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}
+			{ -1.0f,  1.0f, 0.0f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, 0,
 		},
 
 		//Bottom Left
 		{
-			{ -1.0f, -1.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} // bottom left
+			{ -1.0f, -1.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, 0,
 		},
 
 		//Bottom Right
 		{
-			{  1.0f, -1.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}
+			{  1.0f, -1.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, 0
 		},
 
 		//Top Right
 		{
-			{  1.0f,  1.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}
+			{  1.0f,  1.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, 0
 		},
 	};
 
@@ -194,14 +211,14 @@ void Mesh::InitMeshCubemap(Mesh& mesh)
 	const std::vector<Vertex> vertices = {
 
 		// Positions				UV1				Normal				Tangent            
-		{ { -1.0f,  1.0f,  1.0f }, { 0.0f, 0.0f },{ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }},  //Back Top Left   [0]
-		{ {  1.0f,  1.0f,  1.0f }, { 0.0f, 0.0f },{ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }},  //Back Top Right  [1]
-		{ {  1.0f, -1.0f,  1.0f }, { 0.0f, 0.0f },{ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }},  //Back Bot Right  [2]
-		{ { -1.0f, -1.0f,  1.0f }, { 0.0f, 0.0f },{ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }},  //Back Bot Left   [3]
-		{ { -1.0f,  1.0f, -1.0f }, { 0.0f, 0.0f },{ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }},  //Front Top Left  [4]
-		{ {  1.0f,  1.0f, -1.0f }, { 0.0f, 0.0f },{ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }},  //Front Top Right [5]
-		{ {  1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f },{ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }},  //Front Bot Right [6]
-		{ { -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f },{ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }},  //Front Bot Left  [7]
+		{ { -1.0f,  1.0f,  1.0f }, { 0.0f, 0.0f },{ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, 0},  //Back Top Left   [0]
+		{ {  1.0f,  1.0f,  1.0f }, { 0.0f, 0.0f },{ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, 0},  //Back Top Right  [1]
+		{ {  1.0f, -1.0f,  1.0f }, { 0.0f, 0.0f },{ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, 0},  //Back Bot Right  [2]
+		{ { -1.0f, -1.0f,  1.0f }, { 0.0f, 0.0f },{ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, 0},  //Back Bot Left   [3]
+		{ { -1.0f,  1.0f, -1.0f }, { 0.0f, 0.0f },{ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, 0},  //Front Top Left  [4]
+		{ {  1.0f,  1.0f, -1.0f }, { 0.0f, 0.0f },{ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, 0},  //Front Top Right [5]
+		{ {  1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f },{ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, 0},  //Front Bot Right [6]
+		{ { -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f },{ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, 0},  //Front Bot Left  [7]
 	};
 
 	// Index of the vertices for the skybox

@@ -1,14 +1,16 @@
-#version 460 core
+#version 330 core
 
 layout (location = 0) in vec3 a_Pos;
 layout (location = 1) in vec2 a_UV;
 layout (location = 2) in vec3 a_Normal;
 layout (location = 3) in vec3 a_Tangent;
+layout (location = 4) in uint a_AO;
 
 out vec2 v_UV;
 out vec3 v_Pos;
 out vec3 v_Normal;
 out mat3 v_TBN;
+out float v_AO;
 
 uniform mat4 a_ProjMatrix;
 uniform mat4 a_ViewMatrix;
@@ -20,7 +22,7 @@ void main()
 	vec4 pos =  a_ProjMatrix * a_ViewMatrix * a_ModelMatrix * vec4(a_Pos, 1.0);
 	gl_Position = pos;
 
-	v_Pos = (a_ViewMatrix * a_ModelMatrix * vec4(a_Pos, 1.0)).xyz;
+	v_Pos = (a_ModelMatrix * vec4(a_Pos, 1.0)).xyz;
 	
 	v_UV = a_UV;
 
@@ -30,6 +32,6 @@ void main()
 
 	mat3 TBN = mat3(T, B, N);
 	v_TBN = TBN;
-
+	v_AO = a_AO / 3.0;
 	v_Normal = a_Normal;
 }

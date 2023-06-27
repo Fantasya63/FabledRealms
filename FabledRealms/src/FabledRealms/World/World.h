@@ -37,7 +37,7 @@ public:
 	World();
 	~World();
 
-	void Render(Shader* shader, uint32_t diffuseIrradianceTex);
+	void Render(Shader* shader);
 
 	char GetVoxel(glm::ivec3 worldPos);
 	void ChangeVoxel(glm::ivec3 worldPos, char voxelID);

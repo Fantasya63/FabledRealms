@@ -259,6 +259,60 @@ const glm::vec2 VoxelData::RAW_UV[VoxelData::TOTAL_NUMBER_OF_CUBE_VERTS] =
 	glm::vec2(1.0, 1.0), // Top Right
 };
 
+const AOSurroundingData VoxelData::AO_SURROUNDING_DATA[VoxelData::TOTAL_NUM_OF_CUBE_FACES][4] =
+{
+		//Side 1				Side 2					Corner	
+
+	//Front
+	{
+		{ glm::ivec3(-1, 0, -1), glm::ivec3(0,  1, -1), glm::ivec3(-1,  1, -1)}, //TL 
+		{ glm::ivec3(-1, 0, -1), glm::ivec3(0, -1, -1), glm::ivec3(1,  1, -1)}, //BL
+		{ glm::ivec3( 1, 0, -1), glm::ivec3(1, -1, -1), glm::ivec3(1, -1, -1)}, //BR
+		{ glm::ivec3( 1, 0, -1), glm::ivec3(1,  1, -1), glm::ivec3(1,  1, -1)}, //TR
+	},
+
+	//Back
+	{
+		{ glm::ivec3( 1,  0, 1), glm::ivec3(0,  1, 1), glm::ivec3(1,  1,  1)}, //TL 
+		{ glm::ivec3( 1,  0, 1), glm::ivec3(0, -1, 1), glm::ivec3(1,  -1, 1)}, //BL
+		{ glm::ivec3(-1,  0, 1), glm::ivec3(0, -1, 1), glm::ivec3(-1, -1, 1)}, //BR
+		{ glm::ivec3(-1,  0, 1), glm::ivec3(0,  1, 1), glm::ivec3(-1,  1, 1)}, //TR 
+	},
+
+	//Left
+	{
+		{ glm::ivec3(-1,  0,  1), glm::ivec3(-1,  1, 0), glm::ivec3(-1,  1,  1)}, //TL 
+		{ glm::ivec3(-1,  0,  1), glm::ivec3(-1, -1, 0), glm::ivec3(-1, -1,  1)}, //BL
+		{ glm::ivec3(-1,  0, -1), glm::ivec3(-1, -1, 0), glm::ivec3(-1, -1, -1)}, //BR
+		{ glm::ivec3(-1,  0, -1), glm::ivec3(-1,  1, 0), glm::ivec3(-1,  1, -1)}, //TR 
+	},
+
+	//Right
+	{
+		{ glm::ivec3(1,  0, -1), glm::ivec3(1,  1, 0), glm::ivec3(1,  1,  -1)}, //TL 
+		{ glm::ivec3(1,  0, -1), glm::ivec3(1, -1, 0), glm::ivec3(1,  -1, -1)}, //BL
+		{ glm::ivec3(1,  0,  1), glm::ivec3(1, -1, 0), glm::ivec3(1, -1,  1)}, //BR
+		{ glm::ivec3(1,  0,  1), glm::ivec3(1,  1, 0), glm::ivec3(1,  1,  1)}, //TR 
+	},
+
+	//Top
+	{
+		{ glm::ivec3(-1,  1, 0), glm::ivec3(0,  1,  1), glm::ivec3(-1,  1,  1)}, //TL 
+		{ glm::ivec3(-1,  1, 0), glm::ivec3(0,  1, -1), glm::ivec3(-1,  1, -1)}, //BL
+		{ glm::ivec3(1,  1,  0), glm::ivec3(0,  1, -1), glm::ivec3(1,  1,  -1)}, //BR
+		{ glm::ivec3(1,  1,  0), glm::ivec3(0,  1,  1), glm::ivec3(1,  1,  1)}, //TR 
+	},
+
+	//Bottom
+	{
+		{ glm::ivec3(-1, -1, 0), glm::ivec3(0,  -1, -1), glm::ivec3(-1, -1, -1)}, //TL 
+		{ glm::ivec3(-1, -1, 0), glm::ivec3(0,  -1,  1), glm::ivec3(-1, -1,  1)}, //BL
+		{ glm::ivec3(1,  -1,  0), glm::ivec3(1, -1,  1), glm::ivec3(1,  -1,  1)}, //BR
+		{ glm::ivec3(1,  -1,  0), glm::ivec3(1, -1, -1), glm::ivec3(1,  -1, -1)}, //TR 
+	},
+
+};
+
 glm::vec2 VoxelData::GetUVSFromUVIndex(int index, int vert)
 {
 

@@ -12,6 +12,12 @@ struct VoxelProps
 	// char stackAmount; // Total number of  items we can carry in a stack
 };
 
+struct AOSurroundingData
+{
+	glm::ivec3 side1;
+	glm::ivec3 side2;
+	glm::ivec3 corner;
+};
 
 //Voxel datas and Helper functions
 class VoxelData
@@ -42,13 +48,12 @@ public:
 	static const VoxelProps voxelProps[];
 	static const int TOTAL_NUM_OF_BLOCKS; //Total number of blockTypes we have in the game
 
-
 	static const int TOTAL_NUM_OF_CUBE_FACES = 6;
 	static const int TOTAL_NUMBER_OF_CUBE_VERTS = 4;
 
 
 	static const glm::vec3 CUBE_FACE_NORMALS[TOTAL_NUM_OF_CUBE_FACES];
-	
+	static const AOSurroundingData AO_SURROUNDING_DATA[TOTAL_NUM_OF_CUBE_FACES][4];
 
 	// Vertices Data for each face
 	// A cube has 6 faces (sides)

@@ -1,4 +1,4 @@
-#version 460 core
+#version 330 core
 
 out vec4 FragColor;
 
@@ -7,11 +7,16 @@ in vec2 v_UV;
 uniform sampler2D PositionEmissionTex;
 uniform sampler2D ColorMetallicTex;
 uniform sampler2D NormalRoughnessTex;
+
+//IBL
 uniform samplerCube irradianceMap;
+uniform samplerCube prefilteredMap;
+uniform sampler2D brdfLUT;
 
 const float PI = 3.14159265359;
 
 uniform vec3 LightDir;
+uniform vec3 camPos;
 
 vec3 fresnelSchlick(float cosTheta, vec3 F0)
 {
@@ -52,40 +57,56 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
     return ggx1 * ggx2;
 }
 
+vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
+{
+    return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+}   
+
+
 void main()
 {
     //Sample G-Buffer
     vec4 PosEmission = texture(PositionEmissionTex, v_UV);
     vec4 ColMetallic = texture(ColorMetallicTex, v_UV);
     vec4 NorRoughness = texture(NormalRoughnessTex, v_UV);
+    float roughness = NorRoughness.a;
+    //roughness = 0.049;
+
+    //vec4 PosEmission = texture(PositionEmissionTex, v_UV);
+    //vec4 ColMetallic = vec4(1.0, 0.0, 0.0, 0.0);
+    //vec4 NorRoughness = vec4(texture(NormalRoughnessTex, v_UV).rgb, 0.0);
+    //float roughness = NorRoughness.a;
 
 
     //Surface Properties
     vec3 N = NorRoughness.xyz * 2.0 - 1.0;
-    vec3 V = normalize(-PosEmission.xyz);
+    vec3 V = normalize(camPos - PosEmission.xyz);
+    vec3 R = reflect(-V, N);
+
     vec3 albedo = ColMetallic.rgb;
 
+    //TODO Change to use the LabPBR's standard
     float metallic = 0.0;
-    if (ColMetallic.a > 0.5)
+    if (ColMetallic.a > 229.0 / 255.0)
     {
         metallic = 1.0;
     }
 
-    vec3 lightColor = vec3(1.0, 1.0, 1.0);//vec3(23.47, 21.31, 20.79);
-    vec3 L = LightDir;
+    //Light Color
+    vec3 radiance = vec3(1.0, 1.0, 1.0);//vec3(23.47, 21.31, 20.79);
+    vec3 L = normalize(LightDir);
     vec3 H = normalize(V + L);
 
     //TODO - Use F0 input from textures
     vec3 F0 = vec3(0.04);
     F0 = mix(F0, albedo, metallic);
-    vec3 F = fresnelSchlick(max(dot(V, H), 0.0), F0);
 
+    vec3 F = fresnelSchlick(max(dot(V, H), 0.0), F0);
     float NDF = DistributionGGX(N, H, NorRoughness.a);
     float G = GeometrySmith(N, V, L, NorRoughness.a);
 
     vec3 numerator = NDF * G * F;
     float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
-
     vec3 specular = numerator / denominator;
 
 
@@ -98,16 +119,31 @@ void main()
     float NdotL = max(dot(N, L), 0.0);
 
 
-    FragColor = vec4((kD * albedo / PI + specular) * lightColor * NdotL, 1.0);
+    FragColor = vec4((kD * albedo / PI + specular) * radiance * NdotL, 1.0);
 
 
     //Ambient lighting
+    F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
+    kS = F;
+    kD = 1.0 - kS;
+    kD *= 1.0 - metallic;
+
     vec3 irradiance = texture(irradianceMap, N).rgb;
     vec3 diffuse = irradiance * albedo;
-    vec3 ambient = kD * diffuse;
 
-    FragColor += vec4(ambient, 0.0);
+    const float MAX_REFLECTION_LOD = 4.0;
+    vec3 prefilteredColor = textureLod(prefilteredMap, R, roughness *  MAX_REFLECTION_LOD).rgb;
+    vec2 brdf = texture(brdfLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
+    specular = prefilteredColor * (F * brdf.x + brdf.y);
+
+
+    //AO
+    vec3 ambient = (kD * diffuse + specular) * PosEmission.a;
+
+    FragColor += vec4(ambient, 1.0);
 
 
     //FragColor = vec4(N, 1.0);
+    //FragColor = vec4(vec3(max(dot(R, L), 0.0)), 1.0);
+    FragColor = vec4(vec3(PosEmission.a), 1.0);
 }
