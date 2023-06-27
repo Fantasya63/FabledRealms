@@ -110,7 +110,7 @@ const VoxelProps VoxelData::voxelProps[] = {
 	},
 	//Leaves
 	{
-		true,
+		false,
 		{
 			12, //FRONT
 			12, //BACK

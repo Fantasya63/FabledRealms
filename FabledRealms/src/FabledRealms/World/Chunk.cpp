@@ -69,20 +69,20 @@ void Chunk::SetVoxel(glm::ivec3 localPos, char voxelID)
 	GenerateMesh();
 }
 
-unsigned int Chunk::CalculateAO(const AOSurroundingData& aoData, glm::ivec3& pos)
+float Chunk::CalculateAO(const AOSurroundingData& aoData, glm::ivec3& pos)
 {
 	char side1ID = World::Get().GetVoxel(pos + aoData.side1);
 	char side2ID = World::Get().GetVoxel(pos + aoData.side2);
 	char cornerID = World::Get().GetVoxel(pos + aoData.corner);
 
-	bool side1 = !VoxelData::voxelProps[side1ID].IsTransparent;
-	bool side2 = !VoxelData::voxelProps[side2ID].IsTransparent;
-	bool corner = !VoxelData::voxelProps[cornerID].IsTransparent;
+	int side1 = !VoxelData::voxelProps[side1ID].IsTransparent;
+	int side2 = !VoxelData::voxelProps[side2ID].IsTransparent;
+	int corner = !VoxelData::voxelProps[cornerID].IsTransparent;
 
 	if (side1 && side2) {
-		return 0;
+		return 0.0f;
 	}
-	return 3 - (side1 + side2 + corner);
+	return (3.0 - (side1 + side2 + corner)) / 3.0;
 }
 
 
@@ -237,7 +237,7 @@ void Chunk::GenerateMesh()
 						const AOSurroundingData& aoData = VoxelData::AO_SURROUNDING_DATA[face][vert];
 
 
-						vertex.AO = CalculateAO(aoData, voxelPos);
+						vertex.AO = CalculateAO(aoData, voxelPos + glm::ivec3(m_ChunkPos.x, 0.0, m_ChunkPos.y) * glm::ivec3(Chunk::CHUNK_LENGTH));
 
 						faceVerts.emplace_back(vertex);
 					}

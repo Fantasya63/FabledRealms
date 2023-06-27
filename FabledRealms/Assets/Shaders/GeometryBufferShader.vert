@@ -4,7 +4,7 @@ layout (location = 0) in vec3 a_Pos;
 layout (location = 1) in vec2 a_UV;
 layout (location = 2) in vec3 a_Normal;
 layout (location = 3) in vec3 a_Tangent;
-layout (location = 4) in uint a_AO;
+layout (location = 4) in float a_AO;
 
 out vec2 v_UV;
 out vec3 v_Pos;
@@ -32,6 +32,6 @@ void main()
 
 	mat3 TBN = mat3(T, B, N);
 	v_TBN = TBN;
-	v_AO = a_AO / 3.0;
+	v_AO = a_AO;
 	v_Normal = a_Normal;
 }

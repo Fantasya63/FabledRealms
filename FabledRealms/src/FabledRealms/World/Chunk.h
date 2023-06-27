@@ -29,7 +29,7 @@ public:
 	Mesh m_ChunkMesh;
 
 private:
-	unsigned int CalculateAO(const AOSurroundingData& aoData, glm::ivec3& pos);
+	float CalculateAO(const AOSurroundingData& aoData, glm::ivec3& pos);
 
 private:
 	

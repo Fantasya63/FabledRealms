@@ -125,7 +125,7 @@ void SendData(Mesh& mesh, const std::vector<Vertex>& vertices, const std::vector
 
 	//AO
 	glEnableVertexAttribArray(4);
-	glVertexAttribPointer(4, 1, GL_UNSIGNED_INT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, AO));
+	glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, AO));
 }
 
 void Mesh::CleanUpMesh(Mesh& mesh)
@@ -170,22 +170,22 @@ void Mesh::InitMeshFullScreenQuad(Mesh& mesh)
 		
 		//Top Left
 		{
-			{ -1.0f,  1.0f, 0.0f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, 0,
+			{ -1.0f,  1.0f, 0.0f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, 0.0,
 		},
 
 		//Bottom Left
 		{
-			{ -1.0f, -1.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, 0,
+			{ -1.0f, -1.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, 0.0,
 		},
 
 		//Bottom Right
 		{
-			{  1.0f, -1.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, 0
+			{  1.0f, -1.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, 0.0,
 		},
 
 		//Top Right
 		{
-			{  1.0f,  1.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, 0
+			{  1.0f,  1.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, 0.0,
 		},
 	};
 
@@ -211,14 +211,14 @@ void Mesh::InitMeshCubemap(Mesh& mesh)
 	const std::vector<Vertex> vertices = {
 
 		// Positions				UV1				Normal				Tangent            
-		{ { -1.0f,  1.0f,  1.0f }, { 0.0f, 0.0f },{ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, 0},  //Back Top Left   [0]
-		{ {  1.0f,  1.0f,  1.0f }, { 0.0f, 0.0f },{ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, 0},  //Back Top Right  [1]
-		{ {  1.0f, -1.0f,  1.0f }, { 0.0f, 0.0f },{ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, 0},  //Back Bot Right  [2]
-		{ { -1.0f, -1.0f,  1.0f }, { 0.0f, 0.0f },{ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, 0},  //Back Bot Left   [3]
-		{ { -1.0f,  1.0f, -1.0f }, { 0.0f, 0.0f },{ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, 0},  //Front Top Left  [4]
-		{ {  1.0f,  1.0f, -1.0f }, { 0.0f, 0.0f },{ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, 0},  //Front Top Right [5]
-		{ {  1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f },{ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, 0},  //Front Bot Right [6]
-		{ { -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f },{ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, 0},  //Front Bot Left  [7]
+		{ { -1.0f,  1.0f,  1.0f }, { 0.0f, 0.0f },{ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, 0.0},  //Back Top Left   [0]
+		{ {  1.0f,  1.0f,  1.0f }, { 0.0f, 0.0f },{ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, 0.0},  //Back Top Right  [1]
+		{ {  1.0f, -1.0f,  1.0f }, { 0.0f, 0.0f },{ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, 0.0},  //Back Bot Right  [2]
+		{ { -1.0f, -1.0f,  1.0f }, { 0.0f, 0.0f },{ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, 0.0},  //Back Bot Left   [3]
+		{ { -1.0f,  1.0f, -1.0f }, { 0.0f, 0.0f },{ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, 0.0},  //Front Top Left  [4]
+		{ {  1.0f,  1.0f, -1.0f }, { 0.0f, 0.0f },{ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, 0.0},  //Front Top Right [5]
+		{ {  1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f },{ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, 0.0},  //Front Bot Right [6]
+		{ { -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f },{ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, 0.0},  //Front Bot Left  [7]
 	};
 
 	// Index of the vertices for the skybox
