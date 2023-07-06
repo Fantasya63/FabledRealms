@@ -47,7 +47,7 @@ void main()
 	normal = normal * vec3(2.0) - vec3(1.0);
 
 	normal = normalize(v_TBN * normal);
-	//normal = v_Normal;
+	normal = v_Normal;
 
 	if (albedo.a < 0.5)
 		discard;

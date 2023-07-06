@@ -3,6 +3,7 @@
 
 GeometryBuffer::GeometryBuffer()
 {
+	DLOG_CORE_INFO("GEOMETRY BUFFER CONSTRUCTOR");
 }
 
 GeometryBuffer::~GeometryBuffer()
@@ -24,6 +25,8 @@ void GeometryBuffer::Init(uint32_t width, uint32_t height)
 	//Normal, Roughness
 	FrameBuffer::AddColorAttachment(width, height, ColorFormat::RGBA16F);
 
+	//Shadow, TexAO, Light
+	//FrameBuffer::AddColorAttachment(width, height, ColorFormat::RGBA);
 
 	AddDepthAttachment(width, height);
 

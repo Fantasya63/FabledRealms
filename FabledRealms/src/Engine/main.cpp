@@ -6,6 +6,7 @@
 
 #include "Scene/SceneManager.h"
 #include "Sound/AudioManager.h"
+#include "Engine/Graphics/TextureAtlass.h"
 
 extern Application* CreateApplication();
 
@@ -14,6 +15,7 @@ int main()
     AudioManager* audioManager = new AudioManager();
     SceneManager* sceneManager = new SceneManager();
    
+    TextureAtlass::Init();
 
     Application* app = CreateApplication();
     app->Run();

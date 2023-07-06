@@ -129,6 +129,7 @@ void FrameBuffer::AddColorAttachment(uint32_t width, uint32_t height, ColorForma
 
 void FrameBuffer::AddDepthAttachment(uint32_t width, uint32_t height)
 {
+	FR_CORE_ASSERT(!m_DepthStencilAttachmentID, "Depth attachment already exist!");
 	//Bind
 	glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
 
@@ -143,6 +144,27 @@ void FrameBuffer::AddDepthAttachment(uint32_t width, uint32_t height)
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
+void FrameBuffer::AddDepthAttachmentTexture(uint32_t width, uint32_t height)
+{
+	FR_CORE_ASSERT(!m_DepthStencilAttachmentID, "Depth attachment already exist!");
+	glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
+
+
+	glGenTextures(1, &m_DepthStencilAttachmentID);
+	glBindTexture(GL_TEXTURE_2D, m_DepthStencilAttachmentID);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	//Add to FBO
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_DepthStencilAttachmentID, 0);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
 
 
 const uint32_t FrameBuffer::GetColorAttachmentID(uint32_t index) const
@@ -150,6 +172,11 @@ const uint32_t FrameBuffer::GetColorAttachmentID(uint32_t index) const
 	FR_CORE_ASSERT(m_ColorAttachmentIDs.size(), "Color AttachmentIDs is empty!");
 	FR_CORE_ASSERT(index < m_ColorAttachmentIDs.size(), "Index out of range!");
 	return m_ColorAttachmentIDs[index];
+}
+
+const uint32_t FrameBuffer::GetDepthAttachmentID() const
+{
+	return m_DepthStencilAttachmentID;
 }
 
 

@@ -82,7 +82,7 @@ float Chunk::CalculateAO(const AOSurroundingData& aoData, glm::ivec3& pos)
 	if (side1 && side2) {
 		return 0.0f;
 	}
-	return (3.0 - (side1 + side2 + corner)) / 3.0;
+	return (3.0f - (side1 + side2 + corner)) / 3.0f;
 }
 
 
@@ -259,16 +259,33 @@ void Chunk::GenerateMesh()
 					// Add Indices
 					// These are the indices of the vertex that make up a Face
 					// Each face has two triangles to make a square
-					
-					// First Triangle
-					indices.emplace_back(currentIndex);    
-					indices.emplace_back(currentIndex + 1);
-					indices.emplace_back(currentIndex + 2);
+					if (faceVerts[1].AO + faceVerts[3].AO > faceVerts[0].AO + faceVerts[2].AO) {
+						// generate flipped quad
 
-					// Second Triangle
-					indices.emplace_back(currentIndex);
-					indices.emplace_back(currentIndex + 2);
-					indices.emplace_back(currentIndex + 3);
+						// First Triangle
+						indices.emplace_back(currentIndex + 3);
+						indices.emplace_back(currentIndex);
+						indices.emplace_back(currentIndex + 1);
+
+						// Second Triangle
+						indices.emplace_back(currentIndex + 3);
+						indices.emplace_back(currentIndex + 1);
+						indices.emplace_back(currentIndex + 2);
+					}
+					else {
+						// generate normal quad
+
+						// First Triangle
+						indices.emplace_back(currentIndex);
+						indices.emplace_back(currentIndex + 1);
+						indices.emplace_back(currentIndex + 2);
+
+						// Second Triangle
+						indices.emplace_back(currentIndex);
+						indices.emplace_back(currentIndex + 2);
+						indices.emplace_back(currentIndex + 3);
+					}
+					
 
 					// Increment current index by 4.
 					// as there are 4 vertices per face

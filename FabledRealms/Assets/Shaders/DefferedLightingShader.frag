@@ -7,6 +7,17 @@ in vec2 v_UV;
 uniform sampler2D PositionEmissionTex;
 uniform sampler2D ColorMetallicTex;
 uniform sampler2D NormalRoughnessTex;
+uniform sampler2DArray shadowMap;
+
+uniform float farPlane;
+
+layout (std140) uniform LightSpaceMatrices
+{
+    mat4 lightSpaceMatrices[4];
+};
+
+uniform float cascadePlaneDistances[4];
+uniform int cascadeCount;   // number of frusta - 1
 
 //IBL
 uniform samplerCube irradianceMap;
@@ -17,6 +28,7 @@ const float PI = 3.14159265359;
 
 uniform vec3 LightDir;
 uniform vec3 camPos;
+uniform mat4 view;
 
 vec3 fresnelSchlick(float cosTheta, vec3 F0)
 {
@@ -62,6 +74,68 @@ vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
     return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }   
 
+float ShadowCalculation(vec3 fragPosWorldSpace, vec3 normal)
+{
+    // select cascade layer
+    vec4 fragPosViewSpace = view * vec4(fragPosWorldSpace, 1.0);
+    float depthValue = abs(fragPosViewSpace.z);
+
+    int layer = -1;
+    for (int i = 0; i < cascadeCount; ++i)
+    {
+        if (depthValue < cascadePlaneDistances[i])
+        {
+            layer = i;
+            break;
+        }
+    }
+    if (layer == -1)
+    {
+        layer = cascadeCount;
+    }
+
+    vec4 fragPosLightSpace = lightSpaceMatrices[layer] * vec4(fragPosWorldSpace, 1.0);
+    // perform perspective divide
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    // transform to [0,1] range
+    projCoords = projCoords * 0.5 + 0.5;
+
+    // get depth of current fragment from light's perspective
+    float currentDepth = projCoords.z;
+
+    // keep the shadow at 0.0 when outside the far_plane region of the light's frustum.
+    if (currentDepth > 1.0)
+    {
+        return 0.0;
+    }
+    // calculate bias (based on depth map resolution and slope);
+    float bias = max(0.05 * (1.0 - dot(normal, LightDir)), 0.0005);
+    const float biasModifier = 0.5f;
+    if (layer == cascadeCount)
+    {
+        bias *= 1 / (farPlane * biasModifier);
+    }
+    else
+    {
+        bias *= 1 / (cascadePlaneDistances[layer] * biasModifier);
+    }
+
+    // PCF
+    float shadow = 0.0;
+    vec2 texelSize = 1.0 / vec2(textureSize(shadowMap, 0));
+    for(int x = -1; x <= 1; ++x)
+    {
+        for(int y = -1; y <= 1; ++y)
+        {
+            float pcfDepth = texture(shadowMap, vec3(projCoords.xy + vec2(x, y) * texelSize, layer)).r;
+            shadow += (currentDepth - bias) > pcfDepth ? 1.0 : 0.0;        
+        }    
+    }
+    shadow /= 9.0;
+        
+    return shadow;
+}
+
 
 void main()
 {
@@ -77,11 +151,24 @@ void main()
     //vec4 NorRoughness = vec4(texture(NormalRoughnessTex, v_UV).rgb, 0.0);
     //float roughness = NorRoughness.a;
 
+    
+    //Light Color
 
+   
     //Surface Properties
     vec3 N = NorRoughness.xyz * 2.0 - 1.0;
     vec3 V = normalize(camPos - PosEmission.xyz);
     vec3 R = reflect(-V, N);
+
+
+    vec3 radiance = vec3(0.99, 0.98, 0.82);//vec3(23.47, 21.31, 20.79);
+    //radiance = vec3(1.0, 0.387, 0.0) * 10;
+    vec3 L = normalize(LightDir);
+    vec3 H = normalize(V + L);
+
+    //vec4 lightSpacePos = lightSpaceMatrix * vec4(PosEmission.xyz, 1.0);
+    float shadow = 1.0 - ShadowCalculation(PosEmission.xyz, N);
+
 
     vec3 albedo = ColMetallic.rgb;
 
@@ -92,10 +179,6 @@ void main()
         metallic = 1.0;
     }
 
-    //Light Color
-    vec3 radiance = vec3(1.0, 1.0, 1.0);//vec3(23.47, 21.31, 20.79);
-    vec3 L = normalize(LightDir);
-    vec3 H = normalize(V + L);
 
     //TODO - Use F0 input from textures
     vec3 F0 = vec3(0.04);
@@ -118,8 +201,7 @@ void main()
 
     float NdotL = max(dot(N, L), 0.0);
 
-
-    FragColor = vec4((kD * albedo / PI + specular) * radiance * NdotL, 1.0);
+    FragColor = vec4((kD * albedo / PI + specular) * radiance * NdotL * shadow, 1.0);
 
 
     //Ambient lighting
@@ -138,12 +220,37 @@ void main()
 
 
     //AO
-    vec3 ambient = (kD * diffuse + specular) * PosEmission.a;
+    vec3 ambient = (kD * diffuse + specular) * PosEmission.a * 0.5;
 
     FragColor += vec4(ambient, 1.0);
+
+    
+
+   
+
+    //FOG
+	vec3 fogColor = vec3(0.8, 0.8, 1.0);
+    fogColor = vec3(1.0, 0.37, 0.23);
+    //fogColor = vec3(1.0, 1.0, 0.33);
+    float fogStart = 48.0;
+	float fogEnd = 256.0;
+
+	float depth = length(camPos - PosEmission.xyz);
+	float density = 0.01;
+
+	float fog = clamp(0.0, 1.0, (fogEnd - depth) / (fogEnd - fogStart));
+
+	FragColor.rgb = mix(fogColor, FragColor.rgb, fog);
+
+
+
+
+
+
+
 
 
     //FragColor = vec4(N, 1.0);
     //FragColor = vec4(vec3(max(dot(R, L), 0.0)), 1.0);
-    FragColor = vec4(vec3(PosEmission.a), 1.0);
+    //FragColor = vec4(vec3(PosEmission.a), 1.0);
 }

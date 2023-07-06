@@ -6,6 +6,7 @@
 #include "Engine/Graphics/Texture.h"
 
 #include <Engine/Graphics/Rendering/GeometryBuffer.h>
+#include <Engine/Graphics/Rendering/ShadowFBO.h>
 #include <Engine/Graphics/Post Processing/HdrFBO.h>
 #include <Engine/Graphics/Post Processing/BloomFBO.h>
 
@@ -26,14 +27,14 @@ private:
 	GeometryBuffer* m_GeometryBuffer;
 	HdrFBO* m_HDRBufffer;
 	BloomFBO* m_BloomFBO;
-
+	ShadowFBO* m_ShadowFBO;
 
 
 	// Shaders
 	Shader* m_TonemappingShader;
 	Shader* m_GeometryBufferShader;
 	Shader* m_DefferedLightingShader;
-
+	Shader* m_ShadowMapShader;
 
 	// ----------- Crosshair ----------
 	Mesh m_CrosshairMesh;

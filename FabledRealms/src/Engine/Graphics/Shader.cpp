@@ -6,7 +6,7 @@
 #include <glad/glad.h>
 #include <glm/gtc/type_ptr.hpp>
 
-Shader::Shader(const char* vertexPath, const char* fragmentPath)
+Shader::Shader(const char* vertexPath, const char* fragmentPath, const char* geometryPath)
 {
 	// Ref from: https://learnopengl.com/Getting-started/Shaders
 	// and  https://www.khronos.org/opengl/wiki/Shader_Compilation
@@ -14,14 +14,18 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
 	
 	std::string vertexCode;
 	std::string fragmentCode;
+	std::string geometryCode;
 
 	std::ifstream vShaderFile;
 	std::ifstream fShaderFile;
+	std::ifstream gShaderFile;
 
 
 	// Make sure we can throw exceptions
 	vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 	fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+	gShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+
 
 	// ------- Vertex Shader ------------
 	try
@@ -53,6 +57,22 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
 	catch (std::ifstream::failure e)
 	{
 		LOG_CORE_ERROR("Failed To Read Fragment Shader at: " << fragmentPath);
+	}
+
+	if (geometryPath != nullptr)
+	{
+		try
+		{
+			gShaderFile.open(geometryPath);
+			std::stringstream gShaderStream;
+			gShaderStream << gShaderFile.rdbuf();
+			gShaderFile.close();
+			geometryCode = gShaderStream.str();
+		}
+		catch (std::ifstream::failure& e)
+		{
+			FR_CORE_ASSERT(false, "Geometry Shader file not succesfully read: " << e.what());
+		}
 	}
 
 
@@ -131,12 +151,58 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
 		delete[] infoLog;
 	}
 
+
+	// -------------- Geometry -----------------------
+
+
+	int gShaderID;
+	if (geometryPath != nullptr)
+	{
+		const char* gShaderCode = geometryCode.c_str();
+		gShaderID = glCreateShader(GL_GEOMETRY_SHADER);
+		glShaderSource(gShaderID, 1, &gShaderCode, NULL);
+		glCompileShader(gShaderID);
+		
+		//Check it's status
+		glGetShaderiv(gShaderID, GL_COMPILE_STATUS, &success);
+
+		//Check if it was a success
+		if (!success)
+		{
+			//Get error infos
+			int maxLength = 0;
+			glGetShaderiv(gShaderID, GL_INFO_LOG_LENGTH, &maxLength);
+
+			//Max length includes the null character
+			char* infoLog = new char[maxLength];
+			glGetShaderInfoLog(gShaderID, maxLength, nullptr, infoLog);
+
+			//We dont need the shader anymore.
+			glDeleteShader(vShaderID);
+			glDeleteShader(fShaderID);
+
+			FR_CORE_ASSERT(false, infoLog);
+
+			delete[] infoLog;
+		}
+	}
+
+
+
+
+
+
 	// Create the Shader Program
 	m_RendererID = glCreateProgram();
 
 	//Attached the compiled shaders
 	glAttachShader(m_RendererID, vShaderID);
 	glAttachShader(m_RendererID, fShaderID);
+
+	if (geometryPath != nullptr)
+	{
+		glAttachShader(m_RendererID, gShaderID);
+	}
 
 	//Link the program
 	glLinkProgram(m_RendererID);
@@ -170,6 +236,8 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
 	// Always detach shaders after a successful link.
 	glDetachShader(m_RendererID, vShaderID);
 	glDetachShader(m_RendererID, fShaderID);
+	if (geometryPath != nullptr)
+		glDeleteShader(gShaderID);
 }
 
 Shader::~Shader()

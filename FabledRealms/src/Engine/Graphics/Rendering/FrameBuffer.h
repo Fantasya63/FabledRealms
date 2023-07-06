@@ -25,9 +25,10 @@ public:
 	};
 	void AddColorAttachment(uint32_t width, uint32_t height, ColorFormat format);
 	void AddDepthAttachment(uint32_t width, uint32_t height);
-
+	void AddDepthAttachmentTexture(uint32_t width, uint32_t height);
 
 	const uint32_t GetColorAttachmentID(uint32_t index) const;
+	const uint32_t GetDepthAttachmentID() const;
 	const uint32_t GetRendererID() const { return m_RendererID; };
 	
 	const glm::ivec2 GetResolution() const;
@@ -43,6 +44,8 @@ protected:
 protected:
 	glm::ivec2 m_Resolution;
 	uint32_t m_RendererID;
+	uint32_t m_DepthStencilAttachmentID = 0;
+
 
 private:
 
@@ -50,5 +53,4 @@ private:
 	std::vector<uint32_t> m_ColorAttachmentIDs;
 
 	//uint32_t m_ColorAttachmentID;
-	uint32_t m_DepthStencilAttachmentID;
 };

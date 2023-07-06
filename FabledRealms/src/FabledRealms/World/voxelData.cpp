@@ -1,6 +1,7 @@
 #include "frpch.h"
 #include "VoxelData.h"
 #include <glm/glm.hpp>
+#include "Engine/Graphics/TextureAtlass.h"
 
 //Voxel Properties
 const VoxelProps VoxelData::voxelProps[] = {
@@ -16,170 +17,210 @@ const VoxelProps VoxelData::voxelProps[] = {
 	{
 		false,
 		{
-			9, //FRONT
-			9, //BACK
-			9, //LEFT
-			9, //RIGHT
-			9, //TOP
-			9, //BOTTOM
+			TextureAtlass::GetElementIndex("bedrock"), //FRONT
+			TextureAtlass::GetElementIndex("bedrock"), //BACK
+			TextureAtlass::GetElementIndex("bedrock"), //LEFT
+			TextureAtlass::GetElementIndex("bedrock"), //RIGHT
+			TextureAtlass::GetElementIndex("bedrock"), //TOP
+			TextureAtlass::GetElementIndex("bedrock"), //BOTTOM
 		}
 	},
 	//Stone
 	{
 		false,
 		{
-			11, //FRONT
-			11, //BACK
-			11, //LEFT
-			11, //RIGHT
-			11, //TOP
-			11, //BOTTOM
+			TextureAtlass::GetElementIndex("stone"), //FRONT
+			TextureAtlass::GetElementIndex("stone"), //BACK
+			TextureAtlass::GetElementIndex("stone"), //LEFT
+			TextureAtlass::GetElementIndex("stone"), //RIGHT
+			TextureAtlass::GetElementIndex("stone"), //TOP
+			TextureAtlass::GetElementIndex("stone"), //BOTTOM
 		}
 	},
 	//Dirt
 	{
 		false,
 		{
-			14, //FRONT
-			14, //BACK
-			14, //LEFT
-			14, //RIGHT
-			14, //TOP
-			14, //BOTTOM
+			TextureAtlass::GetElementIndex("dirt"), //FRONT
+			TextureAtlass::GetElementIndex("dirt"), //BACK
+			TextureAtlass::GetElementIndex("dirt"), //LEFT
+			TextureAtlass::GetElementIndex("dirt"), //RIGHT
+			TextureAtlass::GetElementIndex("dirt"), //TOP
+			TextureAtlass::GetElementIndex("dirt"), //BOTTOM
 		}
 	},
 	//Grass
 	{
 		false,
 		{
-			8, //FRONT
-			8, //BACK
-			8, //LEFT
-			8, //RIGHT
-			15, //TOP
-			14, //BOTTOM
+			TextureAtlass::GetElementIndex("grass_block_side"), //FRONT
+			TextureAtlass::GetElementIndex("grass_block_side"), //BACK
+			TextureAtlass::GetElementIndex("grass_block_side"), //LEFT
+			TextureAtlass::GetElementIndex("grass_block_side"), //RIGHT
+			TextureAtlass::GetElementIndex("grass_block_top"),  //TOP
+			TextureAtlass::GetElementIndex("dirt"),  //BOTTOM
 		}
 	},
 	//Sand
 	{
 		false,
 		{
-			10, //FRONT
-			10, //BACK
-			10, //LEFT
-			10, //RIGHT
-			10, //TOP
-			10, //BOTTOM
+			TextureAtlass::GetElementIndex("sand"), //FRONT
+			TextureAtlass::GetElementIndex("sand"), //BACK
+			TextureAtlass::GetElementIndex("sand"), //LEFT
+			TextureAtlass::GetElementIndex("sand"), //RIGHT
+			TextureAtlass::GetElementIndex("sand"), //TOP
+			TextureAtlass::GetElementIndex("sand"), //BOTTOM
 		}
 	},
 	//WoodPlack
 	{
 		false,
 		{
-			6, //FRONT
-			6, //BACK
-			6, //LEFT 
-			6, //RIGHT
-			6, //TOP
-			6, //BOTTOM
+			TextureAtlass::GetElementIndex("oak_planks"), //FRONT
+			TextureAtlass::GetElementIndex("oak_planks"), //BACK
+			TextureAtlass::GetElementIndex("oak_planks"), //LEFT 
+			TextureAtlass::GetElementIndex("oak_planks"), //RIGHT
+			TextureAtlass::GetElementIndex("oak_planks"), //TOP
+			TextureAtlass::GetElementIndex("oak_planks"), //BOTTOM
 		}
 	},
 	//WoodLog
 	{
 		false,
 		{
-			4, //FRONT
-			4, //BACK
-			4, //LEFT
-			4, //RIGHT
-			5, //TOP
-			5, //BOTTOM
+			TextureAtlass::GetElementIndex("oak_log"), //FRONT
+			TextureAtlass::GetElementIndex("oak_log"), //BACK
+			TextureAtlass::GetElementIndex("oak_log"), //LEFT
+			TextureAtlass::GetElementIndex("oak_log"), //RIGHT
+			TextureAtlass::GetElementIndex("oak_log_top"), //TOP
+			TextureAtlass::GetElementIndex("oak_log_top"), //BOTTOM
 		}
 	},
 	//Brick,
 	{
 		false,
 		{
-			13, //FRONT
-			13, //BACK
-			13, //LEFT
-			13, //RIGHT
-			13, //TOP
-			13, //BOTTOM
+			TextureAtlass::GetElementIndex("bricks"), //FRONT
+			TextureAtlass::GetElementIndex("bricks"), //BACK
+			TextureAtlass::GetElementIndex("bricks"), //LEFT
+			TextureAtlass::GetElementIndex("bricks"), //RIGHT
+			TextureAtlass::GetElementIndex("bricks"), //TOP
+			TextureAtlass::GetElementIndex("bricks"), //BOTTOM
 		}
 	},
 	//Leaves
 	{
-		false,
+		true,
 		{
-			12, //FRONT
-			12, //BACK
-			12, //LEFT
-			12, //RIGHT
-			12, //TOP
-			12, //BOTTOM
+			TextureAtlass::GetElementIndex("oak_leaves"), //FRONT
+			TextureAtlass::GetElementIndex("oak_leaves"), //BACK
+			TextureAtlass::GetElementIndex("oak_leaves"), //LEFT
+			TextureAtlass::GetElementIndex("oak_leaves"), //RIGHT
+			TextureAtlass::GetElementIndex("oak_leaves"), //TOP
+			TextureAtlass::GetElementIndex("oak_leaves"), //BOTTOM
 		}
 	},
 	//BlackWool
 	{
 		false,
 		{
-			7, //FRONT
-			7, //BACK
-			7, //LEFT
-			7, //RIGHT
-			7, //TOP
-			7, //BOTTOM
+			TextureAtlass::GetElementIndex("black_wool"), //FRONT
+			TextureAtlass::GetElementIndex("black_wool"), //BACK
+			TextureAtlass::GetElementIndex("black_wool"), //LEFT
+			TextureAtlass::GetElementIndex("black_wool"), //RIGHT
+			TextureAtlass::GetElementIndex("black_wool"), //TOP
+			TextureAtlass::GetElementIndex("black_wool"), //BOTTOM
 		}
 	},
 	//Orange Wool
 	{
 		false,
 		{
-			0, //FRONT
-			0, //BACK
-			0, //LEFT
-			0, //RIGHT
-			0, //TOP
-			0, //BOTTOM
+			TextureAtlass::GetElementIndex("orange_wool"), //FRONT
+			TextureAtlass::GetElementIndex("orange_wool"), //BACK
+			TextureAtlass::GetElementIndex("orange_wool"), //LEFT
+			TextureAtlass::GetElementIndex("orange_wool"), //RIGHT
+			TextureAtlass::GetElementIndex("orange_wool"), //TOP
+			TextureAtlass::GetElementIndex("orange_wool"), //BOTTOM
 		}
 	},
 	//Red Wool
 	{
 		false,
 		{
-			1, //FRONT
-			1, //BACK
-			1, //LEFT
-			1, //RIGHT
-			1, //TOP
-			1, //BOTTOM
+			TextureAtlass::GetElementIndex("red_wool"), //FRONT
+			TextureAtlass::GetElementIndex("red_wool"), //BACK
+			TextureAtlass::GetElementIndex("red_wool"), //LEFT
+			TextureAtlass::GetElementIndex("red_wool"), //RIGHT
+			TextureAtlass::GetElementIndex("red_wool"), //TOP
+			TextureAtlass::GetElementIndex("red_wool"), //BOTTOM
 		}
 	},
 	//WhiteWool,
 	{
 		false,
 		{
-			2, //FRONT
-			2, //BACK
-			2, //LEFT
-			2, //RIGHT
-			2, //TOP
-			2, //BOTTOM
+			TextureAtlass::GetElementIndex("white_wool"), //FRONT
+			TextureAtlass::GetElementIndex("white_wool"), //BACK
+			TextureAtlass::GetElementIndex("white_wool"), //LEFT
+			TextureAtlass::GetElementIndex("white_wool"), //RIGHT
+			TextureAtlass::GetElementIndex("white_wool"), //TOP
+			TextureAtlass::GetElementIndex("white_wool"), //BOTTOM
 		}
 	},
 	//YellowWool
 	{
 		false,
 		{
-			3, //FRONT
-			3, //BACK
-			3, //LEFT
-			3, //RIGHT
-			3, //TOP
-			3, //BOTTOM
+			TextureAtlass::GetElementIndex("yellow_wool"), //FRONT
+			TextureAtlass::GetElementIndex("yellow_wool"), //BACK
+			TextureAtlass::GetElementIndex("yellow_wool"), //LEFT
+			TextureAtlass::GetElementIndex("yellow_wool"), //RIGHT
+			TextureAtlass::GetElementIndex("yellow_wool"), //TOP
+			TextureAtlass::GetElementIndex("yellow_wool"), //BOTTOM
 		}
-	}
+	},
+
+	//gold
+	{
+		false,
+		{
+			TextureAtlass::GetElementIndex("gold_block"), //FRONT
+			TextureAtlass::GetElementIndex("gold_block"), //BACK
+			TextureAtlass::GetElementIndex("gold_block"), //LEFT
+			TextureAtlass::GetElementIndex("gold_block"), //RIGHT
+			TextureAtlass::GetElementIndex("gold_block"), //TOP
+			TextureAtlass::GetElementIndex("gold_block"), //BOTTOM
+		}
+	},
+
+	//gold
+	{
+		false,
+		{
+			TextureAtlass::GetElementIndex("gold_ore"), //FRONT
+			TextureAtlass::GetElementIndex("gold_ore"), //BACK
+			TextureAtlass::GetElementIndex("gold_ore"), //LEFT
+			TextureAtlass::GetElementIndex("gold_ore"), //RIGHT
+			TextureAtlass::GetElementIndex("gold_ore"), //TOP
+			TextureAtlass::GetElementIndex("gold_ore"), //BOTTOM
+		}
+	},
+
+	//white concrete
+	{
+		false,
+		{
+			TextureAtlass::GetElementIndex("white_concrete"), //FRONT
+			TextureAtlass::GetElementIndex("white_concrete"), //BACK
+			TextureAtlass::GetElementIndex("white_concrete"), //LEFT
+			TextureAtlass::GetElementIndex("white_concrete"), //RIGHT
+			TextureAtlass::GetElementIndex("white_concrete"), //TOP
+			TextureAtlass::GetElementIndex("white_concrete"), //BOTTOM
+		}
+	},
+
 };
 
 //Calculate the number of blocktypes we have
@@ -202,9 +243,9 @@ const glm::ivec3 VoxelData::CUBE_FACE_VERTICES_POS [VoxelData::TOTAL_NUM_OF_CUBE
 {
 	//FRONT
 	{
-		glm::vec3(1.0, 1.0, 0.0), // Top Left
-		glm::vec3(1.0, 0.0, 0.0), // Bot Left
-		glm::vec3(0.0, 0.0, 0.0), // Bot Right
+		glm::vec3(1.0, 1.0, 0.0), // Top Right
+		glm::vec3(1.0, 0.0, 0.0), // Bot Right
+		glm::vec3(0.0, 0.0, 0.0), // Bot Left
 		glm::vec3(0.0, 1.0, 0.0), // Top Right
 	},
 
@@ -231,7 +272,6 @@ const glm::ivec3 VoxelData::CUBE_FACE_VERTICES_POS [VoxelData::TOTAL_NUM_OF_CUBE
 		glm::vec3(1.0, 0.0, 0.0), //Bot Right
 		glm::vec3(1.0, 1.0, 0.0), //Top Right
 	},
-
 
 	//Top
 	{
@@ -265,50 +305,50 @@ const AOSurroundingData VoxelData::AO_SURROUNDING_DATA[VoxelData::TOTAL_NUM_OF_C
 
 	//Front
 	{
-		{ glm::ivec3(-1, 0, -1), glm::ivec3(0,  1, -1), glm::ivec3(-1,  1, -1)}, //TL 
-		{ glm::ivec3(-1, 0, -1), glm::ivec3(0, -1, -1), glm::ivec3(1,  1, -1)}, //BL
-		{ glm::ivec3( 1, 0, -1), glm::ivec3(1, -1, -1), glm::ivec3(1, -1, -1)}, //BR
-		{ glm::ivec3( 1, 0, -1), glm::ivec3(1,  1, -1), glm::ivec3(1,  1, -1)}, //TR
+		{ glm::ivec3(1, 0, -1), glm::ivec3(0,  1, -1), glm::ivec3(1,  1, -1)}, //TL
+		{ glm::ivec3(1, 0, -1), glm::ivec3(0, -1, -1), glm::ivec3(1, -1, -1)}, //BL
+		{ glm::ivec3(-1, 0, -1), glm::ivec3(0, -1, -1), glm::ivec3(-1, -1, -1)}, //BR
+		{ glm::ivec3(-1, 0, -1), glm::ivec3(0,  1, -1), glm::ivec3(-1,  1, -1)}, //TR 
 	},
 
 	//Back
 	{
-		{ glm::ivec3( 1,  0, 1), glm::ivec3(0,  1, 1), glm::ivec3(1,  1,  1)}, //TL 
-		{ glm::ivec3( 1,  0, 1), glm::ivec3(0, -1, 1), glm::ivec3(1,  -1, 1)}, //BL
-		{ glm::ivec3(-1,  0, 1), glm::ivec3(0, -1, 1), glm::ivec3(-1, -1, 1)}, //BR
-		{ glm::ivec3(-1,  0, 1), glm::ivec3(0,  1, 1), glm::ivec3(-1,  1, 1)}, //TR 
+		{ glm::ivec3(-1,  0, 1), glm::ivec3(0,  1, 1), glm::ivec3(-1,  1, 1)}, //TL 
+		{ glm::ivec3(-1,  0, 1), glm::ivec3(0, -1, 1), glm::ivec3(-1, -1, 1)}, //BL
+		{ glm::ivec3(1,  0, 1), glm::ivec3(0, -1, 1), glm::ivec3(1,  -1, 1)}, //BR
+		{ glm::ivec3(1,  0, 1), glm::ivec3(0,  1, 1), glm::ivec3(1,  1,  1)}, //TR 
 	},
 
 	//Left
 	{
-		{ glm::ivec3(-1,  0,  1), glm::ivec3(-1,  1, 0), glm::ivec3(-1,  1,  1)}, //TL 
-		{ glm::ivec3(-1,  0,  1), glm::ivec3(-1, -1, 0), glm::ivec3(-1, -1,  1)}, //BL
-		{ glm::ivec3(-1,  0, -1), glm::ivec3(-1, -1, 0), glm::ivec3(-1, -1, -1)}, //BR
-		{ glm::ivec3(-1,  0, -1), glm::ivec3(-1,  1, 0), glm::ivec3(-1,  1, -1)}, //TR 
+		{ glm::ivec3(-1,  0, -1), glm::ivec3(-1,  1, 0), glm::ivec3(-1,  1, -1)}, //TL
+		{ glm::ivec3(-1,  0, -1), glm::ivec3(-1, -1, 0), glm::ivec3(-1, -1, -1)}, //BL
+		{ glm::ivec3(-1,  0,  1), glm::ivec3(-1, -1, 0), glm::ivec3(-1, -1,  1)}, //BR
+		{ glm::ivec3(-1,  0,  1), glm::ivec3(-1,  1, 0), glm::ivec3(-1,  1,  1)}, //TR 
 	},
 
 	//Right
 	{
-		{ glm::ivec3(1,  0, -1), glm::ivec3(1,  1, 0), glm::ivec3(1,  1,  -1)}, //TL 
-		{ glm::ivec3(1,  0, -1), glm::ivec3(1, -1, 0), glm::ivec3(1,  -1, -1)}, //BL
-		{ glm::ivec3(1,  0,  1), glm::ivec3(1, -1, 0), glm::ivec3(1, -1,  1)}, //BR
-		{ glm::ivec3(1,  0,  1), glm::ivec3(1,  1, 0), glm::ivec3(1,  1,  1)}, //TR 
+		{ glm::ivec3(1,  0,  1), glm::ivec3(1,  1, 0), glm::ivec3(1,  1,  1)}, //TL
+		{ glm::ivec3(1,  0,  1), glm::ivec3(1, -1, 0), glm::ivec3(1, -1,  1)}, //BL
+		{ glm::ivec3(1,  0, -1), glm::ivec3(1, -1, 0), glm::ivec3(1,  -1, -1)}, //BR
+		{ glm::ivec3(1,  0, -1), glm::ivec3(1,  1, 0), glm::ivec3(1,  1,  -1)}, //TR 
 	},
 
 	//Top
 	{
-		{ glm::ivec3(-1,  1, 0), glm::ivec3(0,  1,  1), glm::ivec3(-1,  1,  1)}, //TL 
-		{ glm::ivec3(-1,  1, 0), glm::ivec3(0,  1, -1), glm::ivec3(-1,  1, -1)}, //BL
-		{ glm::ivec3(1,  1,  0), glm::ivec3(0,  1, -1), glm::ivec3(1,  1,  -1)}, //BR
-		{ glm::ivec3(1,  1,  0), glm::ivec3(0,  1,  1), glm::ivec3(1,  1,  1)}, //TR 
+		{ glm::ivec3(-1,  1, 0), glm::ivec3(0,  1, -1), glm::ivec3(-1,  1, -1)}, //TL 
+		{ glm::ivec3(-1,  1, 0), glm::ivec3(0,  1,  1), glm::ivec3(-1,  1,  1)}, //BL
+		{ glm::ivec3(1,  1,  0), glm::ivec3(0,  1,  1), glm::ivec3(1,  1,   1)}, //BR
+		{ glm::ivec3(1,  1,  0), glm::ivec3(0,  1, -1), glm::ivec3(1,  1,  -1)}, //TR
 	},
 
 	//Bottom
 	{
-		{ glm::ivec3(-1, -1, 0), glm::ivec3(0,  -1, -1), glm::ivec3(-1, -1, -1)}, //TL 
-		{ glm::ivec3(-1, -1, 0), glm::ivec3(0,  -1,  1), glm::ivec3(-1, -1,  1)}, //BL
-		{ glm::ivec3(1,  -1,  0), glm::ivec3(1, -1,  1), glm::ivec3(1,  -1,  1)}, //BR
-		{ glm::ivec3(1,  -1,  0), glm::ivec3(1, -1, -1), glm::ivec3(1,  -1, -1)}, //TR 
+		{ glm::ivec3(-1, -1, 0), glm::ivec3(0,  -1,  1), glm::ivec3(-1, -1,  1)}, //TL
+		{ glm::ivec3(-1, -1, 0), glm::ivec3(0,  -1, -1), glm::ivec3(-1, -1, -1)}, //BL
+		{ glm::ivec3(1,  -1,  0), glm::ivec3(1, -1, -1), glm::ivec3(1,  -1, -1)}, //BR
+		{ glm::ivec3(1,  -1,  0), glm::ivec3(1, -1,  1), glm::ivec3(1,  -1,  1)}, //TR 
 	},
 
 };
@@ -318,19 +358,22 @@ glm::vec2 VoxelData::GetUVSFromUVIndex(int index, int vert)
 
 	//Get x,y positions
 	glm::vec2 texturePos;
-	texturePos.x = index % TEXTURE_ATLAS_COUNT_X;
-	texturePos.y = glm::floor(index / TEXTURE_ATLAS_COUNT_X);
-
+	texturePos.x = index % TextureAtlass::TextureAtlasSizeX;
+	texturePos.y = index / TextureAtlass::TextureAtlasSizeX;
+	
 	//Convert texturePos to 0-1
-	glm::vec2 textureAtlasSize = glm::vec2(TEXTURE_ATLAS_COUNT_X, TEXTURE_ATLAS_COUNT_Y);
+	glm::vec2 textureAtlasSize = glm::vec2(TextureAtlass::TextureAtlasSizeX, TextureAtlass::TextureAtlasSizeY);
 	texturePos /= textureAtlasSize;
 
-	glm::vec2 test = VoxelData::RAW_UV[vert] / textureAtlasSize;
-	//Add offset depending on what vert it is
-	texturePos += test;
+	//texturePos.y = 1.0 - texturePos.y;
 
-	//Test
-	return VoxelData::RAW_UV[vert];
-	
+
+	//Add offset depending on what vert it is
+	glm::vec2 uv = VoxelData::RAW_UV[vert] / textureAtlasSize;
+	texturePos += uv;
+
+	//Invert y as the index starts form the top left
+	texturePos.y = 1.0 - texturePos.y;
+
 	return texturePos;
 }

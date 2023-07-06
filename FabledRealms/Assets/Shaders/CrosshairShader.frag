@@ -7,7 +7,7 @@ in vec2 v_UV;
 uniform float u_Time;
 uniform vec2 u_ScreenRes;
 
-uniform sampler2D DiffuseTex;
+uniform sampler2DArray DiffuseTex;
 
 void main()
 {
@@ -20,7 +20,7 @@ void main()
 
 	uv += vec2(0.5);
 
-	vec4 diff = texture(DiffuseTex, uv);
+	vec4 diff = vec4(texture(DiffuseTex, vec3(uv, 0)).rrr, 1.0);
 	if (diff.a < 0.5)
 		discard;
 

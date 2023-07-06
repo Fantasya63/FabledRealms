@@ -19,6 +19,12 @@ public:
 	const glm::mat4& GetViewMatrix();
 	const glm::mat4& GetProjMatrix(float aspectRatio);
 
+	float GetFOV() const { return m_Fov; };
+	glm::vec2 GetCamNearFarPlanes() const { return glm::vec2(m_NearClip, m_FarClip); }
+	glm::vec3 GetFront() const { return m_Front; };
+	glm::vec3 GetRight() const { return m_Right; };
+	glm::vec3 GetUp() const { return m_Up; };
+
 	void Update(const Time& time);
 
 	glm::vec3 GetPosition() const;

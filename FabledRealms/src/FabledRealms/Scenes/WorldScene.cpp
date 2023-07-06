@@ -6,13 +6,15 @@
 #include "Engine/Input/Input.h"
 #include "Engine/Application.h"
 #include "Engine/Sound/AudioManager.h"
-
+#include "Engine//Graphics/TextureAtlass.h"
 
 //Global variables for this cpp file only
 static const Camera* callbackCamera = nullptr;
 
 static char currentBlock = VoxelData::BLOCK_ID::Stone;
 
+
+std::vector<glm::mat4> getLightSpaceMatrices(Camera& cam, float aspect, glm::vec3 lightDir);
 
 void MouseCallback(int button, int action, int mods)
 {
@@ -130,8 +132,104 @@ void KeyboardCallback(int button, int scancode, int action, int mods )
 
 //---------------------------------------------------------------------------
 
+
+std::vector<glm::vec4> getFrustumCornersWorldSpace(const glm::mat4& proj, const glm::mat4& view)
+{
+    const auto inv = glm::inverse(proj * view);
+
+    std::vector<glm::vec4> frustumCorners;
+    for (unsigned int x = 0; x < 2; ++x)
+    {
+        for (unsigned int y = 0; y < 2; ++y)
+        {
+            for (unsigned int z = 0; z < 2; ++z)
+            {
+                const glm::vec4 pt =
+                    inv * glm::vec4(
+                        2.0f * x - 1.0f,
+                        2.0f * y - 1.0f,
+                        2.0f * z - 1.0f,
+                        1.0f);
+                frustumCorners.push_back(pt / pt.w);
+            }
+        }
+    }
+
+    return frustumCorners;
+}
+
+glm::mat4 GetLightViewProjMatrix(Camera& cam, float near, float far, float fov, float aspectRatio, glm::vec3 LightDir)
+{
+    const auto proj = glm::perspective(glm::radians(fov), aspectRatio, near, far);
+
+    std::vector<glm::vec4> frustomCorners = getFrustumCornersWorldSpace(proj, cam.GetViewMatrix());
+
+    glm::vec3 center = glm::vec3(0, 0, 0);
+    for (const auto& v : frustomCorners)
+    {
+        center += glm::vec3(v);
+    }
+    center /= frustomCorners.size();
+
+    const auto lightView = glm::lookAt(
+        center + LightDir,
+        center,
+        glm::vec3(0.0f, 1.0f, 0.0f)
+    );
+
+    float minX = std::numeric_limits<float>::max();
+    float maxX = std::numeric_limits<float>::lowest();
+    float minY = std::numeric_limits<float>::max();
+    float maxY = std::numeric_limits<float>::lowest();
+    float minZ = std::numeric_limits<float>::max();
+    float maxZ = std::numeric_limits<float>::lowest();
+    for (const auto& v : frustomCorners)
+    {
+        const auto trf = lightView * v;
+        minX = std::min(minX, trf.x);
+        maxX = std::max(maxX, trf.x);
+        minY = std::min(minY, trf.y);
+        maxY = std::max(maxY, trf.y);
+        minZ = std::min(minZ, trf.z);
+        maxZ = std::max(maxZ, trf.z);
+    }
+
+    // Tune this parameter according to the scene
+    constexpr float zMult = 10.0f;
+    if (minZ < 0)
+    {
+        minZ *= zMult;
+    }
+    else
+    {
+        minZ /= zMult;
+    }
+    if (maxZ < 0)
+    {
+        maxZ /= zMult;
+    }
+    else
+    {
+        maxZ *= zMult;
+    }
+
+    const glm::mat4 lightProjection = glm::ortho(minX, maxX, minY, maxY, minZ, maxZ);
+
+    return lightProjection * lightView;
+}
+
+
+
+
+unsigned int depthMapFBO;
+unsigned int depthMap;
+
+std::vector<float> shadowCascadeLevels;
 WorldScene::WorldScene()
 {
+
+    const glm::vec2 camClipPlanes = m_Camera.GetCamNearFarPlanes();
+    shadowCascadeLevels = { camClipPlanes.y / 8.0f,  camClipPlanes.y / 4.0f,  camClipPlanes.y / 2.0f };
 
     DLOG_INFO("CREATED WORLD SCENE");
 
@@ -172,6 +270,8 @@ WorldScene::WorldScene()
     m_GeometryBuffer = new GeometryBuffer();
     m_GeometryBuffer->Init(width, height);
 
+    m_ShadowFBO = new ShadowFBO();
+    m_ShadowFBO->Init(512, 512, shadowCascadeLevels.size());
 
 
     m_GeometryBufferShader = new Shader("Assets/Shaders/GeometryBufferShader.vert",
@@ -189,7 +289,7 @@ WorldScene::WorldScene()
 
     // ------------------------------------------------------- Crosshair ------------------------------------------------------
     
-        
+       
     //Create and Configure the shader
     m_CrosshairShader = new Shader("Assets/Shaders/CrosshairShader.vert", "Assets/Shaders/CrosshairShader.frag");
     m_CrosshairShader->SetInt("CrosshairTex", 0);
@@ -203,6 +303,7 @@ WorldScene::WorldScene()
     m_CrosshairMesh.DiffuseTexID = m_CrosshairTexture.GetRendererID();
 
 
+    m_ShadowMapShader = new Shader("Assets/Shaders/Core/ShadowMap.vert", "Assets/Shaders/Core/ShadowMap.frag", "Assets/Shaders/Core/ShadowMap.geo");
 
     // ------------------------------------------------------- Cubemap --------------------------------------------------------
     
@@ -215,8 +316,8 @@ WorldScene::WorldScene()
         "Assets/Textures/Cubemap/back.png",
     };
 
-    //m_CubemapTexture.InitEquirectangularMap("Assets/Environment/kloppenheim_06_puresky_4k.hdr", m_DiffuseIrradianceTexture, m_prefilteredTexture, m_brdfTexture);
-    m_CubemapTexture.InitEquirectangularMap("Assets/Environment/ninomaru_teien_4k.hdr", m_DiffuseIrradianceTexture, m_prefilteredTexture, m_brdfTexture);
+    m_CubemapTexture.InitEquirectangularMap("Assets/Environment/kloppenheim_06_puresky_4k.hdr", m_DiffuseIrradianceTexture, m_prefilteredTexture, m_brdfTexture);
+    //m_CubemapTexture.InitEquirectangularMap("Assets/Environment/ninomaru_teien_4k.hdr", m_DiffuseIrradianceTexture, m_prefilteredTexture, m_brdfTexture);
     //m_CubemapTexture.InitCubemapTexture(cubemapPaths);
 
     m_BakedBRDFTexture.InitTexture2D("Assets/Textures/ibl_brdf_lut.png", Texture::TEXTURE_FILTER::LINEAR, false, false);
@@ -232,12 +333,12 @@ WorldScene::WorldScene()
 
 
 
+
     //Disable Mouse
     InputManager::SetMouseMode(InputManager::MouseMode::DISABLED);
 }
 
-
-
+const glm::vec3 lightDir = glm::vec3(1.0, 1.0, 1.0);
 
 void WorldScene::Update(const Time& const time)
 {
@@ -256,37 +357,77 @@ void WorldScene::Update(const Time& const time)
     {
         InputManager::SetMouseMode(InputManager::MouseMode::DISABLED);
     }
+    m_Camera.Update(time);
+
+
+
+    Window* window = Application::Get().GetWindow();
+    glm::vec2 screenRes = glm::vec2(window->GetWidth(), window->GetHeight());
+    float aspect = screenRes.x / screenRes.y;
+
+
+    glEnable(GL_DEPTH_TEST);
+    glClearColor(1.0, 0.0, 0.0, 0.0);
+    glDepthFunc(GL_LEQUAL);
+    
+    //glViewport(0, 0, 1024, 1024);
+    glm::ivec2 shadowRes = m_ShadowFBO->GetResolution();
+
+
+
+    //Setup UBO
+    const auto lightMatrices = getLightSpaceMatrices(m_Camera, aspect, lightDir);
+    m_ShadowFBO->BindUniformUBO();
+    for (int i = 0; i < lightMatrices.size(); ++i)
+    {
+        glBufferSubData(GL_UNIFORM_BUFFER, i * sizeof(glm::mat4x4), sizeof(glm::mat4x4), lightMatrices.data());
+    }
+    m_ShadowFBO->UnBindUniformUBO();
+
+
+
+
+
+
+    m_ShadowMapShader->Use();
+    m_ShadowFBO->Bind();
+    glViewport(0, 0, shadowRes.x, shadowRes.y);
+    glClear(GL_DEPTH_BUFFER_BIT);
+
+    glCullFace(GL_FRONT);
+    m_World.Render(m_ShadowMapShader);
+    glCullFace(GL_BACK);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
 
     
 
 
-    m_Camera.Update(time);
-
-
-    // ----------------------------- Rendering ------------------------------------------------
-
-    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-    //Setup HDR FBO
+    //// ----------------------------- Rendering ------------------------------------------------
+    //
+    ////glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    ////Setup HDR FBO
     m_GeometryBuffer->Bind();
+    glViewport(0, 0, screenRes.x, screenRes.y);
+
     unsigned int attachments[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
     glDrawBuffers(3, attachments);
     //m_HDRBufffer->Bind();
-
+    
     //glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
+    
+    
+    
     //Enable depth test, this is disabled when rendering the full screen quad
-    glEnable(GL_DEPTH_TEST); 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-
-
-   
-
-
-
-
+    //glEnable(GL_DEPTH_TEST); 
+    
+    
+    
+    
     // ----------- World -------------------
-
+    
     // Configure the shader
     //m_TerrainShader->Use();
     m_GeometryBufferShader->Use();
@@ -296,14 +437,15 @@ void WorldScene::Update(const Time& const time)
     m_GeometryBufferShader->SetFloat("u_Time", time.currentTime);
     
     //Render the world
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     m_World.Render(m_GeometryBufferShader);
-
-
+    
+    
     //Deffered Lighting
-
+    
     m_HDRBufffer->Bind();
     glDisable(GL_DEPTH_TEST);
-
+    
     m_DefferedLightingShader->Use();
     m_DefferedLightingShader->SetInt("PositionEmissionTex", 0);
     m_DefferedLightingShader->SetInt("ColorMetallicTex", 1);
@@ -311,25 +453,33 @@ void WorldScene::Update(const Time& const time)
     m_DefferedLightingShader->SetInt("irradianceMap", 5);
     m_DefferedLightingShader->SetInt("prefilteredMap", 6);
     m_DefferedLightingShader->SetInt("brdfLUT", 7);
-    
-    glm::vec3 LightDir(0.8, 1.0, 1.0);
-    LightDir = glm::normalize(LightDir);
-    //LightDir = view * glm::vec4(LightDir, 0.0);
+    m_DefferedLightingShader->SetInt("shadowMap", 8);
+    m_DefferedLightingShader->SetMat4("view", view);
 
-    m_DefferedLightingShader->SetVec3("LightDir", LightDir);
+    m_DefferedLightingShader->SetInt("cascadeCount", shadowCascadeLevels.size());
+    m_DefferedLightingShader->SetFloat("farPlane", m_Camera.GetCamNearFarPlanes().x);
+    for (int i = 0; i < shadowCascadeLevels.size(); i++)
+    {
+        m_DefferedLightingShader->SetFloat(("cascadePlaneDistances[" + std::to_string(i) + "]").c_str(), shadowCascadeLevels[i]);
+    }
+
+    
+    m_DefferedLightingShader->SetVec3("LightDir", lightDir);
+
+
     glm::vec3 camPos = m_Camera.GetPosition();
     m_DefferedLightingShader->SetVec3("camPos", camPos);
-
+    
     glBindVertexArray(m_CrosshairMesh.VAO);
-
-
-
+    
+    
+    
     //Setup texture Units
-
+    
     //PositionEmission;
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_GeometryBuffer->GetColorAttachmentID(0));
-
+    
     
     //ColorMetallic;
     glActiveTexture(GL_TEXTURE1);
@@ -338,40 +488,43 @@ void WorldScene::Update(const Time& const time)
     //NormalRoughness;
     glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, m_GeometryBuffer->GetColorAttachmentID(2));
-
-
+    
+    
     glActiveTexture(GL_TEXTURE5);
     glBindTexture(GL_TEXTURE_CUBE_MAP, m_DiffuseIrradianceTexture.GetRendererID());
-
-   
+    
+    
     glActiveTexture(GL_TEXTURE6);
     glBindTexture(GL_TEXTURE_CUBE_MAP, m_prefilteredTexture.GetRendererID());
     
-
+    
     glActiveTexture(GL_TEXTURE7);
     glBindTexture(GL_TEXTURE_2D, m_brdfTexture.GetRendererID());
-
+    
+    
+    glActiveTexture(GL_TEXTURE8);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, m_ShadowFBO->GetDepthAttachmentID());
+    
     //Lighting Pass
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
     glActiveTexture(GL_TEXTURE0);
-
+    
     glEnable(GL_DEPTH_TEST);
-
-
+    
+    
     //Copy Depth values to default frame buffer
     glBindFramebuffer(GL_READ_FRAMEBUFFER, m_GeometryBuffer->GetRendererID());
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_HDRBufffer->GetRendererID());
-
-    Window* window = Application::Get().GetWindow();
-    glm::vec2 screenRes = glm::vec2(window->GetWidth(), window->GetHeight());
+    
+    
     glBlitFramebuffer(0, 0, screenRes.x, screenRes.y, 0, 0, screenRes.x, screenRes.y, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
     
     m_HDRBufffer->Bind();
-
-
+    
+    
     // ----- Render Skybox -------
     // change depth function so depth test passes when values are equal to depth buffer's content
-
+    
     glDepthFunc(GL_LEQUAL);  
     
     
@@ -382,54 +535,67 @@ void WorldScene::Update(const Time& const time)
     
     //Render the Geometry
     m_CubemapMesh.RenderMesh(*m_CubemapShader);
-
-   m_HDRBufffer->UnBind();
-
-
-
-
-    // --------------------------------------- Post Process --------------------------------------------
     
+    m_HDRBufffer->UnBind();
+    //
+    //
+    //
+    //
+    //// --------------------------------------- Post Process --------------------------------------------
+    //
     // ------------ Crosshair ------------
     // Bind the texture
 
+
+
+
+    //--new
+
+    //glViewport(0, 0, screenRes.x, screenRes.y);
+
+    // --
+
+
+
     // // Configure the shader
-    // m_CrosshairShader->Use();
-    // Window* window = Application::Get().GetWindow();
-    // glm::vec2 screenRes = glm::vec2(window->GetWidth(), window->GetHeight());
-    // m_CrosshairShader->SetVec2("u_ScreenRes", screenRes);
-
-
-    // m_CrosshairMesh.RenderMesh(*m_CrosshairShader);
-
-
-
-
-
-
-
-   
+    //glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    ////
+    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //m_CrosshairShader->Use();
+    //m_CrosshairShader->SetVec2("u_ScreenRes", screenRes);
+    //
+    //glActiveTexture(GL_TEXTURE0);
+    //glBindTexture(GL_TEXTURE_2D_ARRAY, m_ShadowFBO->GetDepthAttachmentID());
+    //m_CrosshairMesh.RenderMesh(*m_CrosshairShader);
+    
+    
+    
+    
+    
+    
+    
+    
     glDisable(GL_DEPTH_TEST);
-
+    
     glClear(GL_COLOR_BUFFER_BIT);
     m_BloomFBO->RenderBloomTexture(m_HDRBufffer->GetColorAttachmentID(0), 0.004f);
-
+    
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glDisable(GL_BLEND);
-
+    
     // Render to screen with tonemapping
-   
+    
     m_TonemappingShader->Use();
     m_TonemappingShader->SetInt("scene", 0);
     m_TonemappingShader->SetInt("bloom", 1);
-
+    
     glBindVertexArray(m_CrosshairMesh.VAO);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_HDRBufffer->GetColorAttachmentID(0));
-
+    
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, m_BloomFBO->GetBloomTexture());
-
+    
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
     glActiveTexture(GL_TEXTURE0);
 
@@ -480,4 +646,32 @@ void WorldScene::OnWindowResized(int width, int height)
     m_GeometryBuffer->Init(width, height);
 
     //m_BloomFBO_Old.Resize(width, height);
+}
+
+
+std::vector<glm::mat4> getLightSpaceMatrices(Camera& cam, float aspect, glm::vec3 lightDir)
+{
+    std::vector<glm::mat4> ret;
+
+    glm::vec2 camClipPlanes = cam.GetCamNearFarPlanes();
+
+    const int numCascades = shadowCascadeLevels.size();
+    float fov = cam.GetFOV();
+
+    for (size_t i = 0; i < numCascades + 1; ++i)
+    {
+        if (i == 0)
+        {
+            ret.push_back(GetLightViewProjMatrix(cam, camClipPlanes.x, shadowCascadeLevels[i], fov, aspect, lightDir));
+        }
+        else if (i < numCascades)
+        {
+            ret.push_back(GetLightViewProjMatrix(cam, shadowCascadeLevels[i - 1], shadowCascadeLevels[i], fov, aspect, lightDir));
+        }
+        else
+        {
+            ret.push_back(GetLightViewProjMatrix(cam, shadowCascadeLevels[i - 1], camClipPlanes.y, fov, aspect, lightDir));
+        }
+    }
+    return ret;
 }
