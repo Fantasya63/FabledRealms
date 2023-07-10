@@ -23,7 +23,7 @@ MainMenuScene::MainMenuScene()
 
 	//Create the Main Menu texture
 	const std::string path = "Assets/Textures/FabledRealmsSplash.jpg";
-	m_MenuTexture.InitTexture2D(path, Texture::TEXTURE_FILTER::LINEAR, true, true);
+	m_MenuTexture.InitTexture2D(path, Texture::TEXTURE_FILTER::LINEAR, true, true, false);
 
 	//Init mesh
 	Mesh::InitMeshFullScreenQuad(m_ScreenQuadMesh);

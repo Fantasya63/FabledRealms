@@ -17,7 +17,7 @@ public:
 	Texture() {};
 	~Texture();
 
-	void InitTexture2D(const std::string& path, TEXTURE_FILTER filter, bool isColorData = true, bool generateMipmaps = false);
+	void InitTexture2D(const std::string& path, TEXTURE_FILTER filter, bool isColorData = true, bool generateMipmaps = false, bool repeat = true);
 	void InitCubemapTexture(const std::string path[6]);
 	void Texture::InitEquirectangularMap(const std::string& path, Texture& radianceTexture, Texture& prefilterMapTexture, Texture& brdfLUTTexture);
 

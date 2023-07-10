@@ -229,7 +229,7 @@ WorldScene::WorldScene()
 {
 
     const glm::vec2 camClipPlanes = m_Camera.GetCamNearFarPlanes();
-    shadowCascadeLevels = { camClipPlanes.y / 8.0f,  camClipPlanes.y / 4.0f,  camClipPlanes.y / 2.0f };
+    shadowCascadeLevels = { camClipPlanes.y / 32, camClipPlanes.y / 8.0f,  camClipPlanes.y / 4.0f,  camClipPlanes.y / 2.0f };
 
     DLOG_INFO("CREATED WORLD SCENE");
 
@@ -297,7 +297,7 @@ WorldScene::WorldScene()
 
     //Create the crosshair texture
     const std::string crosshairTexturePath = "Assets/Textures/crosshair.png";
-    m_CrosshairTexture.InitTexture2D(crosshairTexturePath, Texture::TEXTURE_FILTER::LINEAR, true, true);
+    m_CrosshairTexture.InitTexture2D(crosshairTexturePath, Texture::TEXTURE_FILTER::LINEAR, true, true, false);
 
     Mesh::InitMeshFullScreenQuad(m_CrosshairMesh);
     m_CrosshairMesh.DiffuseTexID = m_CrosshairTexture.GetRendererID();
@@ -380,13 +380,9 @@ void WorldScene::Update(const Time& const time)
     m_ShadowFBO->BindUniformUBO();
     for (int i = 0; i < lightMatrices.size(); ++i)
     {
-        glBufferSubData(GL_UNIFORM_BUFFER, i * sizeof(glm::mat4x4), sizeof(glm::mat4x4), lightMatrices.data());
+        glBufferSubData(GL_UNIFORM_BUFFER, i * sizeof(glm::mat4x4), sizeof(glm::mat4x4), &lightMatrices[i]);
     }
     m_ShadowFBO->UnBindUniformUBO();
-
-
-
-
 
 
     m_ShadowMapShader->Use();
@@ -394,9 +390,9 @@ void WorldScene::Update(const Time& const time)
     glViewport(0, 0, shadowRes.x, shadowRes.y);
     glClear(GL_DEPTH_BUFFER_BIT);
 
-    glCullFace(GL_FRONT);
+    //glCullFace(GL_FRONT);
     m_World.Render(m_ShadowMapShader);
-    glCullFace(GL_BACK);
+    //glCullFace(GL_BACK);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -536,7 +532,7 @@ void WorldScene::Update(const Time& const time)
     //Render the Geometry
     m_CubemapMesh.RenderMesh(*m_CubemapShader);
     
-    m_HDRBufffer->UnBind();
+    //m_HDRBufffer->UnBind();
     //
     //
     //
@@ -557,17 +553,20 @@ void WorldScene::Update(const Time& const time)
 
 
 
-    // // Configure the shader
+    // BSOD happened here be carefull
+
+     // Configure the shader
     //glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    ////
-    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //m_CrosshairShader->Use();
-    //m_CrosshairShader->SetVec2("u_ScreenRes", screenRes);
     //
+   // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    m_CrosshairShader->Use();
+    m_CrosshairShader->SetVec2("u_ScreenRes", screenRes);
+    
     //glActiveTexture(GL_TEXTURE0);
     //glBindTexture(GL_TEXTURE_2D_ARRAY, m_ShadowFBO->GetDepthAttachmentID());
-    //m_CrosshairMesh.RenderMesh(*m_CrosshairShader);
+    m_CrosshairMesh.RenderMesh(*m_CrosshairShader);
     
+    m_HDRBufffer->UnBind();
     
     
     

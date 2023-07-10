@@ -13,10 +13,10 @@ uniform float farPlane;
 
 layout (std140) uniform LightSpaceMatrices
 {
-    mat4 lightSpaceMatrices[4];
+    mat4 lightSpaceMatrices[16];
 };
 
-uniform float cascadePlaneDistances[4];
+uniform float cascadePlaneDistances[16];
 uniform int cascadeCount;   // number of frusta - 1
 
 //IBL
@@ -74,7 +74,7 @@ vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
     return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }   
 
-float ShadowCalculation(vec3 fragPosWorldSpace, vec3 normal)
+float ShadowCalculation(vec3 fragPosWorldSpace, vec3 normal, out int oLayer)
 {
     // select cascade layer
     vec4 fragPosViewSpace = view * vec4(fragPosWorldSpace, 1.0);
@@ -109,8 +109,8 @@ float ShadowCalculation(vec3 fragPosWorldSpace, vec3 normal)
         return 0.0;
     }
     // calculate bias (based on depth map resolution and slope);
-    float bias = max(0.05 * (1.0 - dot(normal, LightDir)), 0.0005);
-    const float biasModifier = 0.5f;
+    float bias = 0.0005;//max(0.05 * (1.0 - dot(normal, LightDir)), 0.005);
+    const float biasModifier = 0.05f;
     if (layer == cascadeCount)
     {
         bias *= 1 / (farPlane * biasModifier);
@@ -133,6 +133,7 @@ float ShadowCalculation(vec3 fragPosWorldSpace, vec3 normal)
     }
     shadow /= 9.0;
         
+        oLayer = layer;
     return shadow;
 }
 
@@ -167,7 +168,8 @@ void main()
     vec3 H = normalize(V + L);
 
     //vec4 lightSpacePos = lightSpaceMatrix * vec4(PosEmission.xyz, 1.0);
-    float shadow = 1.0 - ShadowCalculation(PosEmission.xyz, N);
+    int layer;
+    float shadow = 1.0 - ShadowCalculation(PosEmission.xyz, N, layer);
 
 
     vec3 albedo = ColMetallic.rgb;
@@ -243,13 +245,20 @@ void main()
 	FragColor.rgb = mix(fogColor, FragColor.rgb, fog);
 
 
+    //if (layer == 1)
+    //    FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+    //
+    //else if (layer == 2)
+    //    FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+    //
+    // else if (layer == 3)
+    //    FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+    // else if (layer == 4)
+    //    FragColor = vec4(0.0, 0.0, 1.0, 1.0);
 
 
 
-
-
-
-
+    //FragColor = vec4(vec3(shadow), 1.0);
     //FragColor = vec4(N, 1.0);
     //FragColor = vec4(vec3(max(dot(R, L), 0.0)), 1.0);
     //FragColor = vec4(vec3(PosEmission.a), 1.0);

@@ -19,8 +19,7 @@ uniform mat4 a_ModelMatrix;
 
 void main()
 {
-	vec4 pos =  a_ProjMatrix * a_ViewMatrix * a_ModelMatrix * vec4(a_Pos, 1.0);
-	gl_Position = pos;
+	gl_Position =  a_ProjMatrix * a_ViewMatrix * a_ModelMatrix * vec4(a_Pos, 1.0);
 
 	v_Pos = (a_ModelMatrix * vec4(a_Pos, 1.0)).xyz;
 	
@@ -34,4 +33,5 @@ void main()
 	v_TBN = TBN;
 	v_AO = a_AO;
 	v_Normal = a_Normal;
+	//vs_out.Normal = transpose(inverse(mat3(model))) * aNormal;
 }

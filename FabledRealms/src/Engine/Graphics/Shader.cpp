@@ -201,7 +201,7 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath, const char* geo
 
 	if (geometryPath != nullptr)
 	{
-		glAttachShader(m_RendererID, gShaderID);
+		glAttachShader(m_RendererID, gShaderID); 
 	}
 
 	//Link the program

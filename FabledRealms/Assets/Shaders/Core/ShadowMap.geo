@@ -1,11 +1,11 @@
 #version 330 core
 
-layout (triangles, invocations = 4) in;
+layout (triangles, invocations = 5) in;
 layout(triangle_strip, max_vertices = 3) out;
 
 layout (std140) uniform LightSpaceMatrices
 {
-    mat4 lightSpaceMatrices[4];
+    mat4 lightSpaceMatrices[16];
 };
 
     
@@ -19,4 +19,4 @@ void main()
         EmitVertex();
     }
     EndPrimitive();
-}  
+}

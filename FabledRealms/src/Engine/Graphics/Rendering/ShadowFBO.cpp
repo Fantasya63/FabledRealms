@@ -56,7 +56,7 @@ void ShadowFBO::Init(uint32_t width, uint32_t height, int numShadowCascades)
 	//Configure UBO
 	glGenBuffers(1, &m_MatricesUBO);
 	glBindBuffer(GL_UNIFORM_BUFFER, m_MatricesUBO);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 4, nullptr, GL_STATIC_DRAW);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 16, nullptr, GL_STATIC_DRAW);
 	glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_MatricesUBO);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }

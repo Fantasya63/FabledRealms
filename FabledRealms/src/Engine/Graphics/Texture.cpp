@@ -131,7 +131,7 @@ void GetTextureSrcAndGPUFormat(GLenum& src, GLenum& gpu, uint32_t numChannels, b
 }
 
 
-void Texture::InitTexture2D(const std::string& path, TEXTURE_FILTER filter, bool isColorData, bool generateMipmaps)
+void Texture::InitTexture2D(const std::string& path, TEXTURE_FILTER filter, bool isColorData, bool generateMipmaps, bool repeat)
 {
 	FR_CORE_ASSERT(!m_RendererID, "Texture already initiallized!");
 
@@ -213,6 +213,16 @@ void Texture::InitTexture2D(const std::string& path, TEXTURE_FILTER filter, bool
 
 	//Select Texture Filtering Options
 	//SetTextureWrapAndFilter2D(filter);
+	if (repeat)
+	{
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	}
+	else
+	{
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	}
 
 
 	//glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Height, srcFormat, GL_UNSIGNED_BYTE, data);
