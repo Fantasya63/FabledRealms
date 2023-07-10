@@ -229,7 +229,7 @@ WorldScene::WorldScene()
 {
 
     const glm::vec2 camClipPlanes = m_Camera.GetCamNearFarPlanes();
-    shadowCascadeLevels = { camClipPlanes.y / 32, camClipPlanes.y / 8.0f,  camClipPlanes.y / 4.0f,  camClipPlanes.y / 2.0f };
+    shadowCascadeLevels = { camClipPlanes.y / 50, camClipPlanes.y / 25.0f,  camClipPlanes.y / 10.0f,  camClipPlanes.y / 2.0f };
 
     DLOG_INFO("CREATED WORLD SCENE");
 
@@ -271,7 +271,7 @@ WorldScene::WorldScene()
     m_GeometryBuffer->Init(width, height);
 
     m_ShadowFBO = new ShadowFBO();
-    m_ShadowFBO->Init(512, 512, shadowCascadeLevels.size());
+    m_ShadowFBO->Init(1024, 1024, shadowCascadeLevels.size());
 
 
     m_GeometryBufferShader = new Shader("Assets/Shaders/GeometryBufferShader.vert",
@@ -390,9 +390,9 @@ void WorldScene::Update(const Time& const time)
     glViewport(0, 0, shadowRes.x, shadowRes.y);
     glClear(GL_DEPTH_BUFFER_BIT);
 
-    //glCullFace(GL_FRONT);
+    glCullFace(GL_FRONT);
     m_World.Render(m_ShadowMapShader);
-    //glCullFace(GL_BACK);
+    glCullFace(GL_BACK);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -453,7 +453,7 @@ void WorldScene::Update(const Time& const time)
     m_DefferedLightingShader->SetMat4("view", view);
 
     m_DefferedLightingShader->SetInt("cascadeCount", shadowCascadeLevels.size());
-    m_DefferedLightingShader->SetFloat("farPlane", m_Camera.GetCamNearFarPlanes().x);
+    m_DefferedLightingShader->SetFloat("farPlane", m_Camera.GetCamNearFarPlanes().y);
     for (int i = 0; i < shadowCascadeLevels.size(); i++)
     {
         m_DefferedLightingShader->SetFloat(("cascadePlaneDistances[" + std::to_string(i) + "]").c_str(), shadowCascadeLevels[i]);
