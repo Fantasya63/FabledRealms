@@ -15,23 +15,25 @@ out float v_AO;
 uniform mat4 a_ProjMatrix;
 uniform mat4 a_ViewMatrix;
 uniform mat4 a_ModelMatrix;
+uniform mat4 a_ModelViewMatrix;
 
+uniform mat3 a_ViewNormalMatrix;
 
 void main()
 {
-	gl_Position =  a_ProjMatrix * a_ViewMatrix * a_ModelMatrix * vec4(a_Pos, 1.0);
+	gl_Position =  a_ProjMatrix * a_ModelViewMatrix * vec4(a_Pos, 1.0);
 
-	v_Pos = (a_ModelMatrix * vec4(a_Pos, 1.0)).xyz;
+	v_Pos = (a_ModelViewMatrix * vec4(a_Pos, 1.0)).xyz;
 	
 	v_UV = a_UV;
 
-	vec3 T = normalize(vec3(a_ModelMatrix * vec4(a_Tangent, 0.0)));
-	vec3 N = normalize(vec3(a_ModelMatrix * vec4(a_Normal, 0.0)));
+	vec3 T = normalize(a_ViewNormalMatrix * a_Tangent);
+	vec3 N = normalize(a_ViewNormalMatrix * a_Normal);
 	vec3 B = normalize(cross(N, T)); // Maybe the order is wrong?
 
 	mat3 TBN = mat3(T, B, N);
 	v_TBN = TBN;
 	v_AO = a_AO;
-	v_Normal = a_Normal;
+	v_Normal = N;
 	//vs_out.Normal = transpose(inverse(mat3(model))) * aNormal;
 }

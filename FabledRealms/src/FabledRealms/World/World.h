@@ -37,7 +37,7 @@ public:
 	World();
 	~World();
 
-	void Render(Shader* shader);
+	void Render(Shader* shader, const glm::mat4& view);
 
 	char GetVoxel(glm::ivec3 worldPos);
 	void ChangeVoxel(glm::ivec3 worldPos, char voxelID);

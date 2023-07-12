@@ -298,7 +298,7 @@ void Chunk::GenerateMesh()
 	Mesh::InitMeshChunk(m_ChunkMesh, vertices, indices);
 }
 
-void Chunk::RenderChunk(Shader* shader)
+void Chunk::RenderChunk(Shader* shader, const glm::mat4& view)
 {
 	shader->Use();
 
@@ -310,8 +310,18 @@ void Chunk::RenderChunk(Shader* shader)
 	modelMatrix = glm::translate(modelMatrix, pos);
 
 	shader->SetMat4("a_ModelMatrix", modelMatrix);
+	shader->SetMat4("a_ModelViewMatrix", view * modelMatrix);
+
+	glm::mat3 worldNormalMatrix = glm::transpose(glm::inverse(glm::mat3(modelMatrix)));
+	//glm::mat3 viewNormalMatrix = glm::transpose(glm::inverse(worldNormalMatrix));
+	glm::mat3 viewNormalMatrix = glm::transpose(glm::inverse(view * modelMatrix));
+
+
+	shader->SetMat3("a_ViewNormalMatrix", viewNormalMatrix);
 	
-	//Render MEsh
+		//vs_out.Normal = transpose(inverse(mat3(model))) * aNormal;
+	
+	//Render Mesh
 	m_ChunkMesh.RenderMesh(*shader);
 	glUseProgram(0);
 }

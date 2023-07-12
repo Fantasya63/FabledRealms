@@ -29,6 +29,7 @@ const float PI = 3.14159265359;
 uniform vec3 LightDir;
 uniform vec3 camPos;
 uniform mat4 view;
+uniform mat4 u_InvViewMatrix;
 
 vec3 fresnelSchlick(float cosTheta, vec3 F0)
 {
@@ -109,8 +110,8 @@ float ShadowCalculation(vec3 fragPosWorldSpace, vec3 normal, out int oLayer)
         return 0.0;
     }
     // calculate bias (based on depth map resolution and slope);
-    float bias = max(0.05 * (1.0 - dot(normal, LightDir)), 0.0025);
-    const float biasModifier = 0.5f;
+    float bias = max(0.05 * (1.0 - dot(normal, LightDir)), 0.005);
+    const float biasModifier = 0.25f;
     if (layer == cascadeCount)
     {
         bias *= 1 / (farPlane * biasModifier);
@@ -158,18 +159,18 @@ void main()
    
     //Surface Properties
     vec3 N = NorRoughness.xyz * 2.0 - 1.0;
-    vec3 V = normalize(camPos - PosEmission.xyz);
+    vec3 V = normalize(-PosEmission.xyz);
     vec3 R = reflect(-V, N);
 
 
     vec3 radiance = vec3(0.99, 0.98, 0.82);//vec3(23.47, 21.31, 20.79);
     //radiance = vec3(1.0, 0.387, 0.0) * 10;
-    vec3 L = normalize(LightDir);
+    vec3 L = normalize(transpose(inverse(mat3(view))) * LightDir);
     vec3 H = normalize(V + L);
 
     //vec4 lightSpacePos = lightSpaceMatrix * vec4(PosEmission.xyz, 1.0);
     int layer;
-    float shadow = 1.0 - ShadowCalculation(PosEmission.xyz, N, layer);
+    float shadow = 1.0 - ShadowCalculation((u_InvViewMatrix * vec4(PosEmission.xyz, 1.0)).xyz, N, layer);
 
 
     vec3 albedo = ColMetallic.rgb;
@@ -202,8 +203,8 @@ void main()
     kD *= 1.0 - metallic;
 
     float NdotL = max(dot(N, L), 0.0);
-
-    FragColor = vec4((kD * albedo / PI + specular) * radiance * NdotL * shadow, 1.0);
+    vec3 sunTotalContrib =  (kD * albedo / PI + specular) * radiance * NdotL * shadow;
+    FragColor = vec4(sunTotalContrib, 1.0);
 
 
     //Ambient lighting
@@ -212,11 +213,11 @@ void main()
     kD = 1.0 - kS;
     kD *= 1.0 - metallic;
 
-    vec3 irradiance = texture(irradianceMap, N).rgb;
+    vec3 irradiance = texture(irradianceMap, transpose(inverse(mat3(u_InvViewMatrix))) * N).rgb;
     vec3 diffuse = irradiance * albedo;
 
     const float MAX_REFLECTION_LOD = 4.0;
-    vec3 prefilteredColor = textureLod(prefilteredMap, R, roughness *  MAX_REFLECTION_LOD).rgb;
+    vec3 prefilteredColor = textureLod(prefilteredMap, transpose(inverse(mat3(u_InvViewMatrix))) * R, roughness *  MAX_REFLECTION_LOD).rgb;
     vec2 brdf = texture(brdfLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
     specular = prefilteredColor * (F * brdf.x + brdf.y);
 
@@ -231,19 +232,22 @@ void main()
    
 
     //FOG
-	vec3 fogColor = vec3(0.8, 0.8, 1.0);
-    fogColor = vec3(1.0, 0.37, 0.23);
-    //fogColor = vec3(1.0, 1.0, 0.33);
-    float fogStart = 48.0;
-	float fogEnd = 256.0;
+    #define EnableFog
 
-	float depth = length(camPos - PosEmission.xyz);
-	float density = 0.01;
-
-	float fog = clamp(0.0, 1.0, (fogEnd - depth) / (fogEnd - fogStart));
-
-	FragColor.rgb = mix(fogColor, FragColor.rgb, fog);
-
+    #ifdef EnableFog
+    vec3 fogColor = vec3(0.8, 0.8, 1.0);
+       fogColor = vec3(1.0, 0.37, 0.23);
+       //fogColor = vec3(1.0, 1.0, 0.33);
+       float fogStart = 48.0;
+    float fogEnd = 256.0;
+       
+    float depth = length(-PosEmission.xyz);
+    float density = 0.01;
+       
+    float fog = clamp(0.0, 1.0, (fogEnd - depth) / (fogEnd - fogStart));
+       
+    FragColor.rgb = mix(fogColor, FragColor.rgb, fog);
+    #endif
 
     //if (layer == 1)
     //    FragColor = vec4(1.0, 1.0, 1.0, 1.0);
@@ -260,6 +264,8 @@ void main()
 
     //FragColor = vec4(vec3(shadow), 1.0);
     //FragColor = vec4(N, 1.0);
+    //FragColor = vec4(vec3(NdotL) * albedo, 1.0);
+    //FragColor = vec4(sunTotalContrib, 1.0);
     //FragColor = vec4(vec3(max(dot(R, L), 0.0)), 1.0);
     //FragColor = vec4(vec3(PosEmission.a), 1.0);
 }

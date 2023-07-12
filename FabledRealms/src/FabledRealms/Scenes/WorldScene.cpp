@@ -158,6 +158,9 @@ std::vector<glm::vec4> getFrustumCornersWorldSpace(const glm::mat4& proj, const 
     return frustumCorners;
 }
 
+
+//Rewrite all of this to use view space coords?
+//Will probably help in the shadow disapearing artifact near the camera
 glm::mat4 GetLightViewProjMatrix(Camera& cam, float near, float far, float fov, float aspectRatio, glm::vec3 LightDir)
 {
     const auto proj = glm::perspective(glm::radians(fov), aspectRatio, near, far);
@@ -390,9 +393,9 @@ void WorldScene::Update(const Time& const time)
     glViewport(0, 0, shadowRes.x, shadowRes.y);
     glClear(GL_DEPTH_BUFFER_BIT);
 
-    glCullFace(GL_FRONT);
-    m_World.Render(m_ShadowMapShader);
-    glCullFace(GL_BACK);
+    //glCullFace(GL_FRONT);
+    m_World.Render(m_ShadowMapShader, glm::mat4(1.0f));
+    //glCullFace(GL_BACK);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -434,7 +437,7 @@ void WorldScene::Update(const Time& const time)
     
     //Render the world
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    m_World.Render(m_GeometryBufferShader);
+    m_World.Render(m_GeometryBufferShader, view);
     
     
     //Deffered Lighting
@@ -451,6 +454,7 @@ void WorldScene::Update(const Time& const time)
     m_DefferedLightingShader->SetInt("brdfLUT", 7);
     m_DefferedLightingShader->SetInt("shadowMap", 8);
     m_DefferedLightingShader->SetMat4("view", view);
+    m_DefferedLightingShader->SetMat4("u_InvViewMatrix", glm::inverse(view));
 
     m_DefferedLightingShader->SetInt("cascadeCount", shadowCascadeLevels.size());
     m_DefferedLightingShader->SetFloat("farPlane", m_Camera.GetCamNearFarPlanes().y);

@@ -20,7 +20,7 @@ public:
 
 	void PopulateVoxelData();
 	void GenerateMesh();
-	void RenderChunk(Shader* shader);
+	void RenderChunk(Shader* shader, const glm::mat4& view);
 
 	char CheckVoxel(glm::ivec3 localPos); //Position relative to the chunk
 	void SetVoxel(glm::ivec3 localPos, char voxelID);
