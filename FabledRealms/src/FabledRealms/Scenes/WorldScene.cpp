@@ -14,7 +14,7 @@ static const Camera* callbackCamera = nullptr;
 static char currentBlock = VoxelData::BLOCK_ID::Stone;
 
 
-std::vector<glm::mat4> getLightSpaceMatrices(Camera& cam, float aspect, glm::vec3 lightDir);
+std::vector<glm::mat4> getLightSpaceMatrices(Camera& cam, float aspect, const glm::vec3& const lightDir);
 
 void MouseCallback(int button, int action, int mods)
 {
@@ -162,7 +162,7 @@ std::vector<glm::vec4> getFrustumCornersWorldSpace(const glm::mat4& proj, const 
 
 //Rewrite all of this to use view space coords?
 //Will probably help in the shadow disapearing artifact near the camera
-glm::mat4 GetLightViewProjMatrix(Camera& cam, float near, float far, float fov, float aspectRatio, glm::vec3 LightDir)
+glm::mat4 GetLightViewProjMatrix(Camera& cam, float near, float far, float fov, float aspectRatio, const glm::vec3& LightDir)
 {
     const auto proj = glm::perspective(glm::radians(fov), aspectRatio, near, far);
 
@@ -199,7 +199,7 @@ glm::mat4 GetLightViewProjMatrix(Camera& cam, float near, float far, float fov, 
     }
 
     // Tune this parameter according to the scene
-    constexpr float zMult = 10.0f;
+    constexpr float zMult = 32.0f;
     if (minZ < 0)
     {
         minZ *= zMult;
@@ -223,7 +223,7 @@ glm::mat4 GetLightViewProjMatrix(Camera& cam, float near, float far, float fov, 
 }
 
 
-std::vector<glm::mat4> getLightSpaceMatrices(Camera& cam, float aspect, glm::vec3 lightDir)
+std::vector<glm::mat4> getLightSpaceMatrices(Camera& cam, float aspect, const glm::vec3& const lightDir)
 {
     std::vector<glm::mat4> ret;
 
@@ -254,7 +254,8 @@ WorldScene::WorldScene()
 {
 
     const glm::vec2 camClipPlanes = m_Camera.GetCamNearFarPlanes();
-    shadowCascadeLevels = { camClipPlanes.y / 50, camClipPlanes.y / 25.0f,  camClipPlanes.y / 10.0f,  camClipPlanes.y / 2.0f };
+    shadowCascadeLevels = { camClipPlanes.y / 64, camClipPlanes.y / 24.0f,  camClipPlanes.y / 8.0f,  camClipPlanes.y / 2.0f };
+    shadowCascadeLevels = { 8.0f, 16.0f,  32.0f, 64.0f };
 
     DLOG_INFO("CREATED WORLD SCENE");
 
@@ -558,38 +559,8 @@ void WorldScene::Update(const Time& const time)
     //Render the Geometry
     m_CubemapMesh.RenderMesh(*m_CubemapShader);
     
-    //m_HDRBufffer->UnBind();
-    //
-    //
-    //
-    //
-    //// --------------------------------------- Post Process --------------------------------------------
-    //
-    // ------------ Crosshair ------------
-    // Bind the texture
-
-
-
-
-    //--new
-
-    //glViewport(0, 0, screenRes.x, screenRes.y);
-
-    // --
-
-
-
-    // BSOD happened here be carefull
-
-     // Configure the shader
-    //glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    //
-   // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     m_CrosshairShader->Use();
     m_CrosshairShader->SetVec2("u_ScreenRes", screenRes);
-    
-    //glActiveTexture(GL_TEXTURE0);
-    //glBindTexture(GL_TEXTURE_2D_ARRAY, m_ShadowFBO->GetDepthAttachmentID());
     m_CrosshairMesh.RenderMesh(*m_CrosshairShader);
     
     m_HDRBufffer->UnBind();
