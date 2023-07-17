@@ -31,6 +31,11 @@ uniform vec3 camPos;
 uniform mat4 view;
 uniform mat4 u_InvViewMatrix;
 
+
+// Lighting Settings
+const float ambientStrength =  0.5f;
+
+
 vec3 fresnelSchlick(float cosTheta, vec3 F0)
 {
     return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
@@ -110,8 +115,8 @@ float ShadowCalculation(vec3 fragPosWorldSpace, vec3 normal, out int oLayer)
         return 0.0;
     }
     // calculate bias (based on depth map resolution and slope);
-    float bias = max(0.05 * (1.0 - dot(normal, LightDir)), 0.005);
-    const float biasModifier = 0.25f;
+    float bias = max(0.0005 * (1.0 - dot(normal, LightDir)), 0.00000);
+    const float biasModifier = 0.15f;
     if (layer == cascadeCount)
     {
         bias *= 1 / (farPlane * biasModifier);
@@ -134,7 +139,7 @@ float ShadowCalculation(vec3 fragPosWorldSpace, vec3 normal, out int oLayer)
     }
     shadow /= 9.0;
         
-        oLayer = layer;
+    oLayer = layer;
     return shadow;
 }
 
@@ -146,16 +151,10 @@ void main()
     vec4 ColMetallic = texture(ColorMetallicTex, v_UV);
     vec4 NorRoughness = texture(NormalRoughnessTex, v_UV);
     float roughness = NorRoughness.a;
-    //roughness = 0.049;
-
-    //vec4 PosEmission = texture(PositionEmissionTex, v_UV);
-    //vec4 ColMetallic = vec4(1.0, 0.0, 0.0, 0.0);
-    //vec4 NorRoughness = vec4(texture(NormalRoughnessTex, v_UV).rgb, 0.0);
-    //float roughness = NorRoughness.a;
-
     
     //Light Color
-
+    float AO = PosEmission.a;
+    AO = mix(0.01, 1.0, AO);
    
     //Surface Properties
     vec3 N = NorRoughness.xyz * 2.0 - 1.0;
@@ -164,7 +163,6 @@ void main()
 
 
     vec3 radiance = vec3(0.99, 0.98, 0.82);//vec3(23.47, 21.31, 20.79);
-    //radiance = vec3(1.0, 0.387, 0.0) * 10;
     vec3 L = normalize(transpose(inverse(mat3(view))) * LightDir);
     vec3 H = normalize(V + L);
 
@@ -203,7 +201,7 @@ void main()
     kD *= 1.0 - metallic;
 
     float NdotL = max(dot(N, L), 0.0);
-    vec3 sunTotalContrib =  (kD * albedo / PI + specular) * radiance * NdotL * shadow;
+    vec3 sunTotalContrib =  (kD * albedo / PI + specular) * radiance * NdotL * shadow * AO;
     FragColor = vec4(sunTotalContrib, 1.0);
 
 
@@ -223,8 +221,7 @@ void main()
 
 
     //AO
-    vec3 ambient = (kD * diffuse + specular) * PosEmission.a * 0.5;
-
+    vec3 ambient = (kD * diffuse + specular) * AO * ambientStrength;
     FragColor += vec4(ambient, 1.0);
 
     

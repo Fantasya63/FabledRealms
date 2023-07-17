@@ -150,8 +150,6 @@ void Texture::InitTexture2D(const std::string& path, TEXTURE_FILTER filter, bool
 	data = stbi_load(path.c_str(), &width, &height, &numChannels, 0);
 	FR_CORE_ASSERT(data, "Failed to load texture at : " << path);
 
-	
-
 	m_Width = width;
 	m_Height = height;
 
@@ -172,11 +170,11 @@ void Texture::InitTexture2D(const std::string& path, TEXTURE_FILTER filter, bool
 		//glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		if (generateMipmaps)
 		{
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
 		}
 		else
 		{
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		}
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);

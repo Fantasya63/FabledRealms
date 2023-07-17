@@ -18,9 +18,9 @@ World::World()
 	const std::string normalPath   ="Assets/Textures/atlas/terrain_n.png";
 
 
-	m_DiffuseTex.InitTexture2D(diffusePath, Texture::TEXTURE_FILTER::NEAREST, true, false);
-	m_SpecularTex.InitTexture2D(specularPath, Texture::TEXTURE_FILTER::NEAREST, false, false);
-	m_NormalTex.InitTexture2D(normalPath, Texture::TEXTURE_FILTER::NEAREST, false, false);
+	m_DiffuseTex.InitTexture2D(diffusePath, Texture::TEXTURE_FILTER::NEAREST, true, true);
+	m_SpecularTex.InitTexture2D(specularPath, Texture::TEXTURE_FILTER::NEAREST, false, true);
+	m_NormalTex.InitTexture2D(normalPath, Texture::TEXTURE_FILTER::NEAREST, false, true);
 
 
 

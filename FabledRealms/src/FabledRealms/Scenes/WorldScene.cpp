@@ -132,6 +132,7 @@ void KeyboardCallback(int button, int scancode, int action, int mods )
 
 //---------------------------------------------------------------------------
 
+std::vector<float> shadowCascadeLevels;
 
 std::vector<glm::vec4> getFrustumCornersWorldSpace(const glm::mat4& proj, const glm::mat4& view)
 {
@@ -222,12 +223,33 @@ glm::mat4 GetLightViewProjMatrix(Camera& cam, float near, float far, float fov, 
 }
 
 
+std::vector<glm::mat4> getLightSpaceMatrices(Camera& cam, float aspect, glm::vec3 lightDir)
+{
+    std::vector<glm::mat4> ret;
 
+    glm::vec2 camClipPlanes = cam.GetCamNearFarPlanes();
 
-unsigned int depthMapFBO;
-unsigned int depthMap;
+    const int numCascades = shadowCascadeLevels.size();
+    float fov = cam.GetFOV();
 
-std::vector<float> shadowCascadeLevels;
+    for (size_t i = 0; i < numCascades + 1; ++i)
+    {
+        if (i == 0)
+        {
+            ret.push_back(GetLightViewProjMatrix(cam, camClipPlanes.x, shadowCascadeLevels[i], fov, aspect, lightDir));
+        }
+        else if (i < numCascades)
+        {
+            ret.push_back(GetLightViewProjMatrix(cam, shadowCascadeLevels[i - 1], shadowCascadeLevels[i], fov, aspect, lightDir));
+        }
+        else
+        {
+            ret.push_back(GetLightViewProjMatrix(cam, shadowCascadeLevels[i - 1], camClipPlanes.y, fov, aspect, lightDir));
+        }
+    }
+    return ret;
+}
+
 WorldScene::WorldScene()
 {
 
@@ -341,7 +363,7 @@ WorldScene::WorldScene()
     InputManager::SetMouseMode(InputManager::MouseMode::DISABLED);
 }
 
-const glm::vec3 lightDir = glm::vec3(1.0, 1.0, 1.0);
+const glm::vec3 lightDir = glm::vec3(1.0, 1.0, 0.5);
 
 void WorldScene::Update(const Time& const time)
 {
@@ -393,9 +415,9 @@ void WorldScene::Update(const Time& const time)
     glViewport(0, 0, shadowRes.x, shadowRes.y);
     glClear(GL_DEPTH_BUFFER_BIT);
 
-    //glCullFace(GL_FRONT);
+    glCullFace(GL_FRONT);
     m_World.Render(m_ShadowMapShader, glm::mat4(1.0f));
-    //glCullFace(GL_BACK);
+    glCullFace(GL_BACK);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -651,30 +673,3 @@ void WorldScene::OnWindowResized(int width, int height)
     //m_BloomFBO_Old.Resize(width, height);
 }
 
-
-std::vector<glm::mat4> getLightSpaceMatrices(Camera& cam, float aspect, glm::vec3 lightDir)
-{
-    std::vector<glm::mat4> ret;
-
-    glm::vec2 camClipPlanes = cam.GetCamNearFarPlanes();
-
-    const int numCascades = shadowCascadeLevels.size();
-    float fov = cam.GetFOV();
-
-    for (size_t i = 0; i < numCascades + 1; ++i)
-    {
-        if (i == 0)
-        {
-            ret.push_back(GetLightViewProjMatrix(cam, camClipPlanes.x, shadowCascadeLevels[i], fov, aspect, lightDir));
-        }
-        else if (i < numCascades)
-        {
-            ret.push_back(GetLightViewProjMatrix(cam, shadowCascadeLevels[i - 1], shadowCascadeLevels[i], fov, aspect, lightDir));
-        }
-        else
-        {
-            ret.push_back(GetLightViewProjMatrix(cam, shadowCascadeLevels[i - 1], camClipPlanes.y, fov, aspect, lightDir));
-        }
-    }
-    return ret;
-}
