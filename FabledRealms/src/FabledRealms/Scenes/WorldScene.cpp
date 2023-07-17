@@ -363,7 +363,7 @@ WorldScene::WorldScene()
     InputManager::SetMouseMode(InputManager::MouseMode::DISABLED);
 }
 
-const glm::vec3 lightDir = glm::vec3(1.0, 1.0, 0.5);
+const glm::vec3 lightDir = glm::normalize(glm::vec3(1.0, 1.0, 0.5));
 
 void WorldScene::Update(const Time& const time)
 {
