@@ -14,7 +14,14 @@ FrameBuffer::FrameBuffer()
 
 FrameBuffer::~FrameBuffer()
 {
+	glDeleteTextures(m_ColorAttachmentIDs.size(), m_ColorAttachmentIDs.data());
+	
+	//if (m_DepthStencilAttachmentID)
+	//	glDeleteTextures(1, &m_DepthStencilAttachmentID);
+
+
 	glDeleteFramebuffers(1, &m_RendererID);
+	
 }
 
 

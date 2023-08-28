@@ -9,6 +9,7 @@
 #include <Engine/Graphics/Rendering/ShadowFBO.h>
 #include <Engine/Graphics/Post Processing/HdrFBO.h>
 #include <Engine/Graphics/Post Processing/BloomFBO.h>
+#include <Engine/Graphics/Post Processing/SSR/ScreenSpaceReflectionFBO.h>
 
 #include "Engine/Graphics/Camera.h"
 #include  "FabledRealms/World/World.h"
@@ -28,13 +29,14 @@ private:
 	HdrFBO* m_HDRBufffer;
 	BloomFBO* m_BloomFBO;
 	ShadowFBO* m_ShadowFBO;
-
+	ScreenSpaceReflectionFBO* m_SSRFBO;
 
 	// Shaders
 	Shader* m_TonemappingShader;
 	Shader* m_GeometryBufferShader;
 	Shader* m_DefferedLightingShader;
 	Shader* m_ShadowMapShader;
+	Shader* m_WaterPlaneShader;
 
 	// ----------- Crosshair ----------
 	Mesh m_CrosshairMesh;
@@ -47,12 +49,14 @@ private:
 	// ----------- Cubemap -----------
 
 	Mesh m_CubemapMesh;
+	Mesh m_WaterPlaneMesh;
 	Shader* m_CubemapShader;
 	Texture m_CubemapTexture;
 	Texture m_DiffuseIrradianceTexture;
 	Texture m_prefilteredTexture;
 	Texture m_brdfTexture;
 	Texture m_BakedBRDFTexture;
+	Texture m_WaterNormalTexture;
 
 
 	// ------------ World ---------------

@@ -41,6 +41,11 @@ MainMenuScene::MainMenuScene()
 	InputManager::SetMouseMode(InputManager::MouseMode::NORMAL);
 
 	DLOG_INFO("CREATED WORLD SCENE");
+
+	Window* window = Application::Get().GetWindow();
+	glm::vec2 screenRes = glm::vec2(window->GetWidth(), window->GetHeight());
+
+	glViewport(0, 0, screenRes.x, screenRes.y);
 }
 
 MainMenuScene::~MainMenuScene()

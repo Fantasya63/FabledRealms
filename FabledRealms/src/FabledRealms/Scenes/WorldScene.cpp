@@ -6,7 +6,7 @@
 #include "Engine/Input/Input.h"
 #include "Engine/Application.h"
 #include "Engine/Sound/AudioManager.h"
-#include "Engine//Graphics/TextureAtlass.h"
+#include "Engine/Graphics/TextureAtlass.h"
 
 //Global variables for this cpp file only
 static const Camera* callbackCamera = nullptr;
@@ -49,7 +49,7 @@ void MouseCallback(int button, int action, int mods)
     }
 }
 
-void KeyboardCallback(int button, int scancode, int action, int mods )
+void KeyboardCallback(int button, int scancode, int action, int mods)
 {
     //Swap the block to place if we pressed the corresponding buttons
     if (action == KEY_PRESS)
@@ -58,74 +58,74 @@ void KeyboardCallback(int button, int scancode, int action, int mods )
         switch (button)
         {
             //Next
-            case KEYCODE_X:
-                currentBlock += 1;
-                if (currentBlock > VoxelData::TOTAL_NUM_OF_BLOCKS - 1)
-                    currentBlock = 0;
-                LOG_INFO("Current Block: " << (int)currentBlock);
-                break;
+        case KEYCODE_X:
+            currentBlock += 1;
+            if (currentBlock > VoxelData::TOTAL_NUM_OF_BLOCKS - 1)
+                currentBlock = 0;
+            LOG_INFO("Current Block: " << (int)currentBlock);
+            break;
 
             //Back
-            case KEYCODE_Z:
-                currentBlock -= 1;
-                if (currentBlock < 0)
-                    currentBlock = VoxelData::TOTAL_NUM_OF_BLOCKS - 1;
-                LOG_INFO("Current Block: " << (int)currentBlock);
-                break;
+        case KEYCODE_Z:
+            currentBlock -= 1;
+            if (currentBlock < 0)
+                currentBlock = VoxelData::TOTAL_NUM_OF_BLOCKS - 1;
+            LOG_INFO("Current Block: " << (int)currentBlock);
+            break;
 
             //Bedrock
-            case KEYCODE_1:
-                currentBlock = VoxelData::BLOCK_ID::Bedrock;
-                LOG_INFO("Block in hand: Bedrock");
-                break;
+        case KEYCODE_1:
+            currentBlock = VoxelData::BLOCK_ID::Bedrock;
+            LOG_INFO("Block in hand: Bedrock");
+            break;
 
             //Stone
-            case KEYCODE_2:
-                currentBlock = VoxelData::BLOCK_ID::Stone;
-                LOG_INFO("Block in hand: Stone");
-                break;
+        case KEYCODE_2:
+            currentBlock = VoxelData::BLOCK_ID::Stone;
+            LOG_INFO("Block in hand: Stone");
+            break;
 
             //Dirt
-            case KEYCODE_3:
-                currentBlock = VoxelData::BLOCK_ID::Dirt;
-                LOG_INFO("Block in hand: Dirt");
-                break;
+        case KEYCODE_3:
+            currentBlock = VoxelData::BLOCK_ID::Dirt;
+            LOG_INFO("Block in hand: Dirt");
+            break;
 
             //Grass
-            case KEYCODE_4:
-                currentBlock = VoxelData::BLOCK_ID::Grass;
-                LOG_INFO("Block in hand: Grass");
-                break;
+        case KEYCODE_4:
+            currentBlock = VoxelData::BLOCK_ID::Grass;
+            LOG_INFO("Block in hand: Grass");
+            break;
 
             //Sand
-            case KEYCODE_5:
-                currentBlock = VoxelData::BLOCK_ID::Sand;
-                LOG_INFO("Block in hand: Sand");
-                break;
+        case KEYCODE_5:
+            currentBlock = VoxelData::BLOCK_ID::Sand;
+            LOG_INFO("Block in hand: Sand");
+            break;
 
             //Wood Planks
-            case KEYCODE_6:
-                currentBlock = VoxelData::BLOCK_ID::WoodPlank;
-                LOG_INFO("Block in hand: Wood Plank");
-                break;
+        case KEYCODE_6:
+            currentBlock = VoxelData::BLOCK_ID::WoodPlank;
+            LOG_INFO("Block in hand: Wood Plank");
+            break;
 
             //Wood Log
-            case KEYCODE_7:
-                currentBlock = VoxelData::BLOCK_ID::WoodLog;
-                LOG_INFO("Block in hand: Wood Log");
-                break;
+        case KEYCODE_7:
+            currentBlock = VoxelData::BLOCK_ID::WoodLog;
+            LOG_INFO("Block in hand: Wood Log");
+            break;
 
             //Brick
-            case KEYCODE_8:
-                currentBlock = VoxelData::BLOCK_ID::Brick;
-                LOG_INFO("Block in hand: Brick");
-                break;
+        case KEYCODE_8:
+            currentBlock = VoxelData::BLOCK_ID::Brick;
+            LOG_INFO("Block in hand: Brick");
+            break;
 
             //Leaves
-            case KEYCODE_9:
-                currentBlock = VoxelData::BLOCK_ID::Leaves;
-                LOG_INFO("Block in hand: Leaves");
-                break;
+        case KEYCODE_9:
+            currentBlock = VoxelData::BLOCK_ID::Leaves;
+            LOG_INFO("Block in hand: Leaves");
+            break;
         }
     }
 }
@@ -250,6 +250,20 @@ std::vector<glm::mat4> getLightSpaceMatrices(Camera& cam, float aspect, const gl
     return ret;
 }
 
+
+
+
+
+
+
+float waterLevel = 54.70f;
+
+
+
+
+
+
+
 WorldScene::WorldScene()
 {
 
@@ -286,7 +300,7 @@ WorldScene::WorldScene()
     Window* window = Application::Get().GetWindow();
     int width = window->GetWidth();
     int height = window->GetHeight();
-  
+
     m_HDRBufffer = new HdrFBO();
     m_HDRBufffer->Init(width, height);
 
@@ -298,7 +312,9 @@ WorldScene::WorldScene()
 
     m_ShadowFBO = new ShadowFBO();
     m_ShadowFBO->Init(1024, 1024, shadowCascadeLevels.size());
-
+    
+    m_SSRFBO = new ScreenSpaceReflectionFBO();
+    m_SSRFBO->Init(width, height);
 
     m_GeometryBufferShader = new Shader("Assets/Shaders/GeometryBufferShader.vert",
         "Assets/Shaders/GeometryBufferShader.frag");
@@ -314,8 +330,8 @@ WorldScene::WorldScene()
 
 
     // ------------------------------------------------------- Crosshair ------------------------------------------------------
-    
-       
+
+
     //Create and Configure the shader
     m_CrosshairShader = new Shader("Assets/Shaders/CrosshairShader.vert", "Assets/Shaders/CrosshairShader.frag");
     m_CrosshairShader->SetInt("CrosshairTex", 0);
@@ -332,7 +348,7 @@ WorldScene::WorldScene()
     m_ShadowMapShader = new Shader("Assets/Shaders/Core/ShadowMap.vert", "Assets/Shaders/Core/ShadowMap.frag", "Assets/Shaders/Core/ShadowMap.geo");
 
     // ------------------------------------------------------- Cubemap --------------------------------------------------------
-    
+
     const std::string cubemapPaths[] = {
         "Assets/Textures/Cubemap/right.png",
         "Assets/Textures/Cubemap/left.png",
@@ -357,14 +373,16 @@ WorldScene::WorldScene()
     m_CubemapShader = new Shader("Assets/Shaders/Cubemap.vert", "Assets/Shaders/Cubemap.frag");
 
 
-
-
+    Mesh::InitMeshWaterPlane(m_WaterPlaneMesh);
+    m_WaterPlaneShader = new Shader("Assets/Shaders/WaterPlane.vert", "Assets/Shaders/WaterPlane.frag");
+    
+    m_WaterNormalTexture.InitTexture2D("Assets/Textures/waterNormal.png", Texture::TEXTURE_FILTER::LINEAR, false, false, true);
 
     //Disable Mouse
     InputManager::SetMouseMode(InputManager::MouseMode::DISABLED);
 }
 
-const glm::vec3 lightDir = glm::normalize(glm::vec3(1.0, 1.0, 0.5));
+const glm::vec3 lightDir = glm::normalize(glm::vec3(1.0, 0.25, 0.75));
 
 void WorldScene::Update(const Time& const time)
 {
@@ -395,7 +413,22 @@ void WorldScene::Update(const Time& const time)
     glEnable(GL_DEPTH_TEST);
     glClearColor(1.0, 0.0, 0.0, 0.0);
     glDepthFunc(GL_LEQUAL);
-    
+
+
+    // Shader Common Uniforms
+
+    glm::mat4 view = m_Camera.GetViewMatrix();
+    glm::mat4 invView = glm::inverse(view);
+    glm::mat4 projMatrix = m_Camera.GetProjMatrix(Application::Get().GetWindow()->GetAspectRatio());
+    glm::mat4 invProjMatrix = glm::inverse(projMatrix);
+    glm::mat4 viewProj = projMatrix * view;
+
+
+
+
+
+
+
     //glViewport(0, 0, 1024, 1024);
     glm::ivec2 shadowRes = m_ShadowFBO->GetResolution();
 
@@ -420,11 +453,11 @@ void WorldScene::Update(const Time& const time)
     m_World.Render(m_ShadowMapShader, glm::mat4(1.0f));
     glCullFace(GL_BACK);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+   // glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 
 
-    
+
 
 
     //// ----------------------------- Rendering ------------------------------------------------
@@ -436,38 +469,29 @@ void WorldScene::Update(const Time& const time)
 
     unsigned int attachments[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
     glDrawBuffers(3, attachments);
-    //m_HDRBufffer->Bind();
-    
-    //glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    
-    
-    
-    //Enable depth test, this is disabled when rendering the full screen quad
-    //glEnable(GL_DEPTH_TEST); 
-    
-    
-    
-    
+
+
+
     // ----------- World -------------------
-    
+
     // Configure the shader
     //m_TerrainShader->Use();
     m_GeometryBufferShader->Use();
-    glm::mat4 view = m_Camera.GetViewMatrix();
+
     m_GeometryBufferShader->SetMat4("a_ViewMatrix", view);
-    m_GeometryBufferShader->SetMat4("a_ProjMatrix", m_Camera.GetProjMatrix(Application::Get().GetWindow()->GetAspectRatio()));
+    m_GeometryBufferShader->SetMat4("a_ProjMatrix", projMatrix);
     m_GeometryBufferShader->SetFloat("u_Time", time.currentTime);
-    
+
     //Render the world
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     m_World.Render(m_GeometryBufferShader, view);
-    
-    
+
+
     //Deffered Lighting
-    
+
     m_HDRBufffer->Bind();
     glDisable(GL_DEPTH_TEST);
-    
+
     m_DefferedLightingShader->Use();
     m_DefferedLightingShader->SetInt("PositionEmissionTex", 0);
     m_DefferedLightingShader->SetInt("ColorMetallicTex", 1);
@@ -477,7 +501,7 @@ void WorldScene::Update(const Time& const time)
     m_DefferedLightingShader->SetInt("brdfLUT", 7);
     m_DefferedLightingShader->SetInt("shadowMap", 8);
     m_DefferedLightingShader->SetMat4("view", view);
-    m_DefferedLightingShader->SetMat4("u_InvViewMatrix", glm::inverse(view));
+    m_DefferedLightingShader->SetMat4("u_InvViewMatrix", invView);
 
     m_DefferedLightingShader->SetInt("cascadeCount", shadowCascadeLevels.size());
     m_DefferedLightingShader->SetFloat("farPlane", m_Camera.GetCamNearFarPlanes().y);
@@ -486,112 +510,187 @@ void WorldScene::Update(const Time& const time)
         m_DefferedLightingShader->SetFloat(("cascadePlaneDistances[" + std::to_string(i) + "]").c_str(), shadowCascadeLevels[i]);
     }
 
-    
+
     m_DefferedLightingShader->SetVec3("LightDir", lightDir);
 
-
-    glm::vec3 camPos = m_Camera.GetPosition();
-    m_DefferedLightingShader->SetVec3("camPos", camPos);
-    
     glBindVertexArray(m_CrosshairMesh.VAO);
-    
-    
-    
+
+
+
     //Setup texture Units
-    
+
     //PositionEmission;
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_GeometryBuffer->GetColorAttachmentID(0));
-    
-    
+
+
     //ColorMetallic;
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, m_GeometryBuffer->GetColorAttachmentID(1));
-    
+
     //NormalRoughness;
     glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, m_GeometryBuffer->GetColorAttachmentID(2));
-    
-    
+
+
     glActiveTexture(GL_TEXTURE5);
     glBindTexture(GL_TEXTURE_CUBE_MAP, m_DiffuseIrradianceTexture.GetRendererID());
-    
-    
+
+
     glActiveTexture(GL_TEXTURE6);
     glBindTexture(GL_TEXTURE_CUBE_MAP, m_prefilteredTexture.GetRendererID());
-    
-    
+
+
     glActiveTexture(GL_TEXTURE7);
     glBindTexture(GL_TEXTURE_2D, m_brdfTexture.GetRendererID());
-    
-    
+
+
     glActiveTexture(GL_TEXTURE8);
     glBindTexture(GL_TEXTURE_2D_ARRAY, m_ShadowFBO->GetDepthAttachmentID());
-    
+
     //Lighting Pass
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
     glActiveTexture(GL_TEXTURE0);
-    
+
+   
+
+
+
+
+
+    //Water
+    //glm::mat4 waterModelMatrix = view;
+    //waterModelMatrix = glm::scale(waterModelMatrix, glm::vec3(10.0f, 1.0f, 10.0f));
+    //waterModelMatrix = glm::translate(waterModelMatrix, glm::vec3(0.0f, waterLevel, 0.0f));
+    //
+    //glm::mat3 viewNormalMatrix = glm::transpose(glm::inverse(view));
+    //
+    //
+    //m_WaterPlaneShader->Use();
+    //m_WaterPlaneShader->SetMat4("u_ModelViewMatrix", waterModelMatrix);
+    //m_WaterPlaneShader->SetMat4("u_ViewMatrix", view);
+    //m_WaterPlaneShader->SetMat4("u_ProjMatrix", projMatrix);
+    //m_WaterPlaneShader->SetMat4("u_InvProjMatrix", invProjMatrix);
+    //m_WaterPlaneShader->SetMat3("u_ViewNormalMatrix", viewNormalMatrix);
+    //m_WaterPlaneShader->SetMat4("u_InvViewMatrix", invView);
+    //
+    //m_WaterPlaneShader->SetVec3("u_LightDir", viewNormalMatrix * lightDir);
+    //m_WaterPlaneShader->SetMat3("u_ViewWorldNormalMatrix", glm::transpose(glm::inverse(invView)));
+    //
+    //m_WaterPlaneShader->SetFloat("u_WaterWorldLevel", waterLevel);
+    //
+    //
+    //m_WaterPlaneShader->SetInt("irradianceMap", 5);
+    //m_WaterPlaneShader->SetInt("prefilteredMap", 6);
+    //m_WaterPlaneShader->SetInt("brdfLUT", 7);
+    //
+    //m_WaterPlaneShader->SetInt("sceneDepth", 4);
+    //m_WaterPlaneShader->SetInt("waterNormal", 3);
+    //m_WaterPlaneShader->SetInt("screenTex", 0);
+    //
+    //glActiveTexture(GL_TEXTURE0);
+    //glBindTexture(GL_TEXTURE_2D, m_HDRBufffer->GetColorAttachmentID(0));
+    //
+    //glActiveTexture(GL_TEXTURE3);
+    //glBindTexture(GL_TEXTURE_2D, m_WaterNormalTexture.GetRendererID());
+    //
+    //glActiveTexture(GL_TEXTURE4);
+    //glBindTexture(GL_TEXTURE_2D, m_GeometryBuffer->GetDepthAttachmentID());
+    //
+    //glActiveTexture(GL_TEXTURE5);
+    //glBindTexture(GL_TEXTURE_CUBE_MAP, m_DiffuseIrradianceTexture.GetRendererID());
+    //
+    //
+    //glActiveTexture(GL_TEXTURE6);
+    //glBindTexture(GL_TEXTURE_CUBE_MAP, m_prefilteredTexture.GetRendererID());
+    //
+    //
+    //glActiveTexture(GL_TEXTURE7);
+    //glBindTexture(GL_TEXTURE_2D, m_brdfTexture.GetRendererID());
+    //
+    //
+    //m_WaterPlaneMesh.RenderMesh(*m_WaterPlaneShader);
+
+
+
+
+
+
+
+
+
+
+
+
     glEnable(GL_DEPTH_TEST);
-    
-    
+
+
     //Copy Depth values to default frame buffer
     glBindFramebuffer(GL_READ_FRAMEBUFFER, m_GeometryBuffer->GetRendererID());
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_HDRBufffer->GetRendererID());
-    
-    
+
+
     glBlitFramebuffer(0, 0, screenRes.x, screenRes.y, 0, 0, screenRes.x, screenRes.y, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-    
+
     m_HDRBufffer->Bind();
-    
-    
+
+
     // ----- Render Skybox -------
     // change depth function so depth test passes when values are equal to depth buffer's content
-    
-    glDepthFunc(GL_LEQUAL);  
-    
-    
+
+    glDepthFunc(GL_LEQUAL);
+
+
     //Configure the shader
     m_CubemapShader->Use();
-    m_CubemapShader->SetMat4("a_ViewMatrix", glm::mat4(glm::mat3(m_Camera.GetViewMatrix()))); // Strip away the translations in the matrix
-    m_CubemapShader->SetMat4("a_ProjMatrix", m_Camera.GetProjMatrix(Application::Get().GetWindow()->GetAspectRatio()));
-    
+    m_CubemapShader->SetMat4("a_ViewMatrix", glm::mat4(glm::mat3(view))); // Strip away the translations in the matrix
+    m_CubemapShader->SetMat4("a_ProjMatrix", projMatrix);
+
     //Render the Geometry
     m_CubemapMesh.RenderMesh(*m_CubemapShader);
-    
+
     m_CrosshairShader->Use();
     m_CrosshairShader->SetVec2("u_ScreenRes", screenRes);
     m_CrosshairMesh.RenderMesh(*m_CrosshairShader);
-    
+
+
+    // Water
+    //glEnable(GL_BLEND);
+    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+   
+    //glDisable(GL_BLEND);
+
+
     m_HDRBufffer->UnBind();
-    
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
     glDisable(GL_DEPTH_TEST);
-    
+
     glClear(GL_COLOR_BUFFER_BIT);
     m_BloomFBO->RenderBloomTexture(m_HDRBufffer->GetColorAttachmentID(0), 0.004f);
-    
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glDisable(GL_BLEND);
-    
+
     // Render to screen with tonemapping
-    
+
     m_TonemappingShader->Use();
     m_TonemappingShader->SetInt("scene", 0);
     m_TonemappingShader->SetInt("bloom", 1);
-    
+
     glBindVertexArray(m_CrosshairMesh.VAO);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_HDRBufffer->GetColorAttachmentID(0));
-    
+
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, m_BloomFBO->GetBloomTexture());
-    
+
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
     glActiveTexture(GL_TEXTURE0);
 
@@ -610,13 +709,15 @@ WorldScene::~WorldScene()
     delete m_GeometryBuffer;
 
     delete m_CubemapShader;
-    
+
     delete m_CrosshairShader;
-    
+
     delete m_TonemappingShader;
+    delete m_WaterPlaneShader;
 
     Mesh::CleanUpMesh(m_CubemapMesh);
     Mesh::CleanUpMesh(m_CrosshairMesh);
+    Mesh::CleanUpMesh(m_WaterPlaneMesh);
 }
 
 

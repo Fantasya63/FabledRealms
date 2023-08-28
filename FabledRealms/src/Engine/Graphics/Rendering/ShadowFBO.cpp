@@ -8,6 +8,7 @@ ShadowFBO::ShadowFBO()
 
 ShadowFBO::~ShadowFBO()
 {
+	glDeleteBuffers(1, &m_MatricesUBO);
 }
 
 void ShadowFBO::Init(uint32_t width, uint32_t height, int numShadowCascades)

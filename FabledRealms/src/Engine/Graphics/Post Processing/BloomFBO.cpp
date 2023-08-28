@@ -16,6 +16,11 @@ BloomFBO::~BloomFBO()
     //Delete Clip Texture
     glDeleteTextures(1, &m_ClipTexture);
 
+    for (int i = 0; i < m_MipChain.size(); i++)
+    {
+        glDeleteTextures(1, &m_MipChain[i].RendererID);
+    }
+
     delete m_DownsampleShader;
     delete m_UpsampleShader;
     delete m_ClipShader;

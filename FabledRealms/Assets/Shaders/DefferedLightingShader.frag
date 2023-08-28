@@ -1,4 +1,4 @@
-#version 330 core
+#version 460 core
 
 out vec4 FragColor;
 
@@ -27,13 +27,12 @@ uniform sampler2D brdfLUT;
 const float PI = 3.14159265359;
 
 uniform vec3 LightDir;
-uniform vec3 camPos;
 uniform mat4 view;
 uniform mat4 u_InvViewMatrix;
 
 
 // Lighting Settings
-const float ambientStrength =  0.5f;
+const float ambientStrength =  0.2f;
 
 
 vec3 fresnelSchlick(float cosTheta, vec3 F0)
@@ -214,14 +213,15 @@ void main()
     vec3 irradiance = texture(irradianceMap, transpose(inverse(mat3(u_InvViewMatrix))) * N).rgb;
     vec3 diffuse = irradiance * albedo;
 
-    const float MAX_REFLECTION_LOD = 4.0;
-    vec3 prefilteredColor = textureLod(prefilteredMap, transpose(inverse(mat3(u_InvViewMatrix))) * R, roughness *  MAX_REFLECTION_LOD).rgb;
-    vec2 brdf = texture(brdfLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
-    specular = prefilteredColor * (F * brdf.x + brdf.y);
+    //const float MAX_REFLECTION_LOD = 4.0;
+    //vec3 prefilteredColor = textureLod(prefilteredMap, transpose(inverse(mat3(u_InvViewMatrix))) * R, roughness *  MAX_REFLECTION_LOD).rgb;
+    //vec2 brdf = texture(brdfLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
+    //specular = prefilteredColor * (F * brdf.x + brdf.y);
 
 
     //AO
-    vec3 ambient = (kD * diffuse + specular) * AO * ambientStrength;
+    //vec3 ambient = (kD * diffuse + specular) * AO * ambientStrength;
+    vec3 ambient = (kD * diffuse) * AO * ambientStrength;
     FragColor += vec4(ambient, 1.0);
 
     
@@ -229,7 +229,7 @@ void main()
    
 
     //FOG
-    #define EnableFog
+    //#define EnableFog
 
     #ifdef EnableFog
     vec3 fogColor = vec3(0.8, 0.8, 1.0);
@@ -260,6 +260,7 @@ void main()
 
 
     //FragColor = vec4(vec3(shadow), 1.0);
+    //FragColor = vec4(PosEmission.xyz, 1.0);
     //FragColor = vec4(N, 1.0);
     //FragColor = vec4(vec3(NdotL) * albedo, 1.0);
     //FragColor = vec4(sunTotalContrib, 1.0);

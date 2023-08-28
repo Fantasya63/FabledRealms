@@ -345,10 +345,10 @@ const AOSurroundingData VoxelData::AO_SURROUNDING_DATA[VoxelData::TOTAL_NUM_OF_C
 
 	//Bottom
 	{
-		{ glm::ivec3(-1, -1, 0), glm::ivec3(0,  -1,  1), glm::ivec3(-1, -1,  1)}, //TL
-		{ glm::ivec3(-1, -1, 0), glm::ivec3(0,  -1, -1), glm::ivec3(-1, -1, -1)}, //BL
-		{ glm::ivec3(1,  -1,  0), glm::ivec3(1, -1, -1), glm::ivec3(1,  -1, -1)}, //BR
-		{ glm::ivec3(1,  -1,  0), glm::ivec3(1, -1,  1), glm::ivec3(1,  -1,  1)}, //TR 
+		{ glm::ivec3(-1, -1, 0), glm::ivec3(0, -1,  1), glm::ivec3(-1, -1,  1)}, //TL
+		{ glm::ivec3(-1, -1, 0), glm::ivec3(0, -1, -1), glm::ivec3(-1, -1, -1)}, //BL
+		{ glm::ivec3(1,  -1, 0), glm::ivec3(0, -1, -1), glm::ivec3( 1, -1, -1)}, //BR
+		{ glm::ivec3(1,  -1, 0), glm::ivec3(0, -1,  1), glm::ivec3( 1, -1,  1)}, //TR 
 	},
 
 };

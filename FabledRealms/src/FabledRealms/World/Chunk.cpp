@@ -312,8 +312,6 @@ void Chunk::RenderChunk(Shader* shader, const glm::mat4& view)
 	shader->SetMat4("a_ModelMatrix", modelMatrix);
 	shader->SetMat4("a_ModelViewMatrix", view * modelMatrix);
 
-	glm::mat3 worldNormalMatrix = glm::transpose(glm::inverse(glm::mat3(modelMatrix)));
-	//glm::mat3 viewNormalMatrix = glm::transpose(glm::inverse(worldNormalMatrix));
 	glm::mat3 viewNormalMatrix = glm::transpose(glm::inverse(view * modelMatrix));
 
 

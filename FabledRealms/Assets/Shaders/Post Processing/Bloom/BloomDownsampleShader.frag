@@ -1,4 +1,4 @@
-#version 330 core
+#version 460 core
 
 // This shader performs downsampling on a texture,
 // as taken from Call Of Duty method, presented at ACM Siggraph 2014.
@@ -28,6 +28,8 @@ void main()
     // - l - m -
     // g - h - i
     // === ('e' is the current texel) ===
+
+
     vec3 a = texture(srcTexture, vec2(texCoord.x - 2*x, texCoord.y + 2*y)).rgb;
     vec3 b = texture(srcTexture, vec2(texCoord.x,       texCoord.y + 2*y)).rgb;
     vec3 c = texture(srcTexture, vec2(texCoord.x + 2*x, texCoord.y + 2*y)).rgb;

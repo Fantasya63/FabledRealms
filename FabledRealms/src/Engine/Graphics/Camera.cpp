@@ -38,6 +38,9 @@ const glm::mat4& Camera::GetProjMatrix(float aspectRatio)
 
 
 static glm::vec2 lastMousePos;
+static glm::vec3 lastVel;
+static float velLerp = 0.5f;
+
 void Camera::Update(const Time& time)
 {
 	//Look
@@ -98,11 +101,13 @@ void Camera::Update(const Time& time)
 		velocity *= movementSpeed * time.deltaTime;
 
 		//Move our Camera
-		m_Position += velocity;
+		m_Position += glm::mix(lastVel, velocity, velLerp * time.deltaTime);
 		CalculateTransform();
 		CalculateViewMatrix();
 		
 	}
+
+	lastVel = velocity;
 }
 
 glm::vec3 Camera::GetPosition() const

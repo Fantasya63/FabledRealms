@@ -42,7 +42,7 @@ MessageCallback(GLenum source,
 //	FR_CORE_ASSERT(false, "OpenGL Error!");
 }
 
-//#define FULLSCREEN
+#define FULLSCREEN
 
 
 Window::Window(const char* title, int width, int height)
@@ -75,6 +75,7 @@ Window::Window(const char* title, int width, int height)
 #else // FULLSCREEN
 	m_Window = glfwCreateWindow(m_Width, m_Height, m_Title, NULL, NULL);
 #endif
+	
 	//Make the opengl context to current
 	glfwMakeContextCurrent((GLFWwindow*)m_Window);
 

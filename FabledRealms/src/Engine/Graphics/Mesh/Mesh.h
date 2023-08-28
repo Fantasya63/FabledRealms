@@ -43,7 +43,10 @@ public:
 	//Initializes the mesh to a Cubemap mesh
 	static void InitMeshCubemap(Mesh& mesh);
 
+	static void InitMeshWaterPlane(Mesh& mesh);
+
 	//Intialized the mesh based on the given vertices and indices
 	static void InitMeshChunk(Mesh& mesh, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices);
+
 };
 

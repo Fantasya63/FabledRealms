@@ -1,5 +1,6 @@
 #include "frpch.h"
 #include "GeometryBuffer.h"
+#include <glad/glad.h>
 
 GeometryBuffer::GeometryBuffer()
 {
@@ -8,6 +9,7 @@ GeometryBuffer::GeometryBuffer()
 
 GeometryBuffer::~GeometryBuffer()
 {
+	glDeleteTextures(1, &m_DepthStencilAttachmentID);
 }
 
 //TODO: Calculate position based on scene depth
@@ -28,7 +30,8 @@ void GeometryBuffer::Init(uint32_t width, uint32_t height)
 	//Shadow, TexAO, Light
 	//FrameBuffer::AddColorAttachment(width, height, ColorFormat::RGBA);
 
-	AddDepthAttachment(width, height);
+	//AddDepthAttachment(width, height);
+	AddDepthAttachmentTexture(width, height);
 
 	//Tell the GPU about our attachments
 	FrameBuffer::SetDrawBuffers();

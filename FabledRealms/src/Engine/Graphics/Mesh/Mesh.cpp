@@ -254,6 +254,47 @@ void Mesh::InitMeshCubemap(Mesh& mesh)
 	glBindVertexArray(0);
 }
 
+void Mesh::InitMeshWaterPlane(Mesh& mesh)
+{
+	InitMesh(mesh);
+
+	//Quad data
+	const std::vector<Vertex> vertices = {
+		// POS                 UV1			  Normal              Tangent		AO
+
+		//Top Left
+		{
+			{ -1.0f,  0.0f, -1.0f}, {0.0f, 1.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, 0.0,
+		},
+		
+		//Bottom Left
+		{
+			{ -1.0f, 0.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, 0.0,
+		},
+		
+		//Bottom Right
+		{
+			{ 1.0f, 0.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, 0.0,
+		},
+		
+		//Top Right
+		{
+			{ 1.0f,  0.0f, -1.0f}, {0.0f, 1.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, 0.0,
+		},
+	};
+
+	const std::vector<uint32_t> indices = {
+		0, 1, 2,  // Top Left Triangle
+		0, 2, 3   // Bottom Right Triangle
+	};
+
+
+	SendData(mesh, vertices, indices);
+
+	//Unbind VAO
+	glBindVertexArray(0);
+}
+
 void Mesh::InitMeshChunk(Mesh& mesh, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices)
 {
 	InitMesh(mesh);
