@@ -27,7 +27,7 @@ Chunk::~Chunk()
 	std::string filename = std::to_string(m_ChunkPos.x) + "-" + std::to_string(m_ChunkPos.y) + ".bin";
 	
 	//Create a directory if it doesnt exist already
-	std::filesystem::create_directory(saveDir);
+	std::filesystem::create_directories(saveDir);
 
 	//Create and write file for this chunk
 	std::ofstream file(saveDir + filename, std::ios::binary);
