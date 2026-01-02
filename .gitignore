@@ -403,3 +403,7 @@ FodyWeavers.xsd
 *.vcxproj.filters
 *.sln
 bin-int/
+
+# Codelite
+*.workspace
+*.project
