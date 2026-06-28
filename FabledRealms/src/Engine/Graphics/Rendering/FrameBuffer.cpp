@@ -141,23 +141,57 @@ void FrameBuffer::AddColorAttachment(uint32_t width, uint32_t height, ColorForma
 	m_ColorAttachmentIDs.emplace_back(id);
 }
 
+GLenum DepthStencilFormatToOpenGLFormat(FrameBuffer::DepthStencilFormat format)
+{
+	switch (format)
+	{
+	case FrameBuffer::DepthStencilFormat::Depth24:
+		return GL_DEPTH_COMPONENT24;
+		break;
+	case FrameBuffer::DepthStencilFormat::Depth24_Stencil8:
+		return GL_DEPTH24_STENCIL8;
+		break;
+	default:
+		FR_CORE_ASSERT(false, "Unsupported Depth Stencil Format");
+		return 0;
+	}
+}
 
+GLenum DepthStencilFormatToOpenGLAttachment(FrameBuffer::DepthStencilFormat format)
+{
+	switch (format)
+	{
+	case FrameBuffer::DepthStencilFormat::Depth24:
+		return GL_DEPTH_ATTACHMENT;
+		break;
+	case FrameBuffer::DepthStencilFormat::Depth24_Stencil8:
+		return GL_DEPTH_STENCIL_ATTACHMENT;
+		break;
+	default:
+		FR_CORE_ASSERT(false, "Unsupported Depth Stencil Attachment");
+		return 0;
+	}
+}
 
-void FrameBuffer::AddDepthAttachment(uint32_t width, uint32_t height)
+void FrameBuffer::AddDepthAttachment(uint32_t width, uint32_t height, DepthStencilFormat format)
 {
 	FR_CORE_ASSERT(!m_DepthStencilAttachmentID, "Depth attachment already exist!");
 	
-	glCreateRenderbuffers(1, &m_DepthStencilAttachmentID);
+	GLenum glDepthStencilFormat = DepthStencilFormatToOpenGLFormat(format);
+	GLenum glDepthStencilAttachment = DepthStencilFormatToOpenGLAttachment(format);
 
+	glCreateRenderbuffers(1, &m_DepthStencilAttachmentID);
+	
 	glNamedRenderbufferStorage(
 		m_DepthStencilAttachmentID,
-		GL_DEPTH24_STENCIL8,
+		glDepthStencilFormat,
 		width, height
 	);
 
+
 	glNamedFramebufferRenderbuffer(
 		m_RendererID,
-		GL_DEPTH_STENCIL_ATTACHMENT,
+		glDepthStencilAttachment,
 		GL_RENDERBUFFER,
 		m_DepthStencilAttachmentID
 	);
@@ -165,15 +199,18 @@ void FrameBuffer::AddDepthAttachment(uint32_t width, uint32_t height)
 	m_DepthAttachmentType = DepthAttachmentType::Renderbuffer;
 }
 
-void FrameBuffer::AddDepthAttachmentTexture(uint32_t width, uint32_t height)
+void FrameBuffer::AddDepthAttachmentTexture(uint32_t width, uint32_t height, DepthStencilFormat format)
 {
 	FR_CORE_ASSERT(!m_DepthStencilAttachmentID, "Depth attachment already exist!");
 	
+	GLenum glDepthStencilFormat = DepthStencilFormatToOpenGLFormat(format);
+	GLenum glDepthStencilAttachment = DepthStencilFormatToOpenGLAttachment(format);
+
 	glCreateTextures(GL_TEXTURE_2D, 1, &m_DepthStencilAttachmentID);
 	glTextureStorage2D(
 		m_DepthStencilAttachmentID,
 		1,
-		GL_DEPTH_COMPONENT24,
+		glDepthStencilFormat,
 		width,
 		height
 	);
@@ -185,7 +222,7 @@ void FrameBuffer::AddDepthAttachmentTexture(uint32_t width, uint32_t height)
 
 	glNamedFramebufferTexture(
 		m_RendererID,
-		GL_DEPTH_ATTACHMENT,
+		glDepthStencilAttachment,
 		m_DepthStencilAttachmentID,
 		0
 	);
@@ -212,4 +249,54 @@ const uint32_t FrameBuffer::GetDepthAttachmentID() const
 const glm::ivec2 FrameBuffer::GetResolution() const
 {
 	return  m_Resolution;
+}
+
+bool FrameBuffer::CheckIfComplete() const
+{
+	GLenum status = glCheckNamedFramebufferStatus(m_RendererID, GL_FRAMEBUFFER);
+
+	switch (status)
+	{
+	case GL_FRAMEBUFFER_COMPLETE:
+		DLOG_CORE_INFO("Framebuffer Complete");
+		break;
+
+	case GL_FRAMEBUFFER_UNDEFINED:
+		DLOG_CORE_ERROR("GL_FRAMEBUFFER_UNDEFINED");
+		break;
+
+	case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+		DLOG_CORE_ERROR("GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT");
+		break;
+
+	case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+		DLOG_CORE_ERROR("GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT");
+		break;
+
+	case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
+		DLOG_CORE_ERROR("GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER");
+		break;
+
+	case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
+		DLOG_CORE_ERROR("GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER");
+		break;
+
+	case GL_FRAMEBUFFER_UNSUPPORTED:
+		DLOG_CORE_ERROR("GL_FRAMEBUFFER_UNSUPPORTED");
+		break;
+
+	case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
+		DLOG_CORE_ERROR("GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE");
+		break;
+
+	case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
+		DLOG_CORE_ERROR("GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS");
+		break;
+
+	default:
+		DLOG_CORE_ERROR("Unknown framebuffer error: " << status);
+		break;
+	}
+
+	return status == GL_FRAMEBUFFER_COMPLETE;
 }

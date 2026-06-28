@@ -30,9 +30,15 @@ public:
 		Texture
 	};
 
+	enum class DepthStencilFormat
+	{
+		Depth24,
+		Depth24_Stencil8
+	};
+
 	void AddColorAttachment(uint32_t width, uint32_t height, ColorFormat format);
-	void AddDepthAttachment(uint32_t width, uint32_t height);
-	void AddDepthAttachmentTexture(uint32_t width, uint32_t height);
+	void AddDepthAttachment(uint32_t width, uint32_t height, DepthStencilFormat format);
+	void AddDepthAttachmentTexture(uint32_t width, uint32_t height, DepthStencilFormat format);
 
 	const uint32_t GetColorAttachmentID(uint32_t index) const;
 	const uint32_t GetDepthAttachmentID() const;
@@ -40,6 +46,7 @@ public:
 	
 	const glm::ivec2 GetResolution() const;
 
+	bool CheckIfComplete() const;
 	
 
 protected:

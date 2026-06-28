@@ -19,5 +19,7 @@ void HdrFBO::Init(uint32_t width, uint32_t height)
 	FrameBuffer::Bind();
 
 	AddColorAttachment(width, height, ColorFormat::RGB16F);
-	AddDepthAttachment(width, height);
+	AddDepthAttachment(width, height, FrameBuffer::DepthStencilFormat::Depth24);
+
+	FR_ASSERT(FrameBuffer::CheckIfComplete(), "HDR FBO is not complete");
 }

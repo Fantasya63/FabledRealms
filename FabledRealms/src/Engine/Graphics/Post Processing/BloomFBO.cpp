@@ -98,16 +98,13 @@ void BloomFBO::Init(uint32_t width, uint32_t height, uint32_t mipChainLength)
     uint32_t attachments[1] = { GL_COLOR_ATTACHMENT0 };
     glDrawBuffers(1, attachments);
 
-    //Check Completion status
-    int status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    if (status != GL_FRAMEBUFFER_COMPLETE)
-    {
-        FR_CORE_ASSERT(false, "BloomFBO Completion status is not met!");
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        return;
-    }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    //Check Completion status
+    FR_CORE_ASSERT(CheckIfComplete(), "BloomFBO Completion status is not met!");
+
+
     return;
 }
 

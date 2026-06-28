@@ -31,10 +31,12 @@ void GeometryBuffer::Init(uint32_t width, uint32_t height)
 	//FrameBuffer::AddColorAttachment(width, height, ColorFormat::RGBA);
 
 	//AddDepthAttachment(width, height);
-	AddDepthAttachmentTexture(width, height);
+	AddDepthAttachmentTexture(width, height, FrameBuffer::DepthStencilFormat::Depth24);
 
 	//Tell the GPU about our attachments
 	FrameBuffer::SetDrawBuffers();
 
+	//Check Completion status
+	FR_CORE_ASSERT(CheckIfComplete(), "GeometryBuffer Completion status is not met!");
 }
 

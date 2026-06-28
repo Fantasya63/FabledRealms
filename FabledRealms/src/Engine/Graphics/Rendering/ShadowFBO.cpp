@@ -60,6 +60,10 @@ void ShadowFBO::Init(uint32_t width, uint32_t height, int numShadowCascades)
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 16, nullptr, GL_STATIC_DRAW);
 	glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_MatricesUBO);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+
+	//Check Completion status
+	FR_CORE_ASSERT(CheckIfComplete(), "ShadowFBO Completion status is not met!");
 }
 
 void ShadowFBO::BindUniformUBO() const

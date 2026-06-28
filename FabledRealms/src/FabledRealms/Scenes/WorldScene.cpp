@@ -535,7 +535,7 @@ void WorldScene::Update(const Time& const time)
 
 
     //Copy Depth values to default frame buffer
-    /*glBindFramebuffer(GL_READ_FRAMEBUFFER, m_GeometryBuffer->GetRendererID());
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, m_GeometryBuffer->GetRendererID());
     GLenum status = glCheckFramebufferStatus(GL_READ_FRAMEBUFFER);
     FR_CORE_ASSERT(
         status == GL_FRAMEBUFFER_COMPLETE,
@@ -550,30 +550,27 @@ void WorldScene::Update(const Time& const time)
         "HDR FrameBuffer is incomplete.\n"
     );
 
-
-
-    glBlitFramebuffer(0, 0, screenRes.x, screenRes.y, 0, 0, screenRes.x, screenRes.y, GL_DEPTH_BUFFER_BIT, GL_NEAREST);*/
-
+    glBlitFramebuffer(0, 0, screenRes.x, screenRes.y, 0, 0, screenRes.x, screenRes.y, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
     m_HDRBufffer->Bind();
 
 
     // ----- Render Skybox -------
     // change depth function so depth test passes when values are equal to depth buffer's content
 
-    //glDepthFunc(GL_LEQUAL);
+    glDepthFunc(GL_LEQUAL);
 
 
     //Configure the shader
-    //m_CubemapShader->Use();
-    //m_CubemapShader->SetMat4("a_ViewMatrix", glm::mat4(glm::mat3(view))); // Strip away the translations in the matrix
-    //m_CubemapShader->SetMat4("a_ProjMatrix", projMatrix);
+    m_CubemapShader->Use();
+    m_CubemapShader->SetMat4("a_ViewMatrix", glm::mat4(glm::mat3(view))); // Strip away the translations in the matrix
+    m_CubemapShader->SetMat4("a_ProjMatrix", projMatrix);
 
     //Render the Geometry
-    //m_CubemapMesh.RenderMesh(*m_CubemapShader);
+    m_CubemapMesh.RenderMesh(*m_CubemapShader);
 
-    //m_CrosshairShader->Use();
-    //m_CrosshairShader->SetVec2("u_ScreenRes", screenRes);
-    //m_CrosshairMesh.RenderMesh(*m_CrosshairShader);
+    m_CrosshairShader->Use();
+    m_CrosshairShader->SetVec2("u_ScreenRes", screenRes);
+    m_CrosshairMesh.RenderMesh(*m_CrosshairShader);
 
 
     // Water
@@ -582,7 +579,6 @@ void WorldScene::Update(const Time& const time)
 
    
     //glDisable(GL_BLEND);
-
 
     m_HDRBufffer->UnBind();
 
@@ -596,7 +592,6 @@ void WorldScene::Update(const Time& const time)
     glDisable(GL_BLEND);
 
     // Render to screen with tonemapping
-
     m_TonemappingShader->Use();
     m_TonemappingShader->SetInt("scene", 0);
     m_TonemappingShader->SetInt("bloom", 1);
