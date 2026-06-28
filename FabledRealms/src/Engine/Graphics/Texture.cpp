@@ -43,20 +43,20 @@ void Texture::Bind(uint32_t slot) const
 void Texture::SetTextureWrapAndFilter2D(TEXTURE_FILTER filter)
 {
 	//Set Wrap Options to Clamp To Edge
-	glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 	//Set Filter Options
 	switch (filter)
 	{
 		case Texture::TEXTURE_FILTER::NEAREST:
-			glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-			glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			break;
 
 		case Texture::TEXTURE_FILTER::LINEAR:
-			glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-			glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			break;
 
 		default:
@@ -75,21 +75,21 @@ void Texture::SetTextureWrapAndFilterCubemap(TEXTURE_FILTER filter)
 	// S is equivalent to the UV's x, 
 	// T is equivalent to the UV's y,
 	// R is equivalent to the UV's z, 
-	glTextureParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTextureParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTextureParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
 	//Set Filter Options
 	switch (filter)
 	{
 		case TEXTURE_FILTER::NEAREST:
-			glTextureParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-			glTextureParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			break;
 
 		case TEXTURE_FILTER::LINEAR:
-			glTextureParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTextureParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			break;
 
 		default:
@@ -143,8 +143,6 @@ void Texture::InitTexture2D(const std::string& path, TEXTURE_FILTER filter, bool
 
 	
 	glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
-	//glGenTextures(1, &m_RendererID);
-	glBindTexture(GL_TEXTURE_2D, m_RendererID);
 
 	//Load Texture Data From Disk
 	data = stbi_load(path.c_str(), &width, &height, &numChannels, 0);
@@ -153,47 +151,40 @@ void Texture::InitTexture2D(const std::string& path, TEXTURE_FILTER filter, bool
 	m_Width = width;
 	m_Height = height;
 
-
-
 	//We currently only support RGB and RGBA textures
 	GLenum srcFormat, gpuFormat;
 	GetTextureSrcAndGPUFormat(srcFormat, gpuFormat, numChannels, isColorData);
-
-	//uint32_t levels = static_cast<uint32_t>(std::floor(std::log2(std::max(m_Width, m_Height)))) + 1;
-	//glTextureStorage2D(m_RendererID, 1, gpuFormat, m_Width, m_Height);
 
 	//Set Filter Options
 	switch (filter)
 	{
 	case Texture::TEXTURE_FILTER::NEAREST:
-		//glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		//glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		
 		if (generateMipmaps)
 		{
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+			glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
 		}
 		else
 		{
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		}
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 		break;
 
 	case Texture::TEXTURE_FILTER::LINEAR:
-		//glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		//glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		
 
 		if (generateMipmaps)
 		{
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		}
 		else
 		{
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		}
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 		break;
 
@@ -203,31 +194,45 @@ void Texture::InitTexture2D(const std::string& path, TEXTURE_FILTER filter, bool
 		break;
 	}
 
-	glTexImage2D(GL_TEXTURE_2D, 0, gpuFormat, m_Width, m_Height, 0, srcFormat, GL_UNSIGNED_BYTE, data);
+	uint32_t levels = static_cast<uint32_t>(std::floor(std::log2(std::max(m_Width, m_Height)))) + 1;
 
-	//Tell the GPU to Generate Mipmaps
-	if (generateMipmaps)
-		glGenerateMipmap(GL_TEXTURE_2D);
+	glTextureStorage2D(
+		m_RendererID,
+		generateMipmaps ? levels : 1,
+		gpuFormat, 
+		m_Width, 
+		m_Height);
 
+	glTextureSubImage2D(
+		m_RendererID,
+		0,
+		0, 0,
+		m_Width, m_Height,
+		srcFormat,
+		GL_UNSIGNED_BYTE,
+		data
+	);
+
+	
 	//Select Texture Filtering Options
 	//SetTextureWrapAndFilter2D(filter);
 	if (repeat)
 	{
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	}
 	else
 	{
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	}
 
-
-	//glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Height, srcFormat, GL_UNSIGNED_BYTE, data);
-
+	
+	//Tell the GPU to Generate Mipmaps
+	if (generateMipmaps)
+		glGenerateTextureMipmap(m_RendererID);
 
 	stbi_image_free(data);
-	//glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void Texture::InitCubemapTexture(const std::string path[6])
@@ -249,35 +254,52 @@ void Texture::InitCubemapTexture(const std::string path[6])
 	m_Height = height;
 
 	//Create OpenGLTexture of the appropriate type and Bind it
-	glGenTextures(1, &m_RendererID);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, m_RendererID);
+	glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &m_RendererID);
 	m_TextureType = TEXTURE_TYPE::CUBEMAP;
 
-	
+	GLenum srcFormat, gpuFormat;
+	GetTextureSrcAndGPUFormat(srcFormat, gpuFormat, numChannels, true);
+
+	uint32_t levels = 1;
+
 	//Load Textures' Data From Disk
 	//Load textures one by one then upload it to the GPU
+	glTextureStorage2D(
+		m_RendererID,
+		levels,
+		gpuFormat,
+		width,
+		height
+	);
+
+
 	for (int i = 0; i < NUM_CUBEMAP_FACES; i++)
 	{
 		data = stbi_load(path[i].c_str(), &width, &height, &numChannels, 3);
 		FR_CORE_ASSERT(data, "Failed to load texture at : " << path[i]);
 	
 		//We currently only support RGB and RGBA textures
-		GLenum srcFormat, gpuFormat;
-		GetTextureSrcAndGPUFormat(srcFormat, gpuFormat, numChannels, true);
 
-		glTexImage2D(
-			GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-			0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data
+		glTextureSubImage3D(
+			m_RendererID,
+			0,
+			0, 0, i,
+			width, height,
+			1,
+			srcFormat,
+			GL_UNSIGNED_BYTE,
+			data
 		);
+
 
 		stbi_image_free(data);
 	}
 
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
 	//Reenable Flipping on load
 	stbi_set_flip_vertically_on_load(true);
@@ -469,33 +491,21 @@ void Texture::InitEquirectangularMap(const std::string& path, Texture& radianceT
 	for (unsigned int mip = 0; mip < maxMipLevels; ++mip)
 	{
 		// reisze framebuffer according to mip-level size.
-		unsigned int mipWidth = 128 * std::pow(0.5, mip);
-		unsigned int mipHeight = 128 * std::pow(0.5, mip);
+		unsigned int mipWidth = static_cast<unsigned int>(128 * std::pow(0.5, mip));
+		unsigned int mipHeight = static_cast<unsigned int>(128 * std::pow(0.5, mip));
 		glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
 		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, mipWidth, mipHeight);
 		glViewport(0, 0, mipWidth, mipHeight);
 
 		float roughness = (float)mip / (float)(maxMipLevels - 1);
 		prefilterShader.SetFloat("roughness", roughness);
-		for (unsigned int mip = 0; mip < maxMipLevels; ++mip)
+		for (unsigned int i = 0; i < 6; ++i)
 		{
-			// reisze framebuffer according to mip-level size.
-			unsigned int mipWidth = static_cast<unsigned int>(128 * std::pow(0.5, mip));
-			unsigned int mipHeight = static_cast<unsigned int>(128 * std::pow(0.5, mip));
-			glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
-			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, mipWidth, mipHeight);
-			glViewport(0, 0, mipWidth, mipHeight);
+			prefilterShader.SetMat4("view", captureViews[i]);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, prefilterMap, mip);
 
-			float roughness = (float)mip / (float)(maxMipLevels - 1);
-			prefilterShader.SetFloat("roughness", roughness);
-			for (unsigned int i = 0; i < 6; ++i)
-			{
-				prefilterShader.SetMat4("view", captureViews[i]);
-				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, prefilterMap, mip);
-
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-				cubemap.RenderMesh(prefilterShader);
-			}
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			cubemap.RenderMesh(prefilterShader);
 		}
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);

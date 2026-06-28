@@ -346,9 +346,9 @@ WorldScene::WorldScene()
         "Assets/Textures/Cubemap/back.png",
     };
 
-    //m_CubemapTexture.InitEquirectangularMap("Assets/Environment/kloppenheim_06_puresky_4k.hdr", m_DiffuseIrradianceTexture, m_prefilteredTexture, m_brdfTexture);
+    m_CubemapTexture.InitEquirectangularMap("Assets/Environment/kloppenheim_06_puresky_4k.hdr", m_DiffuseIrradianceTexture, m_prefilteredTexture, m_brdfTexture);
     //m_CubemapTexture.InitEquirectangularMap("Assets/Environment/ninomaru_teien_4k.hdr", m_DiffuseIrradianceTexture, m_prefilteredTexture, m_brdfTexture);
-    m_CubemapTexture.InitCubemapTexture(cubemapPaths);
+    //m_CubemapTexture.InitCubemapTexture(cubemapPaths);
 
     m_BakedBRDFTexture.InitTexture2D("Assets/Textures/ibl_brdf_lut.png", Texture::TEXTURE_FILTER::LINEAR, false, false);
 

@@ -23,6 +23,13 @@ public:
 		RGBA16F,
 		R11F_G11F_B10F,
 	};
+	enum class DepthAttachmentType
+	{
+		None,
+		Renderbuffer,
+		Texture
+	};
+
 	void AddColorAttachment(uint32_t width, uint32_t height, ColorFormat format);
 	void AddDepthAttachment(uint32_t width, uint32_t height);
 	void AddDepthAttachmentTexture(uint32_t width, uint32_t height);
@@ -50,7 +57,6 @@ protected:
 private:
 
 	bool m_IsInitialized = false;
+	DepthAttachmentType m_DepthAttachmentType = DepthAttachmentType::None;
 	std::vector<uint32_t> m_ColorAttachmentIDs;
-
-	//uint32_t m_ColorAttachmentID;
 };
