@@ -55,6 +55,8 @@ World::~World()
 
 void World::Render(Shader* shader, const glm::mat4& view)
 {
+	// Todo: Add Frustom Culling Here
+
 	//Loop through all the chunks and render them
 	for (int x = 0; x < WORLD_LENGTH; x++)
 	{

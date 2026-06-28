@@ -167,8 +167,9 @@ void main()
 
     //vec4 lightSpacePos = lightSpaceMatrix * vec4(PosEmission.xyz, 1.0);
     int layer;
-    float shadow = 1.0 - ShadowCalculation((u_InvViewMatrix * vec4(PosEmission.xyz, 1.0)).xyz, N, layer);
-
+    
+    //float shadow = 1.0 - ShadowCalculation((u_InvViewMatrix * vec4(PosEmission.xyz, 1.0)).xyz, N, layer);
+    float shadow = 1.0;
 
     vec3 albedo = ColMetallic.rgb;
 

@@ -11,7 +11,7 @@ Application::Application()
 	FR_CORE_ASSERT(!s_Instance, "Application Already Exists!");
 	s_Instance = this;
 
-	m_Window = new Window("Fabled Realms", 1280, 720);
+	m_Window = new Window("Fabled Realms", 1920, 1080);
 
 	//Create the Window first then create the input Manager as this depends on the Window class
 	InputManager* inputManager = new InputManager();

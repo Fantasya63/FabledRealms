@@ -10,6 +10,8 @@
 
 MainMenuScene::MainMenuScene()
 {
+	LOG_CORE_INFO("Aspect: " << Application::Get().GetWindow()->GetAspectRatio());
+
 	glFrontFace(GL_CCW);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);

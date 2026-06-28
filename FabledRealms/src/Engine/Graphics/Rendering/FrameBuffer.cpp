@@ -8,16 +8,15 @@
 FrameBuffer::FrameBuffer()
 {
 	DLOG_CORE_INFO("FrameBuffer base constructor");
-	glGenFramebuffers(1, &m_RendererID);
-	//glCreateFramebuffers(1, &m_RendererID);
+	glCreateFramebuffers(1, &m_RendererID);
 }
 
 FrameBuffer::~FrameBuffer()
 {
 	glDeleteTextures(m_ColorAttachmentIDs.size(), m_ColorAttachmentIDs.data());
 	
-	//if (m_DepthStencilAttachmentID)
-	//	glDeleteTextures(1, &m_DepthStencilAttachmentID);
+	if (m_DepthStencilAttachmentID)
+		glDeleteTextures(1, &m_DepthStencilAttachmentID);
 
 
 	glDeleteFramebuffers(1, &m_RendererID);

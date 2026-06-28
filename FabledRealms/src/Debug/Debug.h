@@ -10,8 +10,23 @@
 //------------ Asserts -----------------------------
 
 #ifdef  FR_ENABLE_ASSERTS
-	#define FR_ASSERT(x, ...)		{ if(!(x)) { std::cout << "ERROR: Assertion Failed: " << __LINE__ << " " __VA_ARGS__ << std::endl; __debugbreak(); } }
-	#define FR_CORE_ASSERT(x, ...)	{ if(!(x)) { std::cout << "CORE ERROR: Assertion Failed: " << __LINE__ << " " <<  __VA_ARGS__ << std::endl; __debugbreak(); } }
+	#define FR_ASSERT(expr, msg)                                                \
+		do                                                                      \
+		{                                                                       \
+			if (!(expr))                                                        \
+			{                                                                   \
+				std::cerr << "Assertion failed!\n"                              \
+						  << "Expression: " << #expr << '\n'                     \
+						  << "Message: " << msg << '\n'                          \
+						  << "File: " << __FILE__ << '\n'                        \
+						  << "Line: " << __LINE__ << std::endl;                  \
+				std::abort();                                                   \
+			}                                                                   \
+		} while (0)
+
+	#define FR_CORE_ASSERT(expr, msg) FR_ASSERT(expr, msg)
+
+
 #else
 	#define FR_ASSERT(x, ...)
 	#define FR_CORE_ASSERT(x, ...)

@@ -9,7 +9,8 @@
 //Callback function that glfw calls when the window is resized
 void OnWindowResize(GLFWwindow* window, int newWidth, int newHeight)
 {
-	
+	if (newWidth == 0 || newHeight == 0)
+		return;
 
 	Application::Get().OnWindowResized(newWidth, newHeight);
 }
@@ -84,7 +85,7 @@ Window::Window(const char* title, int width, int height)
 
 	//Load OpenGl functions
 	status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-	FR_ASSERT(status, "Failed To Initialize glad")
+	FR_ASSERT(status, "Failed To Initialize glad");
 
 
 	LOG_CORE_INFO("Initialized OpenGL Context");

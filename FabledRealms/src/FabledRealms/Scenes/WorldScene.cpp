@@ -255,17 +255,9 @@ std::vector<glm::mat4> getLightSpaceMatrices(Camera& cam, float aspect, const gl
 
 
 
-
-float waterLevel = 54.70f;
-
-
-
-
-
-
-
 WorldScene::WorldScene()
 {
+    DLOG_CORE_INFO("World Aspect: " << Application::Get().GetWindow()->GetAspectRatio());
 
     const glm::vec2 camClipPlanes = m_Camera.GetCamNearFarPlanes();
     shadowCascadeLevels = { camClipPlanes.y / 64, camClipPlanes.y / 24.0f,  camClipPlanes.y / 8.0f,  camClipPlanes.y / 2.0f };
@@ -273,7 +265,7 @@ WorldScene::WorldScene()
 
     DLOG_INFO("CREATED WORLD SCENE");
 
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
     glEnable(GL_DEPTH_TEST);
 
     //Set the mouse and keyboard callback function to the input system
@@ -284,7 +276,6 @@ WorldScene::WorldScene()
     // ---------------------------------- Tone Mapping ----------------------------------
 
     m_TonemappingShader = new Shader("Assets/Shaders/TonemappingShader.vert", "Assets/Shaders/TonemappingShader.frag");
-
     m_TonemappingShader->Use();
     m_TonemappingShader->SetInt("scene", 0);
     m_TonemappingShader->SetInt("bloom", 1);
@@ -294,9 +285,6 @@ WorldScene::WorldScene()
 
 
     //--------------------------------------- Frame Buffers -------------------------------------------------------
-
-
-
     Window* window = Application::Get().GetWindow();
     int width = window->GetWidth();
     int height = window->GetHeight();
@@ -313,8 +301,8 @@ WorldScene::WorldScene()
     m_ShadowFBO = new ShadowFBO();
     m_ShadowFBO->Init(1024, 1024, shadowCascadeLevels.size());
     
-    m_SSRFBO = new ScreenSpaceReflectionFBO();
-    m_SSRFBO->Init(width, height);
+    //m_SSRFBO = new ScreenSpaceReflectionFBO();
+    //m_SSRFBO->Init(width, height);
 
     m_GeometryBufferShader = new Shader("Assets/Shaders/GeometryBufferShader.vert",
         "Assets/Shaders/GeometryBufferShader.frag");
@@ -358,31 +346,26 @@ WorldScene::WorldScene()
         "Assets/Textures/Cubemap/back.png",
     };
 
-    m_CubemapTexture.InitEquirectangularMap("Assets/Environment/kloppenheim_06_puresky_4k.hdr", m_DiffuseIrradianceTexture, m_prefilteredTexture, m_brdfTexture);
+    //m_CubemapTexture.InitEquirectangularMap("Assets/Environment/kloppenheim_06_puresky_4k.hdr", m_DiffuseIrradianceTexture, m_prefilteredTexture, m_brdfTexture);
     //m_CubemapTexture.InitEquirectangularMap("Assets/Environment/ninomaru_teien_4k.hdr", m_DiffuseIrradianceTexture, m_prefilteredTexture, m_brdfTexture);
-    //m_CubemapTexture.InitCubemapTexture(cubemapPaths);
+    m_CubemapTexture.InitCubemapTexture(cubemapPaths);
 
     m_BakedBRDFTexture.InitTexture2D("Assets/Textures/ibl_brdf_lut.png", Texture::TEXTURE_FILTER::LINEAR, false, false);
 
 
     Mesh::InitMeshCubemap(m_CubemapMesh);
     m_CubemapMesh.CubemapTexID = m_CubemapTexture.GetRendererID();
-    //m_CubemapMesh.CubemapTexID =.GetRendererID();
 
     //Create the shader for the sky
     m_CubemapShader = new Shader("Assets/Shaders/Cubemap.vert", "Assets/Shaders/Cubemap.frag");
-
-
-    Mesh::InitMeshWaterPlane(m_WaterPlaneMesh);
-    m_WaterPlaneShader = new Shader("Assets/Shaders/WaterPlane.vert", "Assets/Shaders/WaterPlane.frag");
-    
-    m_WaterNormalTexture.InitTexture2D("Assets/Textures/waterNormal.png", Texture::TEXTURE_FILTER::LINEAR, false, false, true);
 
     //Disable Mouse
     InputManager::SetMouseMode(InputManager::MouseMode::DISABLED);
 }
 
 const glm::vec3 lightDir = glm::normalize(glm::vec3(1.0, 0.25, 0.75));
+
+//#define DEBUG_SHADOW
 
 void WorldScene::Update(const Time& const time)
 {
@@ -411,30 +394,25 @@ void WorldScene::Update(const Time& const time)
 
 
     glEnable(GL_DEPTH_TEST);
-    glClearColor(1.0, 0.0, 0.0, 0.0);
+    glClearColor(1.0, 1.0, 0.0, 0.0);
     glDepthFunc(GL_LEQUAL);
 
 
     // Shader Common Uniforms
-
     glm::mat4 view = m_Camera.GetViewMatrix();
     glm::mat4 invView = glm::inverse(view);
     glm::mat4 projMatrix = m_Camera.GetProjMatrix(Application::Get().GetWindow()->GetAspectRatio());
     glm::mat4 invProjMatrix = glm::inverse(projMatrix);
     glm::mat4 viewProj = projMatrix * view;
 
-
-
-
-
-
-
-    //glViewport(0, 0, 1024, 1024);
+    glViewport(0, 0, 1024, 1024);
     glm::ivec2 shadowRes = m_ShadowFBO->GetResolution();
 
 
 
     //Setup UBO
+#ifndef DEBUG_SHADOW
+
     const auto lightMatrices = getLightSpaceMatrices(m_Camera, aspect, lightDir);
     m_ShadowFBO->BindUniformUBO();
     for (int i = 0; i < lightMatrices.size(); ++i)
@@ -447,23 +425,26 @@ void WorldScene::Update(const Time& const time)
     m_ShadowMapShader->Use();
     m_ShadowFBO->Bind();
     glViewport(0, 0, shadowRes.x, shadowRes.y);
+
     glClear(GL_DEPTH_BUFFER_BIT);
 
     glCullFace(GL_FRONT);
     m_World.Render(m_ShadowMapShader, glm::mat4(1.0f));
     glCullFace(GL_BACK);
 
-   // glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
+    //glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+#endif
 
 
 
 
 
     //// ----------------------------- Rendering ------------------------------------------------
-    //
-    ////glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-    ////Setup HDR FBO
+    
+    //Setup HDR FBO
     m_GeometryBuffer->Bind();
     glViewport(0, 0, screenRes.x, screenRes.y);
 
@@ -475,20 +456,18 @@ void WorldScene::Update(const Time& const time)
     // ----------- World -------------------
 
     // Configure the shader
-    //m_TerrainShader->Use();
     m_GeometryBufferShader->Use();
-
     m_GeometryBufferShader->SetMat4("a_ViewMatrix", view);
     m_GeometryBufferShader->SetMat4("a_ProjMatrix", projMatrix);
     m_GeometryBufferShader->SetFloat("u_Time", time.currentTime);
 
-    //Render the world
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    //Render the world
     m_World.Render(m_GeometryBufferShader, view);
 
 
     //Deffered Lighting
-
     m_HDRBufffer->Bind();
     glDisable(GL_DEPTH_TEST);
 
@@ -502,7 +481,6 @@ void WorldScene::Update(const Time& const time)
     m_DefferedLightingShader->SetInt("shadowMap", 8);
     m_DefferedLightingShader->SetMat4("view", view);
     m_DefferedLightingShader->SetMat4("u_InvViewMatrix", invView);
-
     m_DefferedLightingShader->SetInt("cascadeCount", shadowCascadeLevels.size());
     m_DefferedLightingShader->SetFloat("farPlane", m_Camera.GetCamNearFarPlanes().y);
     for (int i = 0; i < shadowCascadeLevels.size(); i++)
@@ -552,85 +530,29 @@ void WorldScene::Update(const Time& const time)
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
     glActiveTexture(GL_TEXTURE0);
 
-   
-
-
-
-
-
-    //Water
-    //glm::mat4 waterModelMatrix = view;
-    //waterModelMatrix = glm::scale(waterModelMatrix, glm::vec3(10.0f, 1.0f, 10.0f));
-    //waterModelMatrix = glm::translate(waterModelMatrix, glm::vec3(0.0f, waterLevel, 0.0f));
-    //
-    //glm::mat3 viewNormalMatrix = glm::transpose(glm::inverse(view));
-    //
-    //
-    //m_WaterPlaneShader->Use();
-    //m_WaterPlaneShader->SetMat4("u_ModelViewMatrix", waterModelMatrix);
-    //m_WaterPlaneShader->SetMat4("u_ViewMatrix", view);
-    //m_WaterPlaneShader->SetMat4("u_ProjMatrix", projMatrix);
-    //m_WaterPlaneShader->SetMat4("u_InvProjMatrix", invProjMatrix);
-    //m_WaterPlaneShader->SetMat3("u_ViewNormalMatrix", viewNormalMatrix);
-    //m_WaterPlaneShader->SetMat4("u_InvViewMatrix", invView);
-    //
-    //m_WaterPlaneShader->SetVec3("u_LightDir", viewNormalMatrix * lightDir);
-    //m_WaterPlaneShader->SetMat3("u_ViewWorldNormalMatrix", glm::transpose(glm::inverse(invView)));
-    //
-    //m_WaterPlaneShader->SetFloat("u_WaterWorldLevel", waterLevel);
-    //
-    //
-    //m_WaterPlaneShader->SetInt("irradianceMap", 5);
-    //m_WaterPlaneShader->SetInt("prefilteredMap", 6);
-    //m_WaterPlaneShader->SetInt("brdfLUT", 7);
-    //
-    //m_WaterPlaneShader->SetInt("sceneDepth", 4);
-    //m_WaterPlaneShader->SetInt("waterNormal", 3);
-    //m_WaterPlaneShader->SetInt("screenTex", 0);
-    //
-    //glActiveTexture(GL_TEXTURE0);
-    //glBindTexture(GL_TEXTURE_2D, m_HDRBufffer->GetColorAttachmentID(0));
-    //
-    //glActiveTexture(GL_TEXTURE3);
-    //glBindTexture(GL_TEXTURE_2D, m_WaterNormalTexture.GetRendererID());
-    //
-    //glActiveTexture(GL_TEXTURE4);
-    //glBindTexture(GL_TEXTURE_2D, m_GeometryBuffer->GetDepthAttachmentID());
-    //
-    //glActiveTexture(GL_TEXTURE5);
-    //glBindTexture(GL_TEXTURE_CUBE_MAP, m_DiffuseIrradianceTexture.GetRendererID());
-    //
-    //
-    //glActiveTexture(GL_TEXTURE6);
-    //glBindTexture(GL_TEXTURE_CUBE_MAP, m_prefilteredTexture.GetRendererID());
-    //
-    //
-    //glActiveTexture(GL_TEXTURE7);
-    //glBindTexture(GL_TEXTURE_2D, m_brdfTexture.GetRendererID());
-    //
-    //
-    //m_WaterPlaneMesh.RenderMesh(*m_WaterPlaneShader);
-
-
-
-
-
-
-
-
-
-
-
 
     glEnable(GL_DEPTH_TEST);
 
 
     //Copy Depth values to default frame buffer
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, m_GeometryBuffer->GetRendererID());
+    /*glBindFramebuffer(GL_READ_FRAMEBUFFER, m_GeometryBuffer->GetRendererID());
+    GLenum status = glCheckFramebufferStatus(GL_READ_FRAMEBUFFER);
+    FR_CORE_ASSERT(
+        status == GL_FRAMEBUFFER_COMPLETE,
+        "GEOMETRY_BUFFER is incomplete."
+    );
+
+
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_HDRBufffer->GetRendererID());
+    status = glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER);
+    FR_CORE_ASSERT(
+        status == GL_FRAMEBUFFER_COMPLETE,
+        "HDR FrameBuffer is incomplete.\n"
+    );
 
 
-    glBlitFramebuffer(0, 0, screenRes.x, screenRes.y, 0, 0, screenRes.x, screenRes.y, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+
+    glBlitFramebuffer(0, 0, screenRes.x, screenRes.y, 0, 0, screenRes.x, screenRes.y, GL_DEPTH_BUFFER_BIT, GL_NEAREST);*/
 
     m_HDRBufffer->Bind();
 
@@ -638,20 +560,20 @@ void WorldScene::Update(const Time& const time)
     // ----- Render Skybox -------
     // change depth function so depth test passes when values are equal to depth buffer's content
 
-    glDepthFunc(GL_LEQUAL);
+    //glDepthFunc(GL_LEQUAL);
 
 
     //Configure the shader
-    m_CubemapShader->Use();
-    m_CubemapShader->SetMat4("a_ViewMatrix", glm::mat4(glm::mat3(view))); // Strip away the translations in the matrix
-    m_CubemapShader->SetMat4("a_ProjMatrix", projMatrix);
+    //m_CubemapShader->Use();
+    //m_CubemapShader->SetMat4("a_ViewMatrix", glm::mat4(glm::mat3(view))); // Strip away the translations in the matrix
+    //m_CubemapShader->SetMat4("a_ProjMatrix", projMatrix);
 
     //Render the Geometry
-    m_CubemapMesh.RenderMesh(*m_CubemapShader);
+    //m_CubemapMesh.RenderMesh(*m_CubemapShader);
 
-    m_CrosshairShader->Use();
-    m_CrosshairShader->SetVec2("u_ScreenRes", screenRes);
-    m_CrosshairMesh.RenderMesh(*m_CrosshairShader);
+    //m_CrosshairShader->Use();
+    //m_CrosshairShader->SetVec2("u_ScreenRes", screenRes);
+    //m_CrosshairMesh.RenderMesh(*m_CrosshairShader);
 
 
     // Water
@@ -663,11 +585,6 @@ void WorldScene::Update(const Time& const time)
 
 
     m_HDRBufffer->UnBind();
-
-
-
-
-
 
 
     glDisable(GL_DEPTH_TEST);
@@ -693,7 +610,6 @@ void WorldScene::Update(const Time& const time)
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
     glActiveTexture(GL_TEXTURE0);
-
     glBindVertexArray(0);
 
     if (InputManager::IsKeyDown(KEYCODE_ESCAPE))
@@ -713,11 +629,9 @@ WorldScene::~WorldScene()
     delete m_CrosshairShader;
 
     delete m_TonemappingShader;
-    delete m_WaterPlaneShader;
 
     Mesh::CleanUpMesh(m_CubemapMesh);
     Mesh::CleanUpMesh(m_CrosshairMesh);
-    Mesh::CleanUpMesh(m_WaterPlaneMesh);
 }
 
 

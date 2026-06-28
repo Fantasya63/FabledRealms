@@ -36,7 +36,6 @@ private:
 	Shader* m_GeometryBufferShader;
 	Shader* m_DefferedLightingShader;
 	Shader* m_ShadowMapShader;
-	Shader* m_WaterPlaneShader;
 
 	// ----------- Crosshair ----------
 	Mesh m_CrosshairMesh;
@@ -49,14 +48,12 @@ private:
 	// ----------- Cubemap -----------
 
 	Mesh m_CubemapMesh;
-	Mesh m_WaterPlaneMesh;
 	Shader* m_CubemapShader;
 	Texture m_CubemapTexture;
 	Texture m_DiffuseIrradianceTexture;
 	Texture m_prefilteredTexture;
 	Texture m_brdfTexture;
 	Texture m_BakedBRDFTexture;
-	Texture m_WaterNormalTexture;
 
 
 	// ------------ World ---------------
